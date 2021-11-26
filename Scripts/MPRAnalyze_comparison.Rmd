@@ -1,0 +1,372 @@
+---
+title: "MPRAnalyzer_comparison"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(MPRAnalyze)
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+# Load MPRAnalyzer objects
+mpranalyze.5p <- new.env()
+mpranalyze.5p[["MM001"]] <- readRDS(file = "out/5p_MM001_MRAAnalyzeObject.Rds")
+mpranalyze.5p[["MM029"]] <- readRDS(file = "out/5p_MM029_MRAAnalyzeObject.Rds")
+mpranalyze.5p[["MM047"]] <- readRDS(file = "out/5p_MM047_MRAAnalyzeObject.Rds")
+mpranalyze.5p[["MM057"]] <- readRDS(file = "out/5p_MM057_MRAAnalyzeObject.Rds")
+mpranalyze.5p[["MM074"]] <- readRDS(file = "out/5p_MM074_MRAAnalyzeObject.Rds")
+mpranalyze.5p[["MM087"]] <- readRDS(file = "out/5p_MM087_MRAAnalyzeObject.Rds")
+mpranalyze.intron <- new.env()
+mpranalyze.intron[["MM001"]] <- readRDS(file = "out/IP_MM001_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM029"]] <- readRDS(file = "out/IP_MM029_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM047"]] <- readRDS(file = "out/IP_MM047_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM057"]] <- readRDS(file = "out/IP_MM057_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM074"]] <- readRDS(file = "out/IP_MM074_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM087"]] <- readRDS(file = "out/IP_MM087_MRAAnalyzeObject.Rds")
+mpranalyze.intron[["MM099"]] <- readRDS(file = "out/IP_MM099_MRAAnalyzeObject.Rds")
+```
+
+```{r}
+# Get alpha and normalize with negative control
+proliferative.enhancers<-c("CDH1_1","CDH1_2","SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5","IRF4_1","GPM6B_2","KIT_1","MLANA_1","SGCD_2","SGCD_3","MITF_1","TYR_1","TYR_2","TYR_3","RRAGD_1")
+alphas.5p <- new.env()
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")){
+alphas.5p[[i]]$alpha <- getAlpha(obj = mpranalyze.5p[[i]])
+alphas.5p[[i]]$alpha$enhancer <- rownames(alphas.5p[[i]]$alpha)
+alphas.5p[[i]]$alpha.norm <- data.frame("enhancer"=alphas.5p[[i]]$alpha$enhancer, stringsAsFactors = F)
+alphas.5p[[i]]$alpha.norm$BasalNorm.FC <- alphas.5p[[i]]$alpha$alpha / alphas.5p[[i]]$alpha[alphas.5p[[i]]$alpha$enhancer == "NEG_CTRL","alpha"]
+alphas.5p[[i]]$alpha.norm <- alphas.5p[[i]]$alpha.norm[alphas.5p[[i]]$alpha.norm$enhancer != "NEG_CTRL",]
+alphas.5p[[i]]$alpha.norm$phenotype <- "Invasive"
+alphas.5p[[i]]$alpha.norm$phenotype[alphas.5p[[i]]$alpha.norm$enhancer %in% proliferative.enhancers] <- "Proliferative"
+}
+
+alphas.int <- new.env()
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+alphas.int[[i]]$alpha <- getAlpha(obj = mpranalyze.intron[[i]])
+alphas.int[[i]]$alpha$enhancer <- rownames(alphas.int[[i]]$alpha)
+alphas.int[[i]]$alpha.norm <- data.frame("enhancer"=alphas.int[[i]]$alpha$enhancer, stringsAsFactors = F)
+alphas.int[[i]]$alpha.norm$BasalNorm.FC <- alphas.int[[i]]$alpha$alpha / alphas.int[[i]]$alpha[alphas.int[[i]]$alpha$enhancer == "NEG_CTRL","alpha"]
+alphas.int[[i]]$alpha.norm <- alphas.int[[i]]$alpha.norm[alphas.int[[i]]$alpha.norm$enhancer != "NEG_CTRL",]
+alphas.int[[i]]$alpha.norm$phenotype <- "Invasive"
+alphas.int[[i]]$alpha.norm$phenotype[alphas.int[[i]]$alpha.norm$enhancer %in% proliferative.enhancers] <- "Proliferative"
+}
+
+alphas.norm <- cbind(alphas.5p[["MM001"]]$alpha.norm[,c(1,2)],
+                     alphas.5p[["MM029"]]$alpha.norm[,2],
+                     alphas.5p[["MM047"]]$alpha.norm[,2],
+                     alphas.5p[["MM057"]]$alpha.norm[,2],
+                     alphas.5p[["MM074"]]$alpha.norm[,2],
+                     alphas.5p[["MM087"]]$alpha.norm[,c(2,3)])
+names(alphas.norm) <- c("enhancer","alphas.MM001","alphas.MM029","alphas.MM047","alphas.MM057","alphas.MM074","alphas.MM087", "phenotype")
+
+alphas.norm.int <- cbind(alphas.int[["MM001"]]$alpha.norm[,c(1,2)],
+                         alphas.int[["MM029"]]$alpha.norm[,2],
+                         alphas.int[["MM047"]]$alpha.norm[,2],
+                         alphas.int[["MM057"]]$alpha.norm[,2],
+                         alphas.int[["MM074"]]$alpha.norm[,2],
+                         alphas.int[["MM087"]]$alpha.norm[,2],
+                         alphas.int[["MM099"]]$alpha.norm[,c(2,3)])
+names(alphas.norm.int) <- c("enhancer","alphas.MM001.int","alphas.MM029.int","alphas.MM047.int","alphas.MM057.int","alphas.MM074.int","alphas.MM087.int","alphas.MM099.int", "phenotype")
+```
+
+```{r}
+# Correlation between samples CHEQseq 5'
+library(corrplot)
+M <- cor(x = alphas.norm[,-c(1,8)], method = "pearson")
+colnames(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")
+row.names(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq 5p MPRAnalyze", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+```
+
+```{r}
+# Correlation between samples CHEQseq Intron
+library(corrplot)
+M <- cor(x = alphas.norm.int[,-c(1,9)], method = "pearson")
+colnames(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")
+row.names(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq Intron MPRAnalyze", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+```
+
+
+```{r}
+# Without Basal Normalisation
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")){
+p <- ggplot(alphas.5p[[i]]$alpha[alphas.5p[[i]]$alpha$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(alpha), FUN=median), y = log2(alpha))) +
+      geom_point(size = 2.5) +
+      geom_hline(yintercept = log2(alphas.5p[[i]]$alpha[alphas.5p[[i]]$alpha$enhancer == "NEG_CTRL","alpha"]), linetype="dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.title = element_text(size=16, face = "bold"),
+            legend.key = element_rect(fill = "white"),
+            legend.text = element_text(face = "bold", size = 12),
+            legend.title = element_text(size = 14, face = "bold"),
+            axis.text.x = element_text(angle = 60, hjust = 1),
+            axis.text = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 14, face = "bold")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+      ggtitle(label = paste0(i," - CHEQseq 5p (Expression)")) +
+      labs(x = "Enhancers", y = "Log2 Transcription rate (alpha)", color = "Phenotype")
+print(p)
+}
+
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+p <- ggplot(alphas.int[[i]]$alpha[alphas.int[[i]]$alpha$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(alpha), FUN=median), y = log2(alpha))) +
+      geom_point(size = 2.5) +
+      geom_hline(yintercept = log2(alphas.int[[i]]$alpha[alphas.int[[i]]$alpha$enhancer == "NEG_CTRL","alpha"]), linetype="dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.title = element_text(size=16, face = "bold"),
+            legend.key = element_rect(fill = "white"),
+            legend.text = element_text(face = "bold", size = 12),
+            legend.title = element_text(size = 14, face = "bold"),
+            axis.text.x = element_text(angle = 60, hjust = 1),
+            axis.text = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 14, face = "bold")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+      ggtitle(label = paste0(i," - CHEQseq Intron (Expression)")) +
+      labs(x = "Enhancers", y = "Log2 Transcription rate (alpha)", color = "Phenotype")
+print(p)
+}
+```
+
+```{r}
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")){
+p <- ggplot(alphas.5p[[i]]$alpha.norm, aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), color = phenotype)) +
+      geom_point(size = 2.5) +
+      geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.title = element_text(size=16, face = "bold"),
+            legend.key = element_rect(fill = "white"),
+            legend.text = element_text(face = "bold", size = 12),
+            legend.title = element_text(size = 14, face = "bold"),
+            axis.text.x = element_text(angle = 60, hjust = 1),
+            axis.text = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 14, face = "bold")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+      ggtitle(label = paste0(i, " - CHEQseq 5p (Expression)")) +
+      labs(x = "Enhancers", y = "Log2 Transcription rate (alpha)", color = "Phenotype")
+    ggsave(filename = paste0("plots/CHEQseq_5p_Enhancers_expression_MPRAnalyze_",i,".eps"),device = "eps",width = 11.69,height = 6)
+  print(p)
+}
+
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+p <- ggplot(alphas.int[[i]]$alpha.norm, aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), color = phenotype)) +
+      geom_point(size = 2.5) +
+      geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.title = element_text(size=16, face = "bold"),
+            legend.key = element_rect(fill = "white"),
+            legend.text = element_text(face = "bold", size = 12),
+            legend.title = element_text(size = 14, face = "bold"),
+            axis.text.x = element_text(angle = 60, hjust = 1),
+            axis.text = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 14, face = "bold")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+      ggtitle(label = paste0(i, " - CHEQseq Intron (Expression)")) +
+      labs(x = "Enhancers", y = "Log2 Transcription rate (alpha)", color = "Phenotype")
+    ggsave(filename = paste0("plots/CHEQseq_Intron_Enhancers_expression_MPRAnalyze_",i,".eps"),device = "eps",width = 11.69,height = 6)
+  print(p)
+}
+```
+
+
+```{r}
+alphas.5p$MM001$comparison <- inner_join(x = CH1.5p$MM001$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM001"]]$alpha.norm, by = "enhancer")
+alphas.5p$MM029$comparison <- inner_join(x = CH1.5p$MM029$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM029"]]$alpha.norm, by = "enhancer")
+alphas.5p$MM047$comparison <- inner_join(x = CH1.5p$MM047$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM047"]]$alpha.norm, by = "enhancer")
+alphas.5p$MM057$comparison <- inner_join(x = CH1.5p$MM057$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM057"]]$alpha.norm, by = "enhancer")
+alphas.5p$MM074$comparison <- inner_join(x = CH1.5p$MM074$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM074"]]$alpha.norm, by = "enhancer")
+alphas.5p$MM087$comparison <- inner_join(x = CH1.5p$MM087$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], y = alphas.5p[["MM087"]]$alpha.norm, by = "enhancer")
+alphas.int$MM001$comparison <- inner_join(x = CH1.intron$MM001$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM001"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM029$comparison <- inner_join(x = CH1.intron$MM029$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM029"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM047$comparison <- inner_join(x = CH1.intron$MM047$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM047"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM057$comparison <- inner_join(x = CH1.intron$MM057$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM057"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM074$comparison <- inner_join(x = CH1.intron$MM074$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM074"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM087$comparison <- inner_join(x = CH1.intron$MM087$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM087"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+alphas.int$MM099$comparison <- inner_join(x = CH1.intron$MM099$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], y = alphas.int[["MM099"]]$alpha.norm, by = "enhancer", suffix = c(".aggr", ".mpranalyze"))
+```
+
+```{r}
+# Dumbbell plots
+library(ggalt)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")){
+  p <- ggplot(alphas.5p[[i]]$comparison, 
+              aes(y=reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), x=log2(CPMNorm.FC), xend =log2(BasalNorm.FC), group= enhancer)) + 
+        geom_dumbbell(color="#b2b2b2", size=0.75, size_x = 1.5, size_xend = 1.5, colour_x="#a3c4dc", colour_xend="#0e668b")+
+        geom_text(data=alphas.5p[[i]]$comparison[which.max(alphas.5p[[i]]$comparison[,2]),], aes(x=log2(BasalNorm.FC), y=enhancer, label="MPRAnalyze"),
+                  color="#0e668b", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = 1)+
+        geom_text(data=alphas.5p[[i]]$comparison[which.max(alphas.5p[[i]]$comparison[,2]),], aes(x=log2(CPMNorm.FC), y=enhancer, label="Aggregated"),
+                  color="#a3c4dc", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = -1)+
+        expand_limits(x = 9, y = c(0,48))+
+        labs(x="Log2 Expression (CHEQseq 5')", y=NULL, 
+             title= paste0(i," - Aggregated vs MPRAnalyze quantification")) +
+        theme(plot.title = element_text(hjust=0.5, face="bold"),
+              plot.background=element_rect(fill="#f7f7f7"),
+              panel.background=element_rect(fill="#f7f7f7"),
+              panel.grid.minor=element_blank(),
+              panel.grid.major.y=element_blank(),
+              panel.grid.major.x=element_line(),
+              axis.ticks=element_blank(),
+              legend.position="top",
+              panel.border=element_blank())
+      ggsave(filename = paste0("plots/CHEQseq_5p_dumbbell_",i,"_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 8,height = 6.5)
+  print(p)
+}
+
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  p <- ggplot(alphas.int[[i]]$comparison, 
+              aes(y=reorder(x = enhancer, X = log2(BasalNorm.FC.aggr), FUN=median), x=log2(BasalNorm.FC.aggr), xend =log2(BasalNorm.FC.mpranalyze), group= enhancer)) + 
+        geom_dumbbell(color="#b2b2b2", size=0.75, size_x = 1.5, size_xend = 1.5, colour_x="#a3c4dc", colour_xend="#0e668b")+
+        geom_text(data=alphas.int[[i]]$comparison[which.max(alphas.int[[i]]$comparison[,2]),], aes(x=log2(BasalNorm.FC.mpranalyze), y=enhancer, label="MPRAnalyze"),
+                  color="#0e668b", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = 1)+
+        geom_text(data=alphas.int[[i]]$comparison[which.max(alphas.int[[i]]$comparison[,2]),], aes(x=log2(BasalNorm.FC.aggr), y=enhancer, label="Aggregated"),
+                  color="#a3c4dc", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = -1)+
+        expand_limits(x = 9, y = c(0,53))+
+        labs(x="Log2 Expression (CHEQseq Intron)", y=NULL, 
+             title= paste0(i," - Aggregated vs MPRAnalyze quantification")) +
+        theme(plot.title = element_text(hjust=0.5, face="bold"),
+              plot.background=element_rect(fill="#f7f7f7"),
+              panel.background=element_rect(fill="#f7f7f7"),
+              panel.grid.minor=element_blank(),
+              panel.grid.major.y=element_blank(),
+              panel.grid.major.x=element_line(),
+              axis.ticks=element_blank(),
+              legend.position="top",
+              panel.border=element_blank())
+      ggsave(filename = paste0("plots/CHEQseq_Intron_dumbbell_",i,"_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 8,height = 6.5)
+  print(p)
+}
+```
+
+```{r}
+# Correlation plots
+library(Hmisc)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087")){
+  p <- ggplot(alphas.5p[[i]]$comparison, aes(x=log2(CPMNorm.FC), y =log2(BasalNorm.FC), color = phenotype)) +
+        geom_smooth(method = "lm", alpha =0.1) +
+        geom_point() +
+        geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+        geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.key = element_rect(fill = "white")) +
+        scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+        annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(log2(alphas.5p[[i]]$comparison[,c("CPMNorm.FC","BasalNorm.FC")]), method="pearson")[1,2]), parse = TRUE) +
+        labs(x = "Aggregated Log2 Expression", 
+             y = "MPRAnalyze Log2 Expression", 
+             color = "Phenotype", 
+             title = paste0("Correlation ",i," Aggregated vs MPRAnalyze - CHEQseq 5p"))
+      ggsave(filename = paste0("plots/CHEQseq_5p_correlation_",i,"_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 9,height = 6)
+  print(p)
+}
+
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  p <- ggplot(alphas.int[[i]]$comparison, aes(x=log2(BasalNorm.FC.aggr), y =log2(BasalNorm.FC.mpranalyze), color = phenotype)) +
+        geom_smooth(method = "lm", alpha =0.1) +
+        geom_point() +
+        geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+        geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.key = element_rect(fill = "white")) +
+        scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+        annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(log2(alphas.int[[i]]$comparison[,c("BasalNorm.FC.aggr","BasalNorm.FC.mpranalyze")]), method="spearman")[1,2]), parse = TRUE) +
+        labs(x = "Aggregated Log2 Expression", 
+             y = "MPRAnalyze Log2 Expression", 
+             color = "Phenotype", 
+             title = paste0("Correlation ",i," Aggregated vs MPRAnalyze - CHEQseq Intron"))
+      ggsave(filename = paste0("plots/CHEQseq_Intron_correlation_",i,"_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 9,height = 6)
+  print(p)
+}
+```
+
+```{r}
+# Look at correlation when outliers are removed
+ggplot(MM029.comp[-19,], aes(x=MM029.CPMNorm.FC, y =BasalNorm.FC, color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1)) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+  annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(MM029.comp[-19,c("MM029.CPMNorm.FC","BasalNorm.FC")], method="pearson")[1,2]), parse = TRUE) +
+  labs(x = "Aggregated Log2 Expression", y = paste0("MPRAnalyze Log2 Expression"), color = "Phenotype", title = "Correlation MM029 Aggregated vs MPRAnalyze - CHEQseq 5p")
+# ggsave(filename = paste0("plots/CHEQseq_5p_correlation_MM029_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 9,height = 6)
+
+ggplot(MM047.comp[-c(18,21),], aes(x=log2(MM047.CPMNorm.FC), y =log2(BasalNorm.FC), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1)) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+  annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(MM047.comp[-c(18,21),c("MM047.CPMNorm.FC","BasalNorm.FC")], method="pearson")[1,2]), parse = TRUE) +
+  labs(x = "Aggregated Log2 Expression", y = paste0("MPRAnalyze Log2 Expression"), color = "Phenotype", title = "Correlation MM047 Aggregated vs MPRAnalyze - CHEQseq 5p")
+# ggsave(filename = paste0("plots/CHEQseq_5p_correlation_MM047_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 9,height = 6)
+
+ggplot(MM074.comp[-18,], aes(x=log2(MM074.CPMNorm.FC), y =log2(BasalNorm.FC), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1)) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+  annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(MM074.comp[-18,c("MM074.CPMNorm.FC","BasalNorm.FC")], method="pearson")[1,2]), parse = TRUE) +
+  labs(x = "Aggregated Log2 Expression", y = paste0("MPRAnalyze Log2 Expression"), color = "Phenotype", title = "Correlation MM074 Aggregated vs MPRAnalyze - CHEQseq 5p")
+
+ggplot(MM087.comp[-18,], aes(x=log2(MM087.CPMNorm.FC), y =log2(BasalNorm.FC), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1)) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+  annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(MM087.comp[-18,c("MM087.CPMNorm.FC","BasalNorm.FC")], method="pearson")[1,2]), parse = TRUE) +
+  labs(x = "Aggregated Log2 Expression", y = paste0("MPRAnalyze Log2 Expression"), color = "Phenotype", title = "Correlation MM087 Aggregated vs MPRAnalyze - CHEQseq 5p")
+
+ggplot(MM001.int.comp, aes(x=log2(MM001.BasalNorm.FC+1), y =log2(BasalNorm.FC), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1)) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8")) +
+  annotate("text", x = -1.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(MM001.int.comp[,c("MM001.BasalNorm.FC","BasalNorm.FC")], method="pearson")[1,2]), parse = TRUE) +
+  labs(x = "Aggregated Log2 Expression", y = paste0("MPRAnalyze Log2 Expression"), color = "Phenotype", title = "Correlation MM001 Aggregated vs MPRAnalyze - CHEQseq Intron")
+```
+

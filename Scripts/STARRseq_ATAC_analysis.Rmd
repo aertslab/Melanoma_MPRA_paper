@@ -1,0 +1,836 @@
+---
+title: "STARRseq_500bp_library"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/utils.R")
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+CSE.500bp.STARR <- new.env()
+```
+
+# Process lines
+```{r}
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM001", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__a6d28a__MM001_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__3f00ec__MM001_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM029", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__073ce2__MM029_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__616867__MM029_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM047", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__60a828__MM047_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__34085e__MM047_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM057", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__c67b3a__MM057_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__ed22cd__MM057_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM074", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__e17937__MM074_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__af2595__MM074_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM087", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__1a9f59__MM087_STARRseq_500_bp_enh_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__4642d6__MM087_STARRseq_500_bp_enh_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+
+CSE.500bp.STARR <- ProcessSTARRseq(env = CSE.500bp.STARR, 
+                                   project = "STARRseq__500bp", 
+                                   line = "MM099", 
+                                   plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__6541c2__MM099_STARRseq_500_bp_plasmid_count_final.txt", 
+                                   cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/500bp_ATAC_peak_library/counting/10.bc_count/STA__fc62b1__MM099_STARRseq_500_bp_cDNA_count_final.txt", 
+                                   out.dir = "analysis/STARRseq/data/")
+```
+
+# Enhancer activity per line
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+p <- ggplot(CSE.500bp.STARR[[i]][["merged.input.norm"]], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill=phenotype)) +
+  geom_point(pch = 21, size = 2.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 7)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 FC", fill = "Enhancer\nphenotype", title = paste0(i," - STARR-seq ATAC-seq library"))
+print(p)
+}
+```
+
+# Enhancer activity profile per line with inactive enhancers highlighted
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  tmp <- CSE.500bp.STARR[[i]][["merged.input.norm"]]
+  tmp$color <- ifelse(tmp$enhancer %in% c("MITF_P", "SOX10_15-3UA", "SOX10_15-3UB", "SGCD_15-IA", "FLNC_-2-DB"), "1", "0")
+  p <- ggplot(tmp, aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = color)) +
+        geom_point(pch = 21, size = 2.5) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("white", "black"), labels = c("Active", "Inactive")) +
+        labs(x = "Enhancers", y = "Log2 FC", fill = "Enhancer\nphenotype", title = paste0(i))
+  print(p)
+}
+```
+
+## Define activity via fit of Gaussian curve taking list of inactive enhancers as negative control
+```{r}
+library(ggplot2)
+library(robustbase)
+library(stats)
+library(data.table)
+library(stringr)
+j <- c("MITF_P", "SOX10_15-3UA", "SOX10_15-3UB", "SGCD_15-IA", "FLNC_-2-DB")
+
+for (i in names(CSE.500bp.STARR)) {
+  print(i)
+  sample <- CSE.500bp.STARR[[i]]$merged.input.norm
+  
+  # Test normality of control values with Shapiro-Wilk test
+  norm.test <-shapiro.test(sample[sample$enhancer %in% j,"CPMNorm.FC"])
+  print(paste0("Normality test: ",norm.test$p.value))
+  
+  # robust fit of a gaussian by robust estimates of it's two params from the enhancer values of the opposite phenotype (MEL enh for MES lines and MES enh for MEL lines)
+  if (norm.test$p.value < 0.05){
+    # If the values of control regions are not normally distributed: Use log2 FC values to fit the Gaussian
+    print("Control regions values are NOT normally distributed")
+    location <- median(x = log2(sample[sample$enhancer %in% j, "CPMNorm.FC"]))
+    print(paste0("Median: ",location))
+    scale <- mad(x = log2(sample[sample$enhancer %in% j, "CPMNorm.FC"]))
+    
+    # check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = log2(CPMNorm.FC), fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = log2(sample$CPMNorm.FC), mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr") 
+  } else {
+    # If the values of control regions are normally distributed: Use FC values to fit the Gaussian
+    print("Control regions values are normally distributed")
+    location <- median(x = sample[sample$enhancer %in% j, "CPMNorm.FC"])
+    print(paste0("Median: ",location))
+    scale <- mad(x = sample[sample$enhancer %in% j, "CPMNorm.FC"])
+    
+    # check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = CPMNorm.FC, fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = sample$CPMNorm.FC, mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+  }
+  
+  # Controlling the FDR on this should result in < 5% false discoveries
+  print(table(sample[sample$padj < 0.05, "phenotype"])/sum(sample$padj < 0.05)*100)
+  print(nrow(sample[sample$padj < 0.05,]))
+  
+  # Save results
+  CSE.500bp.STARR[[i]]$merged.input.norm <- sample
+  
+  p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = phenotype)) + 
+          geom_bar() + 
+          ggtitle(label = paste0(i)) +
+          theme_minimal()
+  print(p3)
+  
+  p <- ggplot(sample, aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3, aes(color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancer", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_line/STARRseq_500bp_activity_",i,".pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+  
+  # With different shapes for TYR and SOX10 enhancers
+  ## Make shape categories
+  sample$pch <- "Others"
+  sample[sample$enhancer %in% c("TYR_-9-D", "TYR_-1-D"),"pch"] <- "TYR"
+  #sample[sample$enhancer %in% c("SOX10_1A", "SOX10_1B","SOX10_3A", "SOX10_3B","SOX10_5A", "SOX10_5B"),"pch"] <- "SOX10"
+  ## Import Ac values
+  ### First convert ATAC names into Ac compatible names
+  sample$region <- as.character(sample$enhancer)
+  sample[grep(pattern = "A$|B$", sample$region), "region"] <- str_replace(string = sample[grep(pattern = "A$|B$", sample$region), "region"], pattern = "A$|B$", replacement = "")
+  sample$region <- as.factor(sample$region)
+  for (k in sample$region){
+    sample[sample$region %in% k,"Intron.FC"] <- if (k %in% CH1.intron[[i]]$merged.cpm.input.basal.norm$enhancer){
+      CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$enhancer %in% k,"BasalNorm.FC"]
+    } else {
+      sample[!sample$region %in% k,]
+    }
+  }
+  ### Replace X by log2(Intron.FC) to sort the enhancers by the value of the original Ac region
+  p <- ggplot(sample, aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[,"pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(21,22)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_line/STARRseq_500bp_activity_",i,"_with_shapesMEL.pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+  
+  # With different shapes for COL5A1 and SERPINE1 enhancers
+  ## Make shape categories
+  sample$pch <- "Others"
+  sample[sample$enhancer %in% c("COL5A1_-139-D", "COL5A1_-89-D", "COL5A1_-50-D", "COL5A1_-39-D", "COL5A1_-17-D", "COL5A1_21-I"),"pch"] <- "COL5A1"
+  sample[sample$enhancer %in% c("SERPINE1_-110-IA", "SERPINE1_-110-IB"),"pch"] <- "SERPINE1"
+  
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[sample$enhancer != "NEG_CTRL","pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(22,21,23)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_line/STARRseq_500bp_activity_",i,"_with_shapesMES.pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+
+  p <- ggplot(sample, aes(x = padj, y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3) +
+        geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Adjusted p-value", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  print(p)
+}
+```
+
+# Correlation between lines
+```{r}
+library(dplyr)
+CSE.500bp.STARR.df <- cbind(CSE.500bp.STARR$MM001$merged.input.norm[,c("enhancer", "CPMNorm.FC")],
+                            CSE.500bp.STARR$MM057$merged.input.norm$CPMNorm.FC,
+                            CSE.500bp.STARR$MM074$merged.input.norm$CPMNorm.FC,
+                            CSE.500bp.STARR$MM087$merged.input.norm$CPMNorm.FC,
+                            CSE.500bp.STARR$MM029$merged.input.norm$CPMNorm.FC,
+                            CSE.500bp.STARR$MM047$merged.input.norm$CPMNorm.FC)
+CSE.500bp.STARR.df <- inner_join(x = CSE.500bp.STARR.df, 
+                                 y = CSE.500bp.STARR$MM099$merged.input.norm[CSE.500bp.STARR$MM099$merged.input.norm$enhancer != "SERPINE1_6", c("enhancer", "CPMNorm.FC", "phenotype")], 
+                                 by = "enhancer")                            
+colnames(CSE.500bp.STARR.df) <- c("enhancer", "MM001.CPMNorm.FC", "MM057.CPMNorm.FC", "MM074.CPMNorm.FC", "MM087.CPMNorm.FC", "MM029.CPMNorm.FC", "MM047.CPMNorm.FC", "MM099.CPMNorm.FC", "phenotype")
+CSE.500bp.STARR.df$Intermediate.CPMNorm.FC <- rowMeans(CSE.500bp.STARR.df[,c(3:5)])
+CSE.500bp.STARR.df$Inv.CPMNorm.FC <- rowMeans(CSE.500bp.STARR.df[,c(6:8)])
+saveRDS(object = CSE.500bp.STARR.df, file = "analysis/STARRseq/data/STARRseq__500bp__combined_dataframe.RDS")
+```
+
+# Percentage of active tiles per cell line
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+rename.columns <- function(df, new.colnames = c("enhancer","phenotype", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+
+m <- rbind(cbind(rename.columns(df = CSE.500bp.STARR[["MM001"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.STARR[["MM001"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM057"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.STARR[["MM057"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM074"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.STARR[["MM074"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM087"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM087",nrow(CSE.500bp.STARR[["MM087"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM029"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.STARR[["MM029"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM047"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.STARR[["MM047"]]$merged.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.STARR[["MM099"]]$merged.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.STARR[["MM099"]]$merged.input.norm))))
+)
+
+# Plot percentage of 'active' enhancers in each of the MM lines and split per prol and inv
+bin <- m
+bin$value <- ifelse(m$padj < 0.05,1,0)
+bin <- filter(bin, value == 1)
+
+tab <- as.data.frame(table(bin$MM.line, bin$phenotype))
+tab$Perc[tab$Var2 == 'Invasive'] <- tab$Freq[tab$Var2 == 'Invasive']/25
+tab$Perc[tab$Var2 == 'Proliferative'] <- tab$Freq[tab$Var2 == 'Proliferative']/15
+tab <- tab[,-3]
+colnames(tab) <- c('Line','phenotype','Perc')
+ggplot(tab[tab$phenotype != "Control",], aes(x=Line, y=Perc, fill=phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_x_discrete(labels= c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/STARRseq_ATAC_percent_active_dodge.pdf"),device = "pdf",width = 4,height = 3)
+
+
+library(tidyverse)
+library(ggplot2)
+act.sum <- data.frame(Enhancer = factor(), 
+                      Phenotype = factor(), 
+                      Lines = factor(), 
+                      Count = double())
+for (i in CSE.500bp.CHEQ.df$enhancer){
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM001", "MM057", "MM074", "MM087"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i, 
+                     Phenotype = CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$enhancer == i, "phenotype"], 
+                     Lines = "MEL", 
+                     Count = count)
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM029", "MM047", "MM099"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                      Enhancer = i, 
+                      Phenotype = CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$enhancer == i, "phenotype"], 
+                      Lines = "MES", 
+                      Count = count)
+}
+
+
+# Count proportion of enhancer active per number of line
+## Number of enhancer per phenotype
+nrow.mel <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative",])
+nrow.mes <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive",])
+## Proportion for each condition
+mel.1 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 1,])/nrow.mel
+mel.2 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 2,])/nrow.mel
+mel.3 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 3,])/nrow.mel
+mel.4 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 4,])/nrow.mel
+mes.1 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 1,])/nrow.mes
+mes.2 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 2,])/nrow.mes
+mes.3 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 3,])/nrow.mes
+## Combine data into dataframe
+act.per <- data.frame(Lines = c("MEL", "MEL", "MEL", "MEL", "MES", "MES", "MES"), Count = as.factor(c("MEL 1","MEL 2","MEL 3","MEL 4","MES 1","MES 2","MES 3")), Percentage = c(mel.1, mel.2, mel.3, mel.4, mes.1, mes.2, mes.3))
+
+ggplot(act.per, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#7099CA", "#4F87CA", "#1C5395", "#2C4B70", "#F25151", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "4 MEL lines", "1 MES line", "2 MES lines", "3 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+# ggsave(filename = paste0("Plots/CHEQseq_Intron_active_summary.eps"), device = "eps", width = 2.75, height = 3)
+```
+
+# Conservation of activity between Ac and ATAC library
+```{r}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(scales)
+# List of active Ac regions per cell line
+list.enh <- new.env()
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  list.enh[[i]] <- unique(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj < 0.05,"enhancer"])
+}
+
+perc.act <- data.frame(MM.line = factor(), Phenotype = factor(), Percentage = double())
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  # Number of active Ac MEL regions
+  prol.tmp <- CSE.500bp.STARR[[i]]$merged.input.norm[CSE.500bp.STARR[[i]]$merged.input.norm$phenotype == "Proliferative",]
+  prol.tmp$enhancer <- recode_factor(prol.tmp$enhancer, `KIT_114-DA` = "KIT_1", `KIT_114-DB` = "KIT_1", `SOX10_15-3UA` = "SOX10_1", `SOX10_15-3UB` = "SOX10_1", `SOX10_-34-DA` = "SOX10_3", `SOX10_-34-DB` = "SOX10_3", `SOX10_-56-DA` = "SOX10_5", `SOX10_-56-DB` = "SOX10_5", `SGCD_15-IA` = "SGCD_2", `SGCD_15-IB` = "SGCD_2")
+  nb.pro.reg <-length(unique(grep(paste(list.enh[[i]], collapse="|"),x = prol.tmp$enhancer, value = T)))
+  print(nb.pro.reg)
+  # Number of active ATAC MEL regions
+  nb.act.pro <- length(unique(grep(paste(list.enh[[i]], collapse="|"),x = prol.tmp[prol.tmp$padj < 0.05,"enhancer"], value = T)))
+  print(nb.act.pro)
+  # Number of active Ac MES regions
+  inv.tmp <- CSE.500bp.STARR[[i]]$merged.input.norm[CSE.500bp.STARR[[i]]$merged.input.norm$phenotype == "Invasive",]
+  inv.tmp$enhancer <- recode_factor(inv.tmp$enhancer, `FOSL2_-117-IA` = "FOSL2_1", `FOSL2_-117-IB` = "FOSL2_1", `SERPINE1_-110-IA` = "SERPINE1_1", `SERPINE1_-110-IB` = "SERPINE1_1", `FGF2_1A` = "FGF2_1", `FGF2_1B` = "FGF2_1", `FLNC_1A` = "FLNC_1", `FLNC_1B` = "FLNC_1")
+  nb.inv.reg <-length(unique(grep(paste(list.enh[[i]], collapse="|"),x = inv.tmp$enhancer, value = T)))
+  print(nb.inv.reg)
+  # Number of active ATAC MES regions
+  nb.act.inv <- length(unique(grep(paste(list.enh[[i]], collapse="|"),x = inv.tmp[inv.tmp$padj < 0.05,"enhancer"], value = T)))
+  print(nb.act.inv)
+  # Add percentages to data frame
+  perc.act <- add_row(.data = perc.act,
+                      MM.line = i, 
+                      Phenotype = "Proliferative", 
+                      Percentage = nb.act.pro/nb.pro.reg)
+  perc.act <- add_row(.data = perc.act,
+                      MM.line = i, 
+                      Phenotype = "Invasive", 
+                      Percentage = nb.act.inv/nb.inv.reg)
+}
+perc.act$MM.line <- factor(perc.act$MM.line, levels = c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099"))
+print(perc.act)
+saveRDS(object = perc.act, file = "analysis/STARRseq/STARRseq__ATAC__percent_conservation.rds")
+
+# Plot 
+ggplot(perc.act, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  # scale_x_discrete(labels= c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of regions active in both\nH3K27Ac ChIP-seq and ATAC-seq based CHEQ-seq", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/STARRseq_ATAC_percent_maintained_activity.pdf"),device = "pdf",width = 4,height = 3)
+```
+
+# Scatter plot correlation
+```{r}
+library(Hmisc)
+for (i in c("MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM001.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM001.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM001.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM001 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM001 Log2 FC", y = paste0(i," Log2 FC"), color = "phenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM001vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+for (i in c("MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM029.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_hline(yintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM029.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM029.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM029 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM029 Log2 FC", y = paste0(i," Log2 FC"), color = "phenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM029vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+for (i in c("MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM047.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_hline(yintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM047.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM047.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM047 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM047 Log2 FC", y = paste0(i," Log2 FC"), color = "phenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM047vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+for (i in c("MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM057.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_hline(yintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM057.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM057.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM057 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM057 Log2 FC", y = paste0(i," Log2 FC"), color = "phenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM057vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+for (i in c("MM087", "MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM074.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_hline(yintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM074.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM074.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM074 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM074 Log2 FC", y = paste0(i," Log2 FC"), color = "phenotype")
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM074vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+for (i in c("MM099")) {
+p<-ggplot(CSE.500bp.STARR.df, aes(x = log2(MM087.CPMNorm.FC), y = log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_hline(yintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  geom_vline(xintercept = -0.5, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CSE.500bp.STARR.df$MM087.CPMNorm.FC)), y = max(log2(CSE.500bp.STARR.df[,paste0(i,".CPMNorm.FC")])), label = paste0("r =", round(cor(CSE.500bp.STARR.df[,c("MM087.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0("Correlation MM087 vs ",i," - STARRseq 500bp")) +
+  labs(x = "MM087 Log2 FC", y = paste0(i," Log2 FC"))
+ggsave(filename = paste0("analysis/STARRseq/Plots/Correlation/STARRseq_500bp_correlation_MM087vs",i,".pdf"),device = "pdf",width = 9,height = 6)
+print(p)
+}
+```
+
+# Correlation table
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/STARRseq/Plots/Correlation/CorrClust_STARRseq.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.STARR.df[,c(2:8)]), method = "pearson")
+colnames(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")
+row.names(M) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "STARRseq Input normalised", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+dev.off()
+```
+
+# Correlation table
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/STARRseq/Plots/Correlation/CorrClustSTARRseqATAC_pheno.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.STARR.df[,c(2,10,11)]), method = "pearson")
+colnames(M) <- c("MM001", "Intermediate", "MES")
+row.names(M) <- c("MM001", "Intermediate", "MES")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "STARR-seq ATAC library", addrect = 2)
+dev.off()
+```
+
+```{r}
+rename.columns.plasm <- function(df, new.colnames = c("enhancer","CPMNorm.FC", "phenotype", "pvalue", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.STARR.500bp.df<-rbind(cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM001"]]$merged.input.norm), data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.STARR[["MM001"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM057"]]$merged.input.norm), data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.STARR[["MM057"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM074"]]$merged.input.norm), data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.STARR[["MM074"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM087"]]$merged.input.norm), data.frame("MM.line"=rep("MM087",nrow(CSE.500bp.STARR[["MM087"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM029"]]$merged.input.norm), data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.STARR[["MM029"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM047"]]$merged.input.norm), data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.STARR[["MM047"]]$merged.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.STARR[["MM099"]]$merged.input.norm), data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.STARR[["MM099"]]$merged.input.norm)))))
+```
+
+# Expression per enhancer
+```{r}
+library(ggplot2)
+for(i in levels(MM.STARR.500bp.df$enhancer)) {
+ p<- ggplot(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer==i,], aes(x=MM.line, y=log2(CPMNorm.FC), group=MM.line, fill = phenotype)) + 
+    geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer==i,"padj"] < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.title.y = element_text(size=9),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x = element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = ifelse(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer==i,"phenotype"] == "Invasive",'#E41A1C','#1C5395'), labels = i) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ print(p)
+ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_enhancer/STARRseq_ATAC_",i,"_activity.pdf"),device = "pdf",width = 5,height = 2.5)
+}
+```
+
+```{r}
+library(ggplot2)
+for (i in c("KIT_114-D", "SOX10_15-3U", "SOX10_-34-D", "SOX10_-56-D", "SGCD_15-I")){
+  p <-ggplot(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+        geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.title.y = element_text(size=9),
+              legend.key = element_rect(fill = "white"),
+              axis.text = element_text(color = "black"),
+              axis.title.x = element_blank()) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        scale_fill_manual(values = c("#1C5395", "#7099CA")) + 
+        labs(y = "STARR-seq - Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+  ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_enhancer/STARRseq_",i,".eps"),device = "eps",width = 5,height = 2.5)
+  print(p)
+}
+
+for (i in c("FOSL2_-117-I","SERPINE1_-110-I", "FGF2_-62-D", "FLNC_-2-D")){
+  p <-ggplot(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+        geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.STARR.500bp.df[MM.STARR.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+              theme(panel.background = element_blank(),
+                    panel.grid = element_blank(),
+                    axis.title.y = element_text(size=9),
+                    legend.key = element_rect(fill = "white"),
+                    axis.text = element_text(color = "black"),
+                    axis.title.x = element_blank()) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        scale_fill_manual(values = c("#E41A1C", "#F27C7C")) + 
+        labs(y = "STARR-seq - Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+  ggsave(filename = paste0("analysis/STARRseq/Plots/Activity_per_enhancer/STARRseq_",i,".eps"),device = "eps",width = 5,height = 2.5)
+  print(p)
+}
+```
+
+```{r}
+# Give activity score
+library(stringr)
+library(robustbase)
+temp <- as.matrix(CSE.500bp.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),c(12:18)])
+rownames(temp) <- CSE.500bp.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),1]
+score.median <- colMedians(temp[!rownames(temp) %in% proliferative.enhancers.500bp,]) / colMedians(temp[rownames(temp) %in% proliferative.enhancers.500bp,])
+score.mean <- colMeans(temp[!rownames(temp) %in% proliferative.enhancers.500bp,]) / colMeans(temp[rownames(temp) %in% proliferative.enhancers.500bp,])
+ATAC.STARR.enhancer.score.activity.median <- data.frame(Activity = score.median, MM_line = str_split(string = names(score), pattern = "[.]" ,simplify = T)[,1], library = "STARR-seq ATAC")
+ATAC.STARR.enhancer.score.activity.mean <- data.frame(Activity = score.mean, MM_line = str_split(string = names(score), pattern = "[.]" ,simplify = T)[,1], library = "STARR-seq ATAC")
+saveRDS(object = ATAC.STARR.enhancer.score.activity.median, file = "analysis/STARRseq/STARRseq__ATAC__score_activity_median.rds")
+saveRDS(object = ATAC.STARR.enhancer.score.activity.mean, file = "analysis/STARRseq/STARRseq__ATAC__score_activity_mean.rds")
+```
+
+```{r}
+library(ggplot2)
+ggplot(ATAC.STARR.enhancer.score.activity.median, aes(x=reorder(x = MM_line, X = Activity), y=Activity, fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    geom_hline(yintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    ylim(0,NA) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 MES regions / Log2 MEL regions", color = "Line phenotype")
+# ggsave(filename = "Plots/CHEQseq_Intron_Activity_score.eps",device = "eps",width = 5,height = 3)
+library(ggplot2)
+ggplot(ATAC.STARR.enhancer.score.activity.mean, aes(x=reorder(x = MM_line, X = Activity), y=Activity, fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    geom_hline(yintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    ylim(0,NA) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 MES regions / Log2 MEL regions", color = "Line phenotype")
+# ggsave(filename = "Plots/CHEQseq_Intron_Activity_score.eps",device = "eps",width = 5,height = 3)
+```
+
+## Calculate significance MEL vs MES activity ratio
+```{r}
+# t test on ratio values
+print("Ratio with median")
+t.test(ATAC.enhancer.score.activity.median[c(5:7),"Activity"], ATAC.STARR.enhancer.score.activity.median[c(1:4),"Activity"], alternative = "greater")$p.value
+print("Ratio with mean")
+t.test(ATAC.enhancer.score.activity.mean[c(5:7),"Activity"], ATAC.STARR.enhancer.score.activity.mean[c(1:4),"Activity"], alternative = "greater")$p.value
+
+## Remove low expression enhancer when region has 2 enhancers
+ratio.df <- CSE.500bp.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),c(1,12:18)]
+
+# t-test per state (pooled MES values vs MEL values)
+## MEL state
+x.mel <- c()
+y.mel <- c()
+for (i in c("MM001", "MM057", "MM074", "MM087")){
+  x.mel <- c(x.mel, ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC.STARR")])
+  y.mel <- c(y.mel, ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC.STARR")])
+}
+print("MEL state t.test")
+t.test(x.mel, y.mel, alternative = "greater")$p.value
+
+## MES state
+x.mes <- c()
+y.mes <- c()
+for (i in c("MM029", "MM047", "MM099")){
+  x.mes <- c(x.mes, ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC.STARR")])
+  y.mes <- c(y.mes, ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC.STARR")])
+}
+print("MES state t.test")
+t.test(y.mes, x.mes, alternative = "greater")$p.value
+
+print("MEL enhancers, MEL vs MES lines")
+t.test(x.mel, x.mes, alternative = "greater")$p.value
+
+print("MES enhancers, MEL vs MES lines")
+t.test(y.mes, y.mel, alternative = "greater")$p.value
+```
+
+```{r}
+# Wilcoxon test
+library(ggpubr)
+library(dplyr)
+## Values MEL vs MES enhancers per state
+wilc.mel <- rbind(data.frame(CPMNorm.FC = na.omit(x.mel), phenotype = "MEL", State = "MEL"),
+                  data.frame(CPMNorm.FC = na.omit(y.mel), phenotype = "MES", State = "MEL"),
+                  data.frame(CPMNorm.FC = na.omit(x.mes), phenotype = "MEL", State = "MES"),
+                  data.frame(CPMNorm.FC = na.omit(y.mes), phenotype = "MES", State = "MES"))
+print("MEL state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+
+## Values MEL lines vs MES lines per enhancer states
+print("MEL enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+```
+
+```{r}
+# Bootstrapping followed by t.test
+## For MES group
+k <- 30 # Bootstrap 30 times
+n_mes <- 10 # 10 mes enhancers
+n_mel <- 6 # 6 mel enhancers
+ratio_vector_mes <- vector()
+for (j in c("MM029", "MM047", "MM099")){
+  MES <- ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC.STARR")]
+  MEL <- ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC.STARR")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE) # Sample mes
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE) # Sample mel
+    ratio_vector_mes <- c(ratio_vector_mes, median(subset_mes)/median(subset_mel)) # Median ratio
+  }
+}
+
+## Same for MEL
+k <- 30
+n_mes <- 10
+n_mel <- 6
+ratio_vector_mel <- vector()
+for (j in c("MM001", "MM057", "MM074", "MM087")){
+  MES <- ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC.STARR")]
+  MEL <- ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC.STARR")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE)
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE)
+    ratio_vector_mel <- c(ratio_vector_mel, median(subset_mes)/median(subset_mel))
+  }
+}
+## Test
+t.test(ratio_vector_mes, ratio_vector_mel, alternative='greater')
+```
+
+
+# Activity range
+```{r}
+library(ggplot2)
+ggplot(MM.STARR.500bp.df, aes(x=MM.line, y=log2(CPMNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(data = MM.STARR.500bp.df[MM.STARR.500bp.df$padj >= 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    geom_point(data = MM.STARR.500bp.df[MM.STARR.500bp.df$padj < 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.title.x=element_blank()) +
+    labs(fill = "Enhancer \nphenotype") +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 FC", fill = "Enhancer \nphenotype", title = "STARRseq ATAC - Expression range", color = "Adjusted\np-value")
+# ggsave(filename = "Plots/CHEQseq_Intron_Expression_range_violin.eps",device = "eps",width = 11.69,height = 8.27)
+```

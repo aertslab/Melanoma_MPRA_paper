@@ -1,0 +1,1220 @@
+---
+title: "R Notebook - Intron Plasmid construct Count"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+source("/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/utils.R")
+```
+
+# Create environment
+```{r}
+CH1.intron <- new.env()
+```
+
+# Analysis by MM line
+### Process all samples
+```{r}
+# MM001
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM001", 
+                             library = "long",
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__c61f58__CheqSeq_MM001_intron_plasmid_DNA_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__2b00ae__CheqSeq_MM001_Intron_cDNA_count_final_clean_NEG.txt")
+# MM029
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM029", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM029_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM029_Intron_cDNA_count_final_clean_NEG.txt")
+# MM047
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM047", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM047_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM047_Intron_cDNA_count_final_clean_NEG.txt")
+# MM057
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM057", 
+                             library = "long",
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5,  
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM057_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM057_Intron_cDNA_count_final_clean_NEG.txt")
+# MM074
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM074", 
+                             library = "long",
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5,  
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM074_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM074_Intron_cDNA_count_final_clean_NEG.txt")
+# MM087 rep1
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM087_rep1", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM087_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM087_Intron_cDNA_count_final_clean_NEG.txt")
+# MM087 rep2
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM087_rep2", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM087_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CSE__90abe2__CheqSeq_cDNA_MM087_intron_sample_1_final_clean_NEG.txt")
+# MM087 rep3
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM087_rep3", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__CheqSeq_MM087_Intron_Plasmid_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CSE__895ec5__CheqSeq_cDNA_MM087_intron_sample_2_final_clean_NEG.txt")
+# MM099
+CH1.intron <- ProcessCHEQseq(env = CH1.intron, 
+                             line = "MM099", 
+                             library = "long", 
+                             filter.method = "min.barcodes",
+                             min.barcodes = 5, 
+                             plasmid.counts.file.path = "../counting/10.bc_count/CH1__e0d870__CheqSeq_MM099_Intron_plasmid_DNA_count_final_clean_NEG.txt", 
+                             cDNA.counts.file.path = "../counting/10.bc_count/CH1__bdda71__CheqSeq_MM099_Intron_cDNA_count_final_clean_NEG.txt")
+# Save env
+saveRDS(object = CH1.intron, file = "data/CHEQseq__intron__R_environment.RDS")
+```
+
+# Load env
+```{r}
+CH1.intron <- readRDS(file = "data/CHEQseq__intron__R_environment.RDS")
+```
+
+# Combine replicates
+```{r}
+# Calculate mean of replicates
+library(dplyr)
+library(reshape2)
+CH1.intron.87.df.cpm <- inner_join(CH1.intron$MM087_rep1$merged.cpm.input.norm[,c("enhancer", "phenotype", "CPMNorm.FC")], CH1.intron$MM087_rep2$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], by = "enhancer") %>% inner_join(CH1.intron$MM087_rep3$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], by = "enhancer")
+CH1.intron.87.df.cpm$mean.CPMNorm.FC <- rowMeans(CH1.intron.87.df.cpm[,c("CPMNorm.FC.x", "CPMNorm.FC.y", "CPMNorm.FC")])
+CH1.intron.87.df <- inner_join(CH1.intron$MM087_rep1$merged.cpm.input.basal.norm[,c("enhancer", "phenotype", "BasalNorm.FC")], CH1.intron$MM087_rep2$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>% inner_join(CH1.intron$MM087_rep3$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer")
+CH1.intron.87.df$mean.BasalNorm.FC <- rowMeans(CH1.intron.87.df[,c("BasalNorm.FC.x", "BasalNorm.FC.y", "BasalNorm.FC")])
+CH1.intron$MM087$merged.cpm.input.basal.norm <- CH1.intron.87.df[,c("enhancer", "mean.BasalNorm.FC", "phenotype")]
+names(CH1.intron$MM087$merged.cpm.input.basal.norm) <- c("enhancer", "BasalNorm.FC", "phenotype")
+CH1.intron.87.df.cpm.long <- melt(CH1.intron.87.df.cpm[,-which(names(CH1.intron.87.df.cpm) %in% c("mean.CPMNorm.FC"))], id= c("enhancer","phenotype"))
+
+# Plot enhancer activity profile
+library(ggplot2)
+ggplot(CH1.intron.87.df.cpm[CH1.intron.87.df.cpm$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(mean.CPMNorm.FC), FUN=median), y = log2(mean.CPMNorm.FC), color = phenotype)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = log2(CH1.intron.87.df.cpm[CH1.intron.87.df.cpm$enhancer == "NEG_CTRL","mean.CPMNorm.FC"]), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 FC", color = "Enhancer\nphenotype", title = "MM087 - CHEQseq Intron")
+# ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_activity_MM087.eps"),device = "eps",width = 7,height = 3)
+
+# Plot enhancer activity profile
+library(ggplot2)
+ggplot(CH1.intron.87.df, aes(x = reorder(x = enhancer, X = log2(mean.BasalNorm.FC), FUN=median), y = log2(mean.BasalNorm.FC), color = phenotype)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 Basal Normalized FC", color = "Enhancer\nphenotype", title = "MM087 - CHEQseq Intron")
+# ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_MM087.eps"),device = "eps",width = 7,height = 3)
+
+library(ggplot2)
+ggplot(CH1.intron.87.df.cpm.long, aes(x = reorder(x = enhancer, X = log2(value), FUN=median), y = log2(value), color = variable)) +
+  geom_point(size = 2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  #scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 Basal Normalized FC", color = "Enhancer\nphenotype", title = "MM087 - CHEQseq Intron")
+```
+
+# Barcode violin
+```{r}
+library(reshape2)
+MM.IP.bc<-rbind(data.frame("MM.line"=rep("MM001",nrow(CH1.intron[["MM001"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM001"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM001"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM057",nrow(CH1.intron[["MM057"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM057"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM057"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM074",nrow(CH1.intron[["MM074"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM074"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM074"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM087_rep1",nrow(CH1.intron[["MM087_rep1"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM087_rep1"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM087_rep1"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM087_rep2",nrow(CH1.intron[["MM087_rep2"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM087_rep2"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM087_rep2"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM087_rep3",nrow(CH1.intron[["MM087_rep3"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM087_rep3"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM087_rep3"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM029",nrow(CH1.intron[["MM029"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM029"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM029"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM047",nrow(CH1.intron[["MM047"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM047"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM047"]]$cDNA.raw$num.barcodes),
+                data.frame("MM.line"=rep("MM099",nrow(CH1.intron[["MM099"]]$plasmid.raw)), 
+                           "Plasmid"=CH1.intron[["MM099"]]$plasmid.raw$num.barcodes, 
+                           "cDNA"=CH1.intron[["MM099"]]$cDNA.raw$num.barcodes))
+MM.IP.bc<-melt(MM.IP.bc, id="MM.line")
+library(ggplot2)
+ggplot(MM.IP.bc, aes(x=MM.line, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.3, position=position_dodge(0.9)) +
+    geom_hline(yintercept = 5, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "Plots/CHEQseq_Intron_BC_range.pdf",device = "pdf", width = 6, height = 3)
+```
+
+```{r}
+rename.columns <- function(df, new.colnames = c("MM.line", "variable", "value")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.bc <- rbind(cbind(rename.columns(df = MM.IP.bc), data.frame("Assay"=rep("CHEQ-seq Intron",nrow(MM.IP.bc))))
+              , cbind(rename.columns(df = MM.5p.bc), data.frame("Assay"=rep("CHEQ-seq 5'",nrow(MM.5p.bc)))))
+library(ggplot2)
+ggplot(MM.bc, aes(x=Assay, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.3, position=position_dodge(0.9)) +
+    geom_hline(yintercept = 5, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "Plots/CHEQseq_cross-assay_BC_range.pdf",device = "pdf",width = 5,height = 3)
+```
+
+### Plotting all lines (input normalized) and saving plots
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087_rep1", "MM087_rep2", "MM087_rep3", "MM099")) {
+p <- ggplot(CH1.intron[[i]]$merged.cpm.input.norm[CH1.intron[[i]]$merged.cpm.input.norm$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+  geom_point(pch = 21, size = 2.5) +
+  geom_hline(yintercept = log2(CH1.intron[[i]]$merged.cpm.input.norm[CH1.intron[[i]]$merged.cpm.input.norm$enhancer == "NEG_CTRL","CPMNorm.FC"]), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  ggtitle(label = i) +
+  labs(x = "Enhancers", y = "Log2 FC", fill = "Enhancer\nphenotype")
+ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_activity_",i,".pdf"),device = "pdf",width = 7,height = 3)
+print(p)
+}
+```
+
+### Plotting all lines (expression) and  highlighting inactive enhancers
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087_rep1", "MM087_rep2", "MM087_rep3", "MM087", "MM099")) {
+  tmp <- CH1.intron[[i]]$merged.cpm.input.basal.norm
+  tmp$color <- ifelse(tmp$enhancer %in% c("MAP3K14_-2-D","BLK_21-I","BLK_22-I","ALPK2_49-E","BDNF_P", "SMURF2_-47-D","MITF_P", "GPM6B_P", "SOX10_15-3U"), "1", "0")
+p <- ggplot(tmp, aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), fill = color)) +
+  geom_point(pch = 21, size = 2.5) +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("Active", "Inactive")) +
+  ggtitle(label = paste0(i)) +
+  labs(x = "Enhancers", y = "Log2 Expression", fill = "Inactive\nenhancers")
+# ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_",i,".pdf"),device = "pdf",width = 7,height = 3)
+print(p)
+}
+```
+
+## Define activity via fit of Gaussian curve taking list of inactive enhancers as negative control
+```{r}
+library(ggplot2)
+library(robustbase)
+library(stats)
+j <- c("MAP3K14_-2-D","BLK_21-I","BLK_22-I","ALPK2_49-E","BDNF_P", "SMURF2_-47-D","MITF_P", "GPM6B_P", "SOX10_15-3U")
+
+for (i in names(CH1.intron)[-which(names(CH1.intron) %in% c("MM087_rep1", "MM087_rep2", "MM087_rep3"))]) {
+  print(i)
+  sample <- CH1.intron[[i]]$merged.cpm.input.basal.norm
+  
+  # Test normality of control values with Shapiro-Wilk test
+  norm.test <-shapiro.test(sample[sample$enhancer %in% j,"BasalNorm.FC"])
+  print(paste0("Normality test: ",norm.test$p.value))
+  
+  # Robust fit of a gaussian by robust estimates of it's two params from the enhancer values of the opposite phenotype (MEL enh for MES lines and MES enh for MEL lines)
+  if (norm.test$p.value < 0.05){
+    # If the values of control regions are not normally distributed: Use log2 FC values to fit the Gaussian
+    print("Control regions values are NOT normally distributed")
+    location <- median(x = log2(sample[sample$enhancer %in% j, "BasalNorm.FC"]))
+    print(paste0("Median: ",location))
+    scale <- mad(x = log2(sample[sample$enhancer %in% j, "BasalNorm.FC"]))
+    
+    # Check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = log2(BasalNorm.FC), fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = log2(sample$BasalNorm.FC), mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr") 
+  } else {
+    # If the values of control regions are normally distributed: Use FC values to fit the Gaussian
+    print("Control regions values are normally distributed")
+    location <- median(x = sample[sample$enhancer %in% j, "BasalNorm.FC"])
+    print(paste0("Median: ",location))
+    scale <- mad(x = sample[sample$enhancer %in% j, "BasalNorm.FC"])
+    
+    # Check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = BasalNorm.FC, fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = sample$BasalNorm.FC, mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+  }
+  
+  # Controlling the FDR on this should result in < 5% false discoveries
+  print(table(sample[sample$padj < 0.05, "phenotype"])/sum(sample$padj < 0.05)*100)
+  print(nrow(sample[sample$padj < 0.05,]))
+  
+  # Save results
+  CH1.intron[[i]]$merged.cpm.input.basal.norm <- sample
+  
+  p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = phenotype)) + 
+          geom_bar() + 
+          ggtitle(label = paste0(i)) +
+          theme_minimal()
+  print(p3)
+
+  p <- ggplot(sample, aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3, aes(color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_",i,".pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+  
+  ## Make shape categories MEL
+  sample$pch <- "Others"
+  #sample[sample$enhancer %in% c("KIT_1"),"pch"] <- "KIT"
+  sample[sample$enhancer %in% c("TYR_-9-D", "TYR_-1-D", "TYR_P"),"pch"] <- "TYR"
+  #sample[sample$enhancer %in% c("SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5"),"pch"] <- "SOX10"
+  
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[sample$enhancer != "NEG_CTRL","pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(21,22,23,24)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_",i,"_with_shapesMEL.pdf"), device = "pdf",width = 7.5,height = 3, useDingbats = F)
+  print(p)
+
+    ## Make shape categories MES
+  sample$pch <- "Others"
+  sample[sample$enhancer %in% c("COL5A1_-139-D", "COL5A1_-89-D", "COL5A1_-50-D", "COL5A1_-39-D", "COL5A1_-17-D", "COL5A1_-4-D", "COL5A1_21-I"),"pch"] <- "COL5A1"
+  sample[sample$enhancer %in% c("SERPINE1_-110-I", "SERPINE1_-27-D", "SERPINE1_-5-D"),"pch"] <- "SERPINE1"
+  
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(BasalNorm.FC), FUN=median), y = log2(BasalNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[sample$enhancer != "NEG_CTRL","pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(22,21,23)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_",i,"_with_shapesMES.pdf"), device = "pdf",width = 7.5,height = 3, useDingbats = F)
+  print(p)
+  
+  p <- ggplot(sample, aes(x = padj, y = log2(BasalNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3) +
+        geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Adjusted p-value", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  print(p)
+}
+# Save env
+saveRDS(object = CH1.intron, file = "data/CHEQseq__intron__R_environment.RDS")
+```
+
+# Correlation between lines
+```{r}
+library(dplyr)
+CH1.intron.df <- CH1.intron$MM001$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")] %>%
+                  full_join(CH1.intron$MM057$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>%
+                  full_join(CH1.intron$MM074$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>%
+                  full_join(CH1.intron$MM087$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>%
+                  full_join(CH1.intron$MM029$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>%
+                  full_join(CH1.intron$MM047$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC")], by = "enhancer") %>%
+                  full_join(CH1.intron$MM099$merged.cpm.input.basal.norm[,c("enhancer", "BasalNorm.FC", "phenotype")], by = "enhancer")
+colnames(CH1.intron.df) <- c("enhancer", "MM001.BasalNorm.FC", "MM057.BasalNorm.FC", "MM074.BasalNorm.FC", "MM087.BasalNorm.FC", "MM029.BasalNorm.FC", "MM047.BasalNorm.FC", "MM099.BasalNorm.FC", "phenotype")
+CH1.intron.df$Switcher.BasalNorm.FC <- rowMeans(CH1.intron.df[,c(3:5)])
+CH1.intron.df$Inv.BasalNorm.FC <- rowMeans(CH1.intron.df[,c(6:8)])
+# Save df
+saveRDS(object = CH1.intron.df, file = "data/CHEQseq__intron__combined_dataframe.RDS")
+```
+
+# Percentage of active enhancer per cell line
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+rename.columns <- function(df, new.colnames = c("enhancer","phenotype", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+
+m <- rbind(cbind(rename.columns(df = CH1.intron[["MM001"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM001",nrow(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM057"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM057",nrow(CH1.intron[["MM057"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM074"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM074",nrow(CH1.intron[["MM074"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM087"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM087",nrow(CH1.intron[["MM087"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM029"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM029",nrow(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM047"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM047",nrow(CH1.intron[["MM047"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM099"]]$merged.cpm.input.basal.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM099",nrow(CH1.intron[["MM099"]]$merged.cpm.input.basal.norm))))
+)
+# df <- melt(m, id = c("enhancer","phenotype"))
+
+# Plot percentage of 'active' enhancers in each of the MM lines and split per prol and inv
+bin <- m
+bin$value <- ifelse(m$padj < 0.05,1,0) # Selected enhancers with 10% higher activity than basal activity
+library(dplyr)
+bin <- filter(bin, value == 1)
+
+tab <- as.data.frame(table(bin$MM.line, bin$phenotype))
+tab$Perc[tab$Var2 == 'Invasive'] <- tab$Freq[tab$Var2 == 'Invasive']/31
+tab$Perc[tab$Var2 == 'Proliferative'] <- tab$Freq[tab$Var2 == 'Proliferative']/18
+tab <- tab[,-3]
+colnames(tab) <- c('Line','phenotype','Perc')
+ggplot(tab[tab$phenotype != "Control",], aes(x=Line, y=Perc, fill=phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(NA,1)) +
+  scale_x_discrete(labels= c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("Plots/CHEQseq_Intron_percent_active_dodge.pdf"),device = "pdf",width = 4,height = 3)
+
+library(tidyverse)
+library(ggplot2)
+act.sum <- data.frame(Enhancer = factor(), 
+                      Phenotype = factor(), 
+                      Lines = factor(), 
+                      Count = double())
+for (i in CH1.intron.df$enhancer){
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM001", "MM057", "MM074", "MM087"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i, 
+                     Phenotype = CH1.intron.df[CH1.intron.df$enhancer == i, "phenotype"], 
+                     Lines = "MEL", 
+                     Count = count)
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM029", "MM047", "MM099"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                      Enhancer = i, 
+                      Phenotype = CH1.intron.df[CH1.intron.df$enhancer == i, "phenotype"], 
+                      Lines = "MES", 
+                      Count = count)
+}
+
+# Count proportion of enhancer active per number of line
+## Number of enhancer per phenotype
+nrow.mel <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative",])
+nrow.mes <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive",])
+## Proportion for each condition
+mel.1 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 1,])/nrow.mel
+mel.2 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 2,])/nrow.mel
+mel.3 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 3,])/nrow.mel
+mel.4 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 4,])/nrow.mel
+mes.1 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 1,])/nrow.mes
+mes.2 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 2,])/nrow.mes
+mes.3 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 3,])/nrow.mes
+## Combine data into dataframe
+act.per <- data.frame(Lines = c("MEL", "MEL", "MEL", "MEL", "MES", "MES", "MES"), Count = as.factor(c("MEL 1","MEL 2","MEL 3","MEL 4","MES 1","MES 2","MES 3")), Percentage = c(mel.1, mel.2, mel.3, mel.4, mes.1, mes.2, mes.3))
+
+ggplot(act.per, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#7099CA", "#4F87CA", "#1C5395", "#2C4B70", "#F25151", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "4 MEL lines", "1 MES line", "2 MES lines", "3 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+ggsave(filename = paste0("Plots/CHEQseq_Intron_active_summary.pdf"),device = "pdf", width = 2.75, height = 3)
+```
+
+### One vs One
+```{r}
+library(Hmisc)
+for (i in c("MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CH1.intron.df, aes(x = log2(MM001.BasalNorm.FC), y = log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM001.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM001.BasalNorm.FC",paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM001 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM001 vs ",i," - CHEQseq Intron"))
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM001vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+
+for (i in c("MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CH1.intron.df, aes(x = log2(MM029.BasalNorm.FC), y = log2(CH1.intron.df[, paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM029.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM029.BasalNorm.FC",paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM029 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM029 vs ",i," - CHEQseq Intron"))
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM029vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+
+for (i in c("MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CH1.intron.df, aes(x = log2(MM047.BasalNorm.FC), y = log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM047.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM047.BasalNorm.FC",paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM047 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM047 vs ",i," - CHEQseq Intron"))
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM047vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+
+for (i in c("MM074", "MM087", "MM099")) {
+p<-ggplot(CH1.intron.df, aes(x = log2(MM057.BasalNorm.FC), y = log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM057.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM057.BasalNorm.FC",paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM057 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM057 vs ",i," - CHEQseq Intron"))
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM057vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+
+for (i in c("MM087", "MM099")) {
+p<-ggplot(CH1.intron.df, aes(x = log2(MM074.BasalNorm.FC), y = log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM074.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,paste0(i,".BasalNorm.FC")])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM074.BasalNorm.FC",paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM074 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM074 vs ",i," - CHEQseq Intron"))
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM074vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+
+ggplot(CH1.intron.df, aes(x = log2(MM087.BasalNorm.FC), y = log2(MM099.BasalNorm.FC), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(CH1.intron.df[,"MM087.BasalNorm.FC"])), y = max(log2(CH1.intron.df[,"MM099.BasalNorm.FC"])), label = paste0("r = ", round(cor(log2(CH1.intron.df[,c("MM087.BasalNorm.FC","MM099.BasalNorm.FC")]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM087 Log2 FC", y = "MM099 Log2 FC", color = "Enhancer\nphenotype", title = "Correlation MM087 vs MM099 - CHEQseq Intron")
+ggsave(filename = "Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM087vsMM099.pdf",device = "pdf",width = 5,height = 4, useDingbats = F)
+```
+
+# MM087 rep correlations
+```{r}
+library(Hmisc)
+library(dplyr)
+for (i in c("MM087_rep2", "MM087_rep3")) {
+  tmp <- inner_join(CH1.intron$MM087_rep1$merged.cpm.input.basal.norm[, c("enhancer", "BasalNorm.FC")],
+                    CH1.intron[[i]]$merged.cpm.input.basal.norm, by = "enhancer", suffix = c("_MM087_rep1", paste0("_",i)))
+p<-ggplot(tmp, aes(x = log2(BasalNorm.FC_MM087_rep1), y = log2(tmp[,paste0("BasalNorm.FC_",i)]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(tmp[,"BasalNorm.FC_MM087_rep1"]),na.rm = T), y = max(log2(tmp[,paste0("BasalNorm.FC_",i)]),na.rm = T), label = paste0("r (log2)= ", round(cor(log2(na.omit(tmp[,c("BasalNorm.FC_MM087_rep1",paste0("BasalNorm.FC_",i))])), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  annotate("text", x = min(log2(tmp[,"BasalNorm.FC_MM087_rep1"]),na.rm = T), y = max(log2(tmp[,paste0("BasalNorm.FC_",i)]),na.rm = T)-1, label = paste0("r = ", round(cor(na.omit(tmp[,c("BasalNorm.FC_MM087_rep1",paste0("BasalNorm.FC_",i))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM087 Log2 Expression", y = paste0(i," Log2 Expression"), color = "Enhancer\nphenotype", title = paste0("Correlation MM001 vs ",i," - CHEQseq Intron"))
+#ggsave(filename = paste0("Plots/Correlation/5p/CHEQseq_5p_correlation_MM001vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+```
+
+### Correlation per cell phenotype
+```{r}
+library(ggplot2)
+# MM001 vs MES
+ggplot(CH1.intron.df, aes(x = log2(MM001.BasalNorm.FC), y = log2(Inv.BasalNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CH1.intron.df, MM001.BasalNorm.FC >= 1 | Inv.BasalNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) + #
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "MM001 - Log2 FC", y = "MES-like - Log2 FC", color = "Enhancer \nphenotype")
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM001vsMES.pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+
+# MM001 vs Switchers
+ggplot(CH1.intron.df, aes(x = log2(MM001.BasalNorm.FC), y = log2(Switcher.BasalNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CH1.intron.df, MM001.BasalNorm.FC >= 1 | Switcher.BasalNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "MM001 - Log2 FC", y = "Intermediate - Log2 FC", color = "Enhancer \nphenotype")
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MM001vsSwitcher.pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+
+# Switchers vs MES
+ggplot(CH1.intron.df, aes(x = log2(Switcher.BasalNorm.FC), y = log2(Inv.BasalNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CH1.intron.df, Switcher.BasalNorm.FC >= 1 | Inv.BasalNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  ylim(NA,3) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Intermediate - Log2 FC", y = "MES-like - Log2 FC", color = "Enhancer \nphenotype")
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_SwitchersvsMES.pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+
+# Facet plot
+library(data.table)
+plot <- melt(CH1.intron.df[,c("enhancer", "MM001.BasalNorm.FC", "Switcher.BasalNorm.FC", "Inv.BasalNorm.FC","phenotype")], id.vars = c("enhancer", "Inv.BasalNorm.FC","phenotype"))
+var.labs <- c("MM001 vs MES", "Intermediate vs MES")
+names(var.labs) <- c("MM001.BasalNorm.FC", "Switcher.BasalNorm.FC")
+ggplot(plot, aes(x = log2(Inv.BasalNorm.FC), y = log2(value), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  facet_grid(~variable , scales = "free", labeller = labeller(variable = var.labs)) +
+  geom_text(data = subset(plot, value >= 1 | Inv.BasalNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.18, size = 2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        strip.text.x = element_text(size = 8, color = "white"),
+        strip.background = element_rect(fill = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "MES Log2 FC", y = "Log2 FC", color = "Enhancer\nphenotype")
+ggsave(filename = paste0("Plots/Correlation/Intron/CHEQseq_Intron_correlation_MES_facets.pdf"), device = "pdf",width = 8.2,height = 4, useDingbats = F)
+```
+
+# Correlation per enhancer phenotype for Intermediate vs MES
+```{r}
+cor(log2(CH1.intron.df[CH1.intron.df$phenotype == "Invasive", c("MM001.BasalNorm.FC","Switcher.BasalNorm.FC", "Inv.BasalNorm.FC")]), method = "pearson", use = "pairwise.complete.obs")
+cor(log2(CH1.intron.df[CH1.intron.df$phenotype == "Proliferative", c("MM001.BasalNorm.FC","Switcher.BasalNorm.FC", "Inv.BasalNorm.FC")]), method = "pearson", use = "pairwise.complete.obs")
+cor(log2(CH1.intron.df[CH1.intron.df$phenotype == "Invasive", c("MM001.BasalNorm.FC","Switcher.BasalNorm.FC", "Inv.BasalNorm.FC")]), method = "spearman", use = "pairwise.complete.obs")
+cor(log2(CH1.intron.df[CH1.intron.df$phenotype == "Proliferative", c("MM001.BasalNorm.FC","Switcher.BasalNorm.FC", "Inv.BasalNorm.FC")]), method = "spearman", use = "pairwise.complete.obs")
+```
+
+```{r}
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099","Switcher","Inv")) {
+  print(paste0(i,":"))
+  print(mean(CH1.intron.df[CH1.intron.df$phenotype == "Invasive", paste0(i,".BasalNorm.FC")]))
+  print(mean(CH1.intron.df[CH1.intron.df$phenotype == "Proliferative", paste0(i,".BasalNorm.FC")]))
+}
+```
+
+# Correlation table (FC)
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/Correlation/CorrClustBasal_intron.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = CH1.intron.df[,c(2:8)], method = "pearson", use = "pairwise.complete.obs")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQseq Intron Basal Normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+# Correlation table (log2 FC)
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/Correlation/CorrClustBasal_intron_log.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = log2(CH1.intron.df[,c(2:8)]), method = "pearson", use = "pairwise.complete.obs")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQseq log2 Intron Basal Normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+# Correlation table (Spearman)
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/Correlation/CorrClustBasal_intron_spearman.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = log2(CH1.intron.df[,c(2:8)]), method = "spearman", use = "pairwise.complete.obs")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQseq log2 Intron Basal Normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+# Analysis on all MM lines
+```{r}
+rename.columns <- function(df, new.colnames = c("enhancer","BasalNorm.FC", "phenotype", "pvalue", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.IP.df<-rbind(cbind(rename.columns(df = CH1.intron[["MM001"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM001",nrow(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM057"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM057",nrow(CH1.intron[["MM057"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM074"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM074",nrow(CH1.intron[["MM074"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM087"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM087",nrow(CH1.intron[["MM087"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM029"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM029",nrow(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM047"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM047",nrow(CH1.intron[["MM047"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM099"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM099",nrow(CH1.intron[["MM099"]]$merged.cpm.input.basal.norm))))
+)
+```
+
+# Per cell line phenotype
+```{r}
+rename.columns <- function(df, new.colnames = c("enhancer", "BasalNorm.FC", "phenotype")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.IP.pheno.df<-rbind(cbind(rename.columns(df = CH1.intron.df[,c(1,2,9)]), data.frame("Cell.phenotype"= "MM001")),
+                      cbind(rename.columns(df = CH1.intron.df[,c(1,10,9)]), data.frame("Cell.phenotype"= "Switcher")),
+                      cbind(rename.columns(df = CH1.intron.df[,c(1,11,9)]), data.frame("Cell.phenotype"= "MES-like")))
+```
+
+# Correlation table
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/Correlation/CorrClustBasal_intron_pheno.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = CH1.intron.df[,c(2,10,11)], method = "pearson", use = "pairwise.complete.obs")
+colnames(M) <- c("MM001", "Intermediate", "MES")
+row.names(M) <- c("MM001", "Intermediate", "MES")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQseq intron Basal normalised", addrect = 2)
+dev.off()
+```
+
+# Correlation table (Log2 FC)
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/Correlation/CorrClustBasal_intron_pheno_log.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = log2(CH1.intron.df[,c(2,10,11)]), method = "pearson", use = "pairwise.complete.obs")
+colnames(M) <- c("MM001", "Intermediate", "MES")
+row.names(M) <- c("MM001", "Intermediate", "MES")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQseq intron Basal normalised", addrect = 2)
+dev.off()
+```
+
+# Activity per enhancer
+```{r}
+library(ggplot2)
+for(i in levels(MM.IP.df$enhancer)) {
+ p<- ggplot(MM.IP.df[MM.IP.df$enhancer==i,], aes(x=MM.line, y=log2(BasalNorm.FC), group=MM.line, fill = phenotype)) + 
+    geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.title.y = element_text(size=9),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.title.x = element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = ifelse(MM.IP.df[MM.IP.df$enhancer==i,"phenotype"] == "Invasive",'#E41A1C','#1C5395'), labels = i) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 Expression", fill = "Enhancer", color = "Adjusted\np-value")
+ print(p)
+ggsave(filename = paste0("Plots/Activity_per_enhancer/Intron/CHEQseq_Intron_",i,"_activity.pdf"),device = "pdf", width = 5, height = 2.5)
+}
+```
+
+# Expression range
+## Per cell line
+```{r}
+library(ggplot2)
+ggplot(MM.IP.df, aes(x=MM.line, y=log2(BasalNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(data = MM.IP.df[MM.IP.df$padj >=0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    geom_point(data = MM.IP.df[MM.IP.df$padj <0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 FC", fill = "Enhancer \nphenotype", title = "CHEQseq Intron - Expression range", color = "Adjusted\np-value")
+ggsave(filename = "Plots/CHEQseq_Intron_Expression_range_violin.pdf",device = "pdf",width = 7,height = 5, useDingbat = F)
+```
+
+## Per phenotype
+```{r}
+library(ggplot2)
+ggplot(MM.IP.pheno.df, aes(x=Cell.phenotype, y=log2(BasalNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    labs(fill = "Enhancer\nphenotype") +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 Expression", title = "CHEQseq Intron - Expression range")
+#ggsave(filename = "Plots/CHEQseq_Intron_Expression_range_violin.eps",device = "eps",width = 11.69,height = 8.27)
+```
+
+
+```{r}
+library(reshape2)
+IP.enhancer.vs.MM<-dcast(data = MM.IP.df, formula = enhancer ~ MM.line, fun.aggregate = mean, value.var = "BasalNorm.FC")
+row.names(IP.enhancer.vs.MM)<-IP.enhancer.vs.MM$enhancer
+IP.enhancer.vs.MM<-IP.enhancer.vs.MM[, -c(1)]
+```
+
+```{r}
+# Heatmap z-score
+library(gplots)
+library(RColorBrewer)
+IP.enhancer.vs.MM.scaled<-t(scale(x = t(IP.enhancer.vs.MM)))
+colfunc <- colorRampPalette(c("#005BC4", "white", "#A8202C"))
+heat <- heatmap.2(as.matrix(na.omit(IP.enhancer.vs.MM.scaled)), col = colfunc(50), tracecol = "black", margins = c(8,16))
+
+setEPS()
+postscript(file = "Plots/CHEQseq_Intron_heatmap_zscore.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 10)
+heatmap.2(as.matrix(na.omit(IP.enhancer.vs.MM.scaled)), col = colfunc(50), tracecol = "black", margins = c(5,6.9))
+dev.off()
+```
+
+```{r}
+# Heatmap log cpm normalized
+library(gplots)
+library(viridis)
+setEPS()
+postscript(file = "Plots/CHEQseq_Intron_heatmap_cpm.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 10)
+heatmap.2(as.matrix(log2(na.omit(IP.enhancer.vs.MM)[rev(heat$rowInd),heat$colInd])), Rowv = F, Colv = F, col = inferno(50), tracecol = "darkgrey", dendrogram = "none", margins = c(5,6.9))
+dev.off()
+```
+
+```{r}
+library(gplots)
+library(RColorBrewer)
+order<- c("MM001","MM087","MM057","MM074","MM099","MM029","MM047")
+heatmap.2(var(as.matrix(log2(na.omit(IP.enhancer.vs.MM)[rev(heat$rowInd),order]), as.matrix(log2(na.omit(enhancer.vs.MM)[rev(heat$rowInd),order])))), Rowv = F, Colv = F, col = bluered(50), tracecol = "darkgrey", dendrogram = "none")
+```
+
+# Activity ratio Inv vs Prol
+## Calculate activity score
+```{r}
+library(robustbase)
+control.enhancers <- c("MAP3K14_-2-D","BLK_21-I","BLK_22-I","ALPK2_49-E","BDNF_P", "SMURF2_-47-D","MITF_P", "GPM6B_P", "SOX10_15-3U")
+proliferative.enhancers <- c("CDH1_24-I","CDH1_49-I","SOX10_15-3U","SOX10_-3-D","SOX10_-34-D","SOX10_-35-D","SOX10_-56-D","IRF4_4-I","GPM6B_P","KIT_114-D","MLANA_5-I","SGCD_15-I","SGCD_26-I","MITF_P","TYR_-9-D","TYR_-1-D","TYR_P","RRAGD_P")
+IP.enhancer.vs.MM <- as.matrix(IP.enhancer.vs.MM[!rownames(IP.enhancer.vs.MM) %in% control.enhancers,])
+# Calculate ratios
+score.median <- colMedians(IP.enhancer.vs.MM[!rownames(IP.enhancer.vs.MM) %in% proliferative.enhancers,]) / colMedians(IP.enhancer.vs.MM[rownames(IP.enhancer.vs.MM) %in% proliferative.enhancers,])
+score.mean <- colMeans(IP.enhancer.vs.MM[!rownames(IP.enhancer.vs.MM) %in% proliferative.enhancers,]) / colMeans(IP.enhancer.vs.MM[rownames(IP.enhancer.vs.MM) %in% proliferative.enhancers,])
+# Create dataframes
+IP.enhancer.score.activity.median <- data.frame(Activity = score.median, MM_line = names(score.median), library = "CHEQ-seq Intron H3K27Ac")
+IP.enhancer.score.activity.mean <- data.frame(Activity = score.mean, MM_line = names(score.mean), library = "CHEQ-seq Intron H3K27Ac")
+# Save
+saveRDS(object = IP.enhancer.score.activity.median, file = "data/CHEQseq__intron__score_activity_median.rds")
+saveRDS(object = IP.enhancer.score.activity.mean, file = "data/CHEQseq__intron__score_activity_mean.rds")
+```
+
+```{r}
+library(ggplot2)
+ggplot(IP.enhancer.score.activity.median, aes(x=reorder(x = MM_line, X = log2(Activity)), y=log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "Plots/CHEQseq_Intron_Activity_score_median.pdf",device = "pdf",width = 5,height = 3)
+
+library(ggplot2)
+ggplot(IP.enhancer.score.activity.mean, aes(x=reorder(x = MM_line, X = log2(Activity)), y=log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "Plots/CHEQseq_Intron_Activity_score_mean.pdf",device = "pdf",width = 5,height = 3)
+```
+
+## Calculate significance MEL vs MES activity ratio
+
+```{r}
+# Shapiro-Wilk normality test for MEL enhancers values
+shapiro.test(as.matrix(CH1.intron.df[CH1.intron.df$enhancer %in% proliferative.enhancers,c(2:8)])) # < 2.2e-16
+# Shapiro-Wilk normality test for MES enhancers values
+shapiro.test(as.matrix(CH1.intron.df[!CH1.intron.df$enhancer %in% proliferative.enhancers,c(2:8)])) # < 2.2e-16
+```
+
+```{r}
+# t test on ratio values
+print("Ratio with median")
+t.test(IP.enhancer.score.activity.median[c(5:7),"Activity"], IP.enhancer.score.activity.median[c(1:4),"Activity"], alternative = "greater")$p.value
+print("Ratio with mean")
+t.test(IP.enhancer.score.activity.mean[c(5:7),"Activity"], IP.enhancer.score.activity.mean[c(1:4),"Activity"], alternative = "greater")$p.value
+
+# t-test per state (pooled MES values vs MEL values)
+## MEL state
+x.mel <- c()
+y.mel <- c()
+for (i in c("MM001", "MM057", "MM074", "MM087")){
+  x.mel <- c(x.mel, CH1.intron.df[CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(i,".BasalNorm.FC")])
+  y.mel <- c(y.mel, CH1.intron.df[!CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(i,".BasalNorm.FC")])
+}
+print("MEL state t.test")
+t.test(x.mel, y.mel, alternative = "greater")$p.value
+
+## MES state
+x.mes <- c()
+y.mes <- c()
+for (i in c("MM029", "MM047", "MM099")){
+  x.mes <- c(x.mes, CH1.intron.df[CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(i,".BasalNorm.FC")])
+  y.mes <- c(y.mes, CH1.intron.df[!CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(i,".BasalNorm.FC")])
+}
+print("MES state t.test")
+t.test(y.mes, x.mes, alternative = "greater")$p.value
+
+print("MEL enhancers, MEL vs MES lines")
+t.test(x.mel, x.mes, alternative = "greater")$p.value
+
+print("MES enhancers, MEL vs MES lines")
+t.test(y.mes, y.mel, alternative = "greater")$p.value
+```
+
+```{r}
+# Wilcoxon test
+library(ggpubr)
+library(dplyr)
+## Values MEL vs MES enhancers per state
+wilc.mel <- rbind(data.frame(CPMNorm.FC = x.mel, Phenotype = "MEL", State = "MEL"),
+                  data.frame(CPMNorm.FC = y.mel, Phenotype = "MES", State = "MEL"),
+                  data.frame(CPMNorm.FC = x.mes, Phenotype = "MEL", State = "MES"),
+                  data.frame(CPMNorm.FC = y.mes, Phenotype = "MES", State = "MES"))
+print("MEL state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+
+## Values MEL lines vs MES lines per enhancer states
+print("MEL enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+```
+
+```{r}
+# Bootstrapping followed by t.test
+## For MES group
+k <- 21 # Bootstrap 21 times
+n_mes <- 16 # 16 mes enhancers
+n_mel <- 9 # 9 mel enhancers
+ratio_vector_mes <- vector()
+for (j in c("MM029", "MM047", "MM099")){
+  MES <- CH1.intron.df[!CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(j,".BasalNorm.FC")]
+  MEL <- CH1.intron.df[CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(j,".BasalNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE) # Sample mes
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE) # Sample mel
+    ratio_vector_mes <- c(ratio_vector_mes, median(subset_mes)/median(subset_mel)) # Median ratio
+  }
+}
+
+## Same for MEL
+k <- 21
+n_mes <- 16
+n_mel <- 9
+ratio_vector_mel <- vector()
+for (j in c("MM001", "MM057", "MM074", "MM087")){
+  MES <- CH1.intron.df[!CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(j,".BasalNorm.FC")]
+  MEL <- CH1.intron.df[CH1.intron.df$enhancer %in% proliferative.enhancers, paste0(j,".BasalNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE)
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE)
+    ratio_vector_mel <- c(ratio_vector_mel, median(subset_mes)/median(subset_mel))
+  }
+}
+## Test
+t.test(ratio_vector_mes, ratio_vector_mel, alternative='greater')
+```
+
+```{r}
+save.image(file = "IP_count.RData", compress = TRUE)
+```
+
+###################
+# tSNE representation of cell line profiles
+## Prepare df
+```{r}
+df.tsne <- t(CH1.intron.df[,c(2:8)])
+names(df.tsne) <- CH1.intron.df$enhancer
+```
+
+## Run tSNE
+```{r}
+library(Rtsne)
+# matrix.cheqseq <- as.matrix(CSE.enh.des$Combined$Basal.normalised[,c(3:7)])
+# row.names(matrix.cheqseq) <- CSE.enh.des$Combined$Basal.normalised$synthetic.region
+set.seed(23)
+tsne.env <- new.env()
+for (i in c(1, 2)){
+tsne.env[[paste0("tsne.",i)]] <- Rtsne(df.tsne, pca = T, theta=0.0, perplexity = i)
+}
+```
+
+## Plot class
+```{r}
+library(RColorBrewer)
+library(ggplot2)
+library(stringr)
+colors <- brewer.pal(n = 9, name = "Set1")
+colors <- colors[c(2,1)]
+for (names in names(tsne.env)){
+p <- ggplot(data = as.data.frame(tsne.env[[names]]$Y), aes(x = V1, y = V2,label = str_sub(rownames(df.tsne),1,5))) +
+      geom_point() +
+      geom_text(check_overlap = T, vjust = 0, nudge_y = 3, size = 3) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            legend.key = element_rect(fill = "white"),
+            axis.text = element_text(color = "black"),
+            axis.title.x=element_blank()) +
+      labs(color = "Class", title = paste0("Perplexity ", str_split(string = names, pattern = "\\.", simplify = T)[,2]))
+  # ggsave(filename = paste0("plots/tSNE/tSNE_perplexity_",names,"_Class.pdf"), device = "pdf",width = 6,height = 4)
+print(p)
+}
+```
+
+# tSNE representation of enhancers profiles
+## Prepare df
+```{r}
+df.tsne.enh <- CH1.intron.df[,c(2:8)]
+rownames(df.tsne.enh) <- CH1.intron.df$enhancer
+names(df.tsne.enh) <- str_sub(names(df.tsne.enh),1,5)
+```
+
+## Run tSNE
+```{r}
+library(Rtsne)
+# matrix.cheqseq <- as.matrix(CSE.enh.des$Combined$Basal.normalised[,c(3:7)])
+# row.names(matrix.cheqseq) <- CSE.enh.des$Combined$Basal.normalised$synthetic.region
+set.seed(23)
+tsne.enh.env <- new.env()
+for (i in c(2,5,10,15)){
+tsne.enh.env[[paste0("tsne.",i)]] <- Rtsne(df.tsne.enh, pca = T, theta=0.0, perplexity = i)
+}
+```
+
+## Plot class
+```{r}
+library(RColorBrewer)
+library(ggplot2)
+library(stringr)
+colors <- brewer.pal(n = 9, name = "Set1")
+colors <- colors[c(2,1)]
+for (names in names(tsne.enh.env)){
+p <- ggplot(data = as.data.frame(tsne.enh.env[[names]]$Y), aes(x = V1, y = V2, label = rownames(df.tsne.enh), color = CH1.intron.df$phenotype)) +
+      geom_point() +
+      geom_text(check_overlap = T, vjust = 0, nudge_y = 3, size = 3) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            legend.key = element_rect(fill = "white"),
+            axis.text = element_text(color = "black"),
+            axis.title.x=element_blank()) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+      labs(color = "Class", title = paste0("Perplexity ", str_split(string = names, pattern = "\\.", simplify = T)[,2]))
+  # ggsave(filename = paste0("plots/tSNE/tSNE_perplexity_",names,"_Class.pdf"), device = "pdf",width = 6,height = 4)
+print(p)
+}
+```

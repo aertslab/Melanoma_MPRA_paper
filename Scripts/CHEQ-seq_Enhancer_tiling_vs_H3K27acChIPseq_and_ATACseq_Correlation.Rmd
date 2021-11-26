@@ -1,0 +1,359 @@
+---
+title: "OLSvsATAC_Corr"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load data ATAC quantification
+```{r}
+ATAC.OLSA <- new.env()
+ATAC.OLSA[["MM001"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM001.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM001"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM001.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM029"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM029.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM029"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM029.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM047"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM047.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM047"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM047.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM057"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM057.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM057"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM057.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM074"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM074.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM074"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM074.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM087"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM087.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM087"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM087.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM099"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSA_MM099.bed", header = F, sep = "\t")
+ATAC.OLSA[["MM099"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSA-wt_MM099.bed", header = F, sep = "\t")
+# Normalize for copy number variation
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+ATAC.OLSA[[i]]$ATAC$CNNorm.score <- ATAC.OLSA[[i]]$ATAC[,4]/ATAC.OLSA[[i]]$Copy.Number[,5]*2
+ATAC.OLSA[[i]]$ATAC$CNNorm.mean.score <- ATAC.OLSA[[i]]$ATAC[,5]/ATAC.OLSA[[i]]$Copy.Number[,5]*2
+}
+
+ATAC.OLSA$combined <- cbind(ATAC.OLSA[["MM001"]]$ATAC[,c(1,2,5,8)],
+                           ATAC.OLSA[["MM029"]]$ATAC[,c(5,8)],
+                           ATAC.OLSA[["MM047"]]$ATAC[,c(5,8)],
+                           ATAC.OLSA[["MM057"]]$ATAC[,c(5,8)],
+                           ATAC.OLSA[["MM074"]]$ATAC[,c(5,8)],
+                           ATAC.OLSA[["MM087"]]$ATAC[,c(5,8)],
+                           ATAC.OLSA[["MM099"]]$ATAC[,c(5,8)])
+colnames(ATAC.OLSA$combined) <- c("synthetic.region", "length", "MM001.mean.score", "MM001.CNNorm.mean.score", "MM029.mean.score", "MM029.CNNorm.mean.score", "MM047.mean.score", "MM047.CNNorm.mean.score", "MM057.mean.score", "MM057.CNNorm.mean.score", "MM074.mean.score", "MM074.CNNorm.mean.score", "MM087.mean.score", "MM087.CNNorm.mean.score", "MM099.mean.score", "MM099.CNNorm.mean.score")
+ATAC.OLSA$combined$synthetic.region <- as.character(ATAC.OLSA$combined$synthetic.region)
+proliferative.enhancers <- c("CDH1_1", "CDH1_2", "SOX10_1A", "SOX10_1B", "SOX10_3A", "SOX10_3B", "SOX10_5A", "SOX10_5B", "IRF4_1", "KIT_1A", "KIT_1B", "MLANA_1", "SGCD_2A", "SGCD_2B", "SGCD_3", "MITF_1", "TYR_1", "TYR_2")
+ATAC.OLSA$combined$phenotype<-"Invasive"
+ATAC.OLSA$combined$phenotype[ATAC.OLSA$combined$enhancer %in% proliferative.enhancers]<-"Proliferative"
+rownames(ATAC.OLSA$combined) <- ATAC.OLSA$combined[,1]
+```
+
+```{r}
+ATAC.OLSB <- new.env()
+ATAC.OLSB[["MM001"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM001.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM001"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM001.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM029"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM029.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM029"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM029.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM047"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM047.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM047"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM047.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM057"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM057.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM057"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM057.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM074"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM074.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM074"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM074.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM087"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM087.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM087"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM087.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM099"]]$ATAC <- read.table(file = "../ATAC_signal/ATAC_OLSB_MM099.bed", header = F, sep = "\t")
+ATAC.OLSB[["MM099"]]$Copy.Number <- read.table(file = "../ATAC_signal/Copy_number_OLSB-wt_MM099.bed", header = F, sep = "\t")
+# Normalize for copy number variation
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+ATAC.OLSB[[i]]$ATAC$CNNorm.score <- ATAC.OLSB[[i]]$ATAC[,4]/ATAC.OLSB[[i]]$Copy.Number[,5]*2
+ATAC.OLSB[[i]]$ATAC$CNNorm.mean.score <- ATAC.OLSB[[i]]$ATAC[,5]/ATAC.OLSB[[i]]$Copy.Number[,5]*2
+}
+
+ATAC.OLSB$combined <- cbind(ATAC.OLSB[["MM001"]]$ATAC[,c(1,2,5,8)],
+                           ATAC.OLSB[["MM029"]]$ATAC[,c(5,8)],
+                           ATAC.OLSB[["MM047"]]$ATAC[,c(5,8)],
+                           ATAC.OLSB[["MM057"]]$ATAC[,c(5,8)],
+                           ATAC.OLSB[["MM074"]]$ATAC[,c(5,8)],
+                           ATAC.OLSB[["MM087"]]$ATAC[,c(5,8)],
+                           ATAC.OLSB[["MM099"]]$ATAC[,c(5,8)])
+colnames(ATAC.OLSB$combined) <- c("synthetic.region", "length", "MM001.mean.score", "MM001.CNNorm.mean.score", "MM029.mean.score", "MM029.CNNorm.mean.score", "MM047.mean.score", "MM047.CNNorm.mean.score", "MM057.mean.score", "MM057.CNNorm.mean.score", "MM074.mean.score", "MM074.CNNorm.mean.score", "MM087.mean.score", "MM087.CNNorm.mean.score", "MM099.mean.score", "MM099.CNNorm.mean.score")
+ATAC.OLSB$combined$synthetic.region <- as.character(ATAC.OLSB$combined$synthetic.region)
+proliferative.enhancers <- c("CDH1_1", "CDH1_2", "SOX10_1A", "SOX10_1B", "SOX10_3A", "SOX10_3B", "SOX10_5A", "SOX10_5B", "IRF4_1", "KIT_1A", "KIT_1B", "MLANA_1", "SGCD_2A", "SGCD_2B", "SGCD_3", "MITF_1", "TYR_1", "TYR_2")
+ATAC.OLSB$combined$phenotype<-"Invasive"
+ATAC.OLSB$combined$phenotype[ATAC.OLSB$combined$enhancer %in% proliferative.enhancers]<-"Proliferative"
+rownames(ATAC.OLSB$combined) <- ATAC.OLSB$combined[,1]
+```
+
+# Heatmap ATAC profile copy number normalized
+```{r}
+library(gplots)
+library(viridis)
+library(RColorBrewer)
+x <- log1p(x = ATAC.OLSA$combined[, c(4,6,8,10,12,14,16)])
+colnames(x) <- c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")
+colfunc <- colorRampPalette(brewer.pal(9, "Reds"))
+# setEPS()
+# postscript(file = "Plots/H3K27Ac-ATAC/ATAC_heatmap_CNNorm_long_enhancers.eps", 
+           # horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 10)
+heatmap.2(x = na.omit(as.matrix(x)), Rowv = F, Colv = F, dendrogram = "none", col = inferno(n=50), trace = "none", cexRow = 0.6, srtCol=45, main = "ATAC-seq OLSA - CNNorm Mean score")
+# dev.off()
+```
+
+# Correlation ATAC vs activity per cell line
+```{r}
+library(dplyr)
+library(ggplot2)
+ATAC.OLSA$ATAC.CHEQ.CNNorm <- inner_join(x = ATAC.OLSA$combined[, c(1,2,4,6,8,10,12,14,16)],
+                                     y = CH1.intron.df[,c(1:9)],
+                                     by = "synthetic.region")
+
+for (i in c("MM001","MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(ATAC.OLSA$ATAC.CHEQ.CNNorm, aes(x = ATAC.OLSA$ATAC.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")], y = log2(ATAC.OLSA$ATAC.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 0.5, y = 4, label = paste0("italic(R) ^ 2 ==", cor(ATAC.OLSA$ATAC.CHEQ.CNNorm[,c(paste0(i,".CNNorm.mean.score"),paste0(i,".BasalNorm.FC"))], method="pearson")[1,2]), parse = TRUE) +
+  ggtitle(label = paste0("Correlation ",i," - ATAC-seq vs CHEQ-seq Intron Activity")) +
+  labs(x = "ATAC-seq mean score", y = "Log2 Enhancer Expression", color = "Phenotype")
+# ggsave(filename = paste0("Plots/H3K27Ac-ATAC/ATAC_CNNorm_CHEQseq_correlation_scatter_",i,".eps"),device = "eps",width = 9,height = 6)
+print(p)
+}
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+for (i in c("MM001","MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+a <- inner_join(x = ATAC.OLSA$combined[,c("synthetic.region", paste0(i,".CNNorm.mean.score"))], y = CSE.OLSA[[i]]$merged.input.basal.norm[, c("synthetic.region", "CPM.Input.BasalNorm", "class", "phenotype")], by = "synthetic.region")
+
+p<- ggplot(a, aes(x = a[,paste0(i,".CNNorm.mean.score")], y = log2(CPM.Input.BasalNorm), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 2, y = 5, label = paste0("italic(R) ^ 2 ==", cor(a[,c(paste0(i,".CNNorm.mean.score"),"CPM.Input.BasalNorm")], method="pearson")[1,2]), parse = TRUE) +
+  ggtitle(label = paste0("Correlation ",i, " - ATAC-seq vs CHEQ-seq Intron Activity")) +
+  labs(x = "ATAC-seq mean score", y = "Log2 Enhancer Expression", color = "Phenotype")
+# ggsave(filename = paste0("Plots/H3K27Ac-ATAC/ATAC_CNNorm_CHEQseq_correlation_scatter_",i,".eps"),device = "eps",width = 9,height = 6)
+print(p)
+}
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+for (i in c("MM001","MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+a <- inner_join(x = ATAC.OLSB$combined[order(ATAC.OLSB$combined$synthetic.region),c("synthetic.region", paste0(i,".CNNorm.mean.score"))], y = CSE.OLSB[[i]]$merged.input.basal.norm[order(CSE.OLSB[[i]]$merged.input.basal.norm$synthetic.region), c("synthetic.region", "CPM.Input.BasalNorm", "class", "phenotype")], by = "synthetic.region")
+
+p<- ggplot(a, aes(x = a[,paste0(i,".CNNorm.mean.score")], y = log2(CPM.Input.BasalNorm), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 2, y = 5, label = paste0("italic(R) ^ 2 ==", cor(a[,c(paste0(i,".CNNorm.mean.score"),"CPM.Input.BasalNorm")], method="pearson")[1,2]), parse = TRUE) +
+  ggtitle(label = paste0("Correlation ",i, " - ATAC-seq vs CHEQ-seq Tiling B Activity")) +
+  labs(x = "ATAC-seq mean score", y = "Log2 Enhancer Expression", color = "Phenotype")
+# ggsave(filename = paste0("Plots/H3K27Ac-ATAC/ATAC_CNNorm_CHEQseq_correlation_scatter_",i,".eps"),device = "eps",width = 9,height = 6)
+print(p)
+}
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+for (i in c("MM001","MM029", "MM057", "MM074", "MM087", "MM099")) {
+a <- inner_join(x = ATAC.OLSA$combined[order(ATAC.OLSA$combined$synthetic.region),c("synthetic.region", paste0(i,".CNNorm.mean.score"))], y = CSE.OLSA2[[i]]$merged.input.basal.norm[order(CSE.OLSA2[[i]]$merged.input.basal.norm$synthetic.region), c("synthetic.region", "CPM.Input.BasalNorm", "class", "phenotype")], by = "synthetic.region")
+
+p<- ggplot(a, aes(x = a[,paste0(i,".CNNorm.mean.score")], y = log2(CPM.Input.BasalNorm), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 2, y = 5, label = paste0("italic(R) ^ 2 ==", cor(a[,c(paste0(i,".CNNorm.mean.score"),"CPM.Input.BasalNorm")], method="pearson")[1,2]), parse = TRUE) +
+  ggtitle(label = paste0("Correlation ",i, " - ATAC-seq vs CHEQ-seq Intron Activity")) +
+  labs(x = "ATAC-seq mean score", y = "Log2 Enhancer Expression", color = "Phenotype")
+# ggsave(filename = paste0("Plots/H3K27Ac-ATAC/ATAC_CNNorm_CHEQseq_correlation_scatter_",i,".eps"),device = "eps",width = 9,height = 6)
+print(p)
+}
+```
+
+####################
+# Correlation with DeepMEL
+## Load DeepMEL Data
+```{r}
+DeepMEL <- new.env()
+for (i in c(16,17,19)){
+  DeepMEL$Tile.A[[paste0("Topic_",i)]] <- read.table(file = paste0("../Ibrahim predictions/DeepMEL2_GABPA/OLS_A_wt_Topic_",i,".bedGraph"), header = F, stringsAsFactors = F, col.names = c("chr","start","end","score"))
+  DeepMEL$Tile.A[[paste0("Topic_",i)]]$start <- DeepMEL$Tile.A[[paste0("Topic_",i)]]$start - 85
+  DeepMEL$Tile.A[[paste0("Topic_",i)]]$end <- DeepMEL$Tile.A[[paste0("Topic_",i)]]$end + 85
+  DeepMEL$Tile.A[[paste0("Topic_",i)]]$name <- paste0(DeepMEL$Tile.A[[paste0("Topic_",i)]]$chr, ":", DeepMEL$Tile.A[[paste0("Topic_",i)]]$start, "-", DeepMEL$Tile.A[[paste0("Topic_",i)]]$end)
+
+  DeepMEL$Tile.B[[paste0("Topic_",i)]] <- read.table(file = paste0("../Ibrahim predictions/DeepMEL2_GABPA/OLS_B_wt_Topic_",i,".bedGraph"), header = F, stringsAsFactors = F, col.names = c("chr","start","end","score"))
+  DeepMEL$Tile.B[[paste0("Topic_",i)]]$start <- DeepMEL$Tile.B[[paste0("Topic_",i)]]$start - 85
+  DeepMEL$Tile.B[[paste0("Topic_",i)]]$end <- DeepMEL$Tile.B[[paste0("Topic_",i)]]$end + 85
+  DeepMEL$Tile.B[[paste0("Topic_",i)]]$name <- paste0(DeepMEL$Tile.B[[paste0("Topic_",i)]]$chr, ":", DeepMEL$Tile.B[[paste0("Topic_",i)]]$start, "-", DeepMEL$Tile.B[[paste0("Topic_",i)]]$end)
+
+}
+```
+
+# Add activity and accessibility
+```{r}
+library(stringr)
+# Tiling A
+# Activity
+DeepMEL$Tile.A$MM029 <- CSE.OLSA$MM029_rep1$merged.input.basal.norm
+DeepMEL$Tile.A$MM029$name <- str_split(string = DeepMEL$Tile.A$MM029$synthetic.region, pattern = "@@", simplify = T)[,1]
+# Accessibility
+DeepMEL$Tile.A$MM029.acc <- ATAC.OLSA$MM029$ATAC[,c(1,ncol(ATAC.OLSA$MM029$ATAC))]
+DeepMEL$Tile.A$MM029.acc$name <- str_split(string = DeepMEL$Tile.A$MM029.acc$V1, pattern = "@@", simplify = T)[,1]
+
+# Tiling B
+# Activity
+DeepMEL$Tile.B$MM001 <- CSE.OLSB$MM001_rep1$merged.input.basal.norm
+DeepMEL$Tile.B$MM001$name <- str_split(string = DeepMEL$Tile.B$MM001$synthetic.region, pattern = "@@", simplify = T)[,1]
+DeepMEL$Tile.B$MM029 <- CSE.OLSB$MM029_rep1$merged.input.basal.norm
+DeepMEL$Tile.B$MM029$name <- str_split(string = DeepMEL$Tile.B$MM029$synthetic.region, pattern = "@@", simplify = T)[,1]
+# Accessibility
+DeepMEL$Tile.B$MM001.acc <- ATAC.OLSB$MM001$ATAC[,c(1,ncol(ATAC.OLSB$MM001$ATAC))]
+DeepMEL$Tile.B$MM001.acc$name <- str_split(string = DeepMEL$Tile.B$MM001.acc$V1, pattern = "@@", simplify = T)[,1]
+DeepMEL$Tile.B$MM029.acc <- ATAC.OLSB$MM029$ATAC[,c(1,ncol(ATAC.OLSB$MM029$ATAC))]
+DeepMEL$Tile.B$MM029.acc$name <- str_split(string = DeepMEL$Tile.B$MM029.acc$V1, pattern = "@@", simplify = T)[,1]
+```
+
+# Predictions vs accessibility
+```{r}
+library(dplyr)
+library(ggplot2)
+# Tiling A
+for (j in c("MM029")){
+  for (i in c(16,17,19)){ 
+  tmp <- inner_join(DeepMEL$Tile.A[[paste0("Topic_",i)]], DeepMEL$Tile.A[[paste0(j,".acc")]][DeepMEL$Tile.A[[paste0(j,".acc")]]$CNNorm.mean.score > 1,], by = "name")
+  p <- ggplot(tmp, aes(x = score, y = CNNorm.mean.score)) +
+          geom_point(size = 2) +
+          theme(panel.background = element_blank(),
+                panel.grid = element_blank(),
+                axis.text = element_text(color = "black"),
+                legend.key = element_rect(fill = "white")) +
+          # scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+          labs(x = paste0("Predictions Topic ",i), y = paste0(j," accessibility"), color = "Enhancer \nclass", title = paste0("Tiling A - ",j))
+    print(p)
+  print(cor(tmp$score, tmp$CNNorm.mean.score, method = "pearson"))
+  }
+}
+
+# Tiling B
+for (j in c("MM001", "MM029")){
+  for (i in c(16,17,19)){ 
+  tmp <- inner_join(DeepMEL$Tile.B[[paste0("Topic_",i)]], DeepMEL$Tile.B[[paste0(j,".acc")]][DeepMEL$Tile.B[[paste0(j,".acc")]]$CNNorm.mean.score > 1,], by = "name")
+  p <- ggplot(tmp, aes(x = score, y = CNNorm.mean.score)) +
+          geom_point(size = 2) +
+          theme(panel.background = element_blank(),
+                panel.grid = element_blank(),
+                axis.text = element_text(color = "black"),
+                legend.key = element_rect(fill = "white")) +
+          # scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+          labs(x = paste0("Predictions Topic ",i), y = paste0(j," accessibility"), color = "Enhancer \nclass", title = paste0("Tiling B - ",j))
+    print(p)
+  print(cor(tmp$score, tmp$CNNorm.mean.score, method = "pearson"))
+  }
+}
+```
+
+# Predictions vs activity
+```{r}
+library(dplyr)
+library(ggplot2)
+# Tiling A
+for (j in c("MM029")){
+  for (i in c(16,17,19)){ 
+    tmp <- inner_join(DeepMEL$Tile.A[[paste0("Topic_",i)]], DeepMEL$Tile.A[[j]][DeepMEL$Tile.A[[j]]$class == "wt",], by = "name")
+    p <- ggplot(tmp, aes(x = score, y = log.CPM.Input.BasalNorm)) +
+            geom_point(size = 2) +
+            geom_vline(xintercept = mean(tmp$score)+2*sd(tmp$score)) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.text = element_text(color = "black"),
+                  legend.key = element_rect(fill = "white")) +
+            # scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+            labs(x = paste0("Predictions Topic ",i), y = paste0(j," log FC"), color = "Enhancer \nclass", title = paste0("Tiling A - ",j))
+      print(p)
+    print(cor(tmp$score, tmp$CPM.Input.BasalNorm, method = "pearson"))
+  }
+}
+
+# Tiling B
+for (j in c("MM001", "MM029")){
+  for (i in c(16,17,19)){ 
+    tmp <- inner_join(DeepMEL$Tile.B[[paste0("Topic_",i)]], DeepMEL$Tile.B[[j]][DeepMEL$Tile.B[[j]]$class == "wt",], by = "name")
+    p <- ggplot(tmp, aes(x = score, y = log.CPM.Input.BasalNorm)) +
+            geom_point(size = 2) +
+            geom_vline(xintercept = mean(tmp$score)+2*sd(tmp$score)) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.text = element_text(color = "black"),
+                  legend.key = element_rect(fill = "white")) +
+            # scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+            labs(x = paste0("Predictions Topic ",i), y = paste0(j," log FC"), color = "Enhancer \nclass", title = paste0("Tiling B - ",j))
+      print(p)
+    print(cor(tmp$score, tmp$CPM.Input.BasalNorm, method = "pearson"))
+  }
+}
+```
+
+```{r}
+for (j in c("A","B")) {
+  for (i in c(16,17,19)){
+    print(mean(DeepMEL[[paste0("Tile.",j)]][[paste0("Topic_",i)]]$score) + 2*sd(DeepMEL[[paste0("Tile.",j)]][[paste0("Topic_",i)]]$score))
+    
+  }
+}
+
+
+```
+
+
+# Overlap active tiles with atac-seq peaks
+```{r}
+# active wt tiles bed files
+MM001.B.act.bed <- str_split(CSE.OLSB[["MM001_rep1"]][["merged.input.basal.norm"]][CSE.OLSB[["MM001_rep1"]][["merged.input.basal.norm"]]$padj < 0.05 & CSE.OLSB[["MM001_rep1"]][["merged.input.basal.norm"]]$class == "wt","synthetic.region"],pattern = ":|-|@@", simplify = T)[,1:3]
+write.table(x = MM001.B.act.bed, file = "CHEQ-seq_OLS-B/MM001B-act.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+
+MM029.B.act.bed <- str_split(CSE.OLSB[["MM029_rep1"]][["merged.input.basal.norm"]][CSE.OLSB[["MM029_rep1"]][["merged.input.basal.norm"]]$padj < 0.05 & CSE.OLSB[["MM029_rep1"]][["merged.input.basal.norm"]]$class == "wt","synthetic.region"],pattern = ":|-|@@", simplify = T)[,1:3]
+write.table(x = MM029.B.act.bed, file = "CHEQ-seq_OLS-B/MM029B-act.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+
+MM029.A.act.bed <- str_split(CSE.OLSA[["MM029_rep1"]][["merged.input.basal.norm"]][CSE.OLSA[["MM029_rep1"]][["merged.input.basal.norm"]]$padj < 0.05 & CSE.OLSA[["MM029_rep1"]][["merged.input.basal.norm"]]$class == "wt","synthetic.region"],pattern = ":|-|@@", simplify = T)[,1:3]
+write.table(x = MM029.A.act.bed, file = "CHEQ-seq_OLS-A/MM029A-act.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+```
+
+# Overlap predictions with atac-seq peaks
+```{r}
+# topic 16 B bed files
+write.table(x = DeepMEL$Tile.B$Topic_16[DeepMEL$Tile.B$Topic_16$score > 0.1, 1:3], file = "CHEQ-seq_OLS-B/T16B-high.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+# topic 17 B bed files
+write.table(x = DeepMEL$Tile.B$Topic_17[DeepMEL$Tile.B$Topic_17$score > 0.1, 1:3], file = "CHEQ-seq_OLS-B/T17B-high.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+# topic 19 B bed files
+write.table(x = DeepMEL$Tile.B$Topic_19[DeepMEL$Tile.B$Topic_19$score > 0.1, 1:3], file = "CHEQ-seq_OLS-B/T19B-high.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+# topic 19 A bed files
+write.table(x = DeepMEL$Tile.A$Topic_19[DeepMEL$Tile.A$Topic_19$score > 0.1, 1:3], file = "CHEQ-seq_OLS-A/T19A-high.bed",sep = "\t", quote = F, row.names = F, col.names = F)
+
+```
+
+

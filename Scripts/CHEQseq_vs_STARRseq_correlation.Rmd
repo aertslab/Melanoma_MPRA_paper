@@ -1,0 +1,271 @@
+---
+title: "Correlation Ac vs ATAC library"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Compare activity long enhancers vs 500 bp enhancers
+## Select best ATAC enhancer when 2 are in the same Ac region then combine with Ac data
+```{r}
+library(dplyr)
+CSE.500bp.nodouble.df <- CSE.500bp.df[-c(18,21,23,29,32,34,37,40,41),]
+CSE.500bp.nodouble.df$enhancer <- c("ABCC3_1", "ALPK_2", "AXL_2", "BLK_3", "BLK_5", "CDH1_1", "CDH1_2", "COL1A2_1", "COL5A1_1", "COL5A1_2", "COL5A1_3", "COL5A1_4", "COL5A1_5", "COL5A1_8", "EDN1_1", "EDN1_3", "FGF2_1",  "FGF2_2", "FLNC_1",  "FOSL2_1", "GPR39_1",  "GPR39_2",  "HEG1_1", "IRF4_1", "KIT_1", "MITF_1", "MLANA_1",  "SERPINE1_1",  "SGCD_2",  "SGCD_3", "SOX10_1", "SOX10_3", "SOX10_5", "TYR_1", "TYR_2")
+CH1.df <- readRDS(file = "/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/data/CHEQseq__intron__combined_dataframe.RDS")
+CH1.CSE.df <- inner_join(x = CSE.500bp.nodouble.df, 
+                         y = CH1.df, 
+                         by = "enhancer")
+```
+
+# Pearson correlation table between assays
+```{r}
+library(corrplot)
+# CHEQseq 500bp vs CHEQseq intron
+M2 <- cor(x = na.omit(CH1.CSE.df[,c(2:8, 22:28)]), method = "pearson")
+colnames(M2) <- c("MM001.CHEQ", "MM057.CHEQ", "MM074.CHEQ", "MM087.CHEQ", "MM029.CHEQ", "MM047.CHEQ", "MM099.CHEQ", "MM001.intron", "MM057.intron", "MM074.intron", "MM087.intron", "MM029.intron", "MM047.intron", "MM099.intron")
+row.names(M2) <- c("MM001.CHEQ", "MM057.CHEQ", "MM074.CHEQ", "MM087.CHEQ", "MM029.CHEQ", "MM047.CHEQ", "MM099.CHEQ", "MM001.intron", "MM057.intron", "MM074.intron", "MM087.intron", "MM029.intron", "MM047.intron", "MM099.intron")
+corrplot(M2, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq 500bp vs CHEQseq intron - Input normalised", order = "hclust", addrect = 2)
+
+# STARRseq 500bp vs CHEQseq intron
+M4 <- cor(x = na.omit(CH1.CSE.df[,c(12:18, 22:28)]), method = "pearson")
+colnames(M4) <- c("MM001.STARR", "MM057.STARR", "MM074.STARR", "MM087.STARR", "MM029.STARR", "MM047.STARR", "MM099.STARR", "MM001.intron", "MM057.intron", "MM074.intron", "MM087.intron", "MM029.intron", "MM047.intron", "MM099.intron")
+row.names(M4) <- c("MM001.STARR", "MM057.STARR", "MM074.STARR", "MM087.STARR", "MM029.STARR", "MM047.STARR", "MM099.STARR", "MM001.intron", "MM057.intron", "MM074.intron", "MM087.intron", "MM029.intron", "MM047.intron", "MM099.intron")
+corrplot(M4, method="color", addCoef.col = "grey", tl.col="black", title = "STARRseq 500bp vs CHEQseq intron - Input normalised", order = "hclust", addrect = 2)
+```
+
+## Plot CHEQseq Ac vs ATAC activity
+```{r}
+library(Hmisc)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  a <-  cor.test(log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")]),log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]), method="pearson")
+  b <-  cor.test(log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")]),log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]), method="spearman")
+  p<-ggplot(CH1.CSE.df, aes(x = log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")]), 
+                            y = log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]), color = phenotype)) +
+        geom_smooth(method = "lm", alpha =0.1) +
+        geom_point() +
+        theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        annotate("text", x = min(log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")])), y = max(log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")])), label = paste0("Pearson's r = ", round(a[["estimate"]][["cor"]], 4)), hjust = 0) +
+        annotate("text", x = min(log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")])), y = max(log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]))-0.5, label = paste0("Spearman's rho = ", round(b[["estimate"]][["rho"]], 4)), hjust = 0) +
+        labs(x = "CHEQ-seq Intron H3K27ac Log2 FC", y = "CHEQ-seq ATAC Log2 FC", color = "Enhancer\nphenotype")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/H3K27Ac_vs_ATAC_library_activity_correlation_",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+  print(p)
+}
+```
+
+## Dumbbell plots CHEQseq Intron vs ATAC
+```{r}
+library(ggplot2)
+library(ggalt)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  p <- ggplot(CH1.CSE.df, 
+              aes(y=reorder(x = enhancer, X = log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]), FUN=median), x=log2(CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")]), xend =log2(CH1.CSE.df[,paste0(i,".BasalNorm.FC")]), group= enhancer)) + 
+        geom_dumbbell(color="#b2b2b2", size=0.75, size_x = 1.5, size_xend = 1.5, colour_x="#a3c4dc", colour_xend="#0e668b")+
+        # geom_text(data=alphas.int[[i]]$comparison[which.max(alphas.int[[i]]$comparison[,2]),], aes(x=log2(BasalNorm.FC.mpranalyze), y=enhancer, label="CHEQ-seq H3K27Ac"),
+        #           color="#0e668b", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = 1)+
+        # geom_text(data=alphas.int[[i]]$comparison[which.max(alphas.int[[i]]$comparison[,2]),], aes(x=log2(BasalNorm.FC.aggr), y=enhancer, label="CHEQ-seq ATAC"),
+        #           color="#a3c4dc", size=3, vjust=-0.7, fontface="bold", family="Lato", nudge_x = -1)+
+     #   expand_limits(x = 9, y = c(0,53))+
+        labs(x="Log2 Expression", y=NULL, 
+             title= paste0(i," - H3K27Ac library vs ATAC library")) +
+        theme(plot.title = element_text(hjust=0.5, face="bold"),
+              plot.background=element_rect(fill="#f7f7f7"),
+              panel.background=element_rect(fill="#f7f7f7"),
+              panel.grid.minor=element_blank(),
+              panel.grid.major.y=element_blank(),
+              panel.grid.major.x=element_line(),
+              axis.ticks=element_blank(),
+              legend.position="top",
+              panel.border=element_blank())
+      #ggsave(filename = paste0("plots/CHEQseq_Intron_dumbbell_",i,"_Aggregated_vs_MPRAnalyze.eps"),device = "eps",width = 8,height = 6.5)
+  print(p)
+}
+```
+
+# Compare ranking 
+## Generate ranking per line and assay
+```{r}
+rank.list <- list()
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list[[paste0(i,".Ac")]] <- CH1.CSE.df[order(CH1.CSE.df[,paste0(i,'.BasalNorm.FC')], decreasing = T),c('enhancer',paste0(i,'.BasalNorm.FC'),'phenotype')]
+  rank.list[[paste0(i,".Ac")]]$rank <- c(1:nrow(rank.list[[paste0(i,".Ac")]]))
+  rank.list[[paste0(i,".ATAC")]] <- CH1.CSE.df[order(CH1.CSE.df[,paste0(i,'.CPMNorm.FC.CHEQ')], decreasing = T),c('enhancer',paste0(i,'.CPMNorm.FC.CHEQ'),'phenotype')]
+  rank.list[[paste0(i,".ATAC")]]$rank <- c(1:nrow(rank.list[[paste0(i,".ATAC")]]))
+}
+
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list[[paste0(i,".combined")]] <- inner_join(x = rank.list[[paste0(i,".Ac")]][,c(1,2,4)],
+                                                   y = rank.list[[paste0(i,".ATAC")]],
+                                                   by = "enhancer",
+                                                   suffix = c(".Ac", ".ATAC"))
+}
+```
+
+## Scatter plot ranking
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+rank.cor <- cor.test(rank.list[[paste0(i,".combined")]]$rank.Ac, rank.list[[paste0(i,".combined")]]$rank.ATAC, method = "spearman")
+p<-ggplot(rank.list[[paste0(i,".combined")]], aes(x = rank.Ac,
+                                                  y = rank.ATAC, 
+                                                  color = phenotype)) +
+    geom_smooth(method = "lm", alpha =0.1) +
+    geom_point() +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid = element_blank(),
+          axis.text = element_text(color = "black"),
+          legend.key = element_rect(fill = "white")) +
+    scale_x_reverse() +
+    scale_y_reverse() +
+    scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    annotate("text", x = 33, y = 1, label = paste0("ρ = ", round(rank.cor[["estimate"]][["rho"]], 4)), hjust = 0) +
+    annotate("text", x = 33, y = 3, label = paste0("p-value = ", format(round(rank.cor[["p.value"]], 6), nsmall = 2)), hjust = 0) +
+    labs(x = "Enhancer Rank - CHEQ-seq H3K27Ac Library", y = "Enhancer Rank - CHEQ-seq ATAC Library", color = "Enhancer\nphenotype", title = paste0("Rank correlation ",i))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/H3K27Ac_vs_ATAC_library_rank_correlation_",i,".eps"),device = "eps",width = 7,height = 4.5)
+print(p)
+}
+```
+
+# CHEQ-seq Ac vs STARR-seq ATAC
+## Generate ranking per line and assay
+```{r}
+library(ggplot2)
+library(dplyr)
+
+rank.list.STARR <- list()
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list.STARR[[paste0(i,".Ac")]] <- CH1.CSE.df[order(CH1.CSE.df[,paste0(i,'.BasalNorm.FC')], decreasing = T),c('enhancer',paste0(i,'.BasalNorm.FC'),'phenotype')]
+  rank.list.STARR[[paste0(i,".Ac")]]$rank <- c(1:nrow(rank.list.STARR[[paste0(i,".Ac")]]))
+  rank.list.STARR[[paste0(i,".ATAC")]] <- CH1.CSE.df[order(CH1.CSE.df[,paste0(i,'.CPMNorm.FC.STARR')], decreasing = T),c('enhancer',paste0(i,'.CPMNorm.FC.STARR'),'phenotype')]
+  rank.list.STARR[[paste0(i,".ATAC")]]$rank <- c(1:nrow(rank.list.STARR[[paste0(i,".ATAC")]]))
+}
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list.STARR[[paste0(i,".combined")]] <- inner_join(x = rank.list.STARR[[paste0(i,".Ac")]][,c(1,2,4)],
+                                                         y = rank.list.STARR[[paste0(i,".ATAC")]],
+                                                         by = "enhancer",
+                                                         suffix = c(".Ac", ".ATAC"))
+}
+```
+
+## Scatter plot ranking
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+rank.cor <- cor.test(rank.list.STARR[[paste0(i,".combined")]]$rank.Ac, rank.list.STARR[[paste0(i,".combined")]]$rank.ATAC, method = "spearman")
+p<-ggplot(rank.list.STARR[[paste0(i,".combined")]], aes(x = rank.Ac,
+                                                  y = rank.ATAC, 
+                                                  color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_x_reverse() +
+  scale_y_reverse() +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 33, y = 1, label = paste0("ρ = ", round(rank.cor[["estimate"]][["rho"]], 4)), hjust = 0) +
+  annotate("text", x = 33, y = 3, label = paste0("p-value = ", format(round(rank.cor[["p.value"]], 6), nsmall = 2)), hjust = 0) +
+  labs(x = "Enhancer Rank - CHEQ-seq H3K27Ac Library", y = "Enhancer Rank - CHEQ-seq ATAC Library", color = "Phenotype", title = paste0("Rank correlation ",i))
+# ggsave(filename = paste0("analysis/CHEQseq/Plots/H3K27Ac_vs_ATAC_library_rank_correlation_",i,".eps"),device = "eps",width = 9,height = 6)
+print(p)
+}
+```
+
+```{r}
+# Function to generate scale with image()
+image.scale <- function(z, zlim, col = heat.colors(12),
+breaks, horiz=TRUE, ylim=NULL, xlim=NULL, ...){
+ if(!missing(breaks)){
+  if(length(breaks) != (length(col)+1)){stop("must have one more break than colour")}
+ }
+ if(missing(breaks) & !missing(zlim)){
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1)) 
+ }
+ if(missing(breaks) & missing(zlim)){
+  zlim <- range(z, na.rm=TRUE)
+  zlim[2] <- zlim[2]+c(zlim[2]-zlim[1])*(1E-3)#adds a bit to the range in both directions
+  zlim[1] <- zlim[1]-c(zlim[2]-zlim[1])*(1E-3)
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1))
+ }
+ poly <- vector(mode="list", length(col))
+ for(i in seq(poly)){
+  poly[[i]] <- c(breaks[i], breaks[i+1], breaks[i+1], breaks[i])
+ }
+ xaxt <- ifelse(horiz, "s", "n")
+ yaxt <- ifelse(horiz, "n", "s")
+ if(horiz){YLIM<-c(0,1); XLIM<-range(breaks)}
+ if(!horiz){YLIM<-range(breaks); XLIM<-c(0,1)}
+ if(missing(xlim)) xlim=XLIM
+ if(missing(ylim)) ylim=YLIM
+ plot(1,1,t="n",ylim=ylim, xlim=xlim, xaxt=xaxt, yaxt=yaxt, xaxs="i", yaxs="i", ...)  
+ for(i in seq(poly)){
+  if(horiz){
+   polygon(poly[[i]], c(0,0,1,1), col=col[i], border=NA)
+  }
+  if(!horiz){
+   polygon(c(0,0,1,1), poly[[i]], col=col[i], border=NA)
+  }
+ }
+}
+```
+
+# Correlation table CHEQseq Ac vs CHEQseq ATAC
+```{r}
+library(RColorBrewer)
+# Generate correlation table
+corratac <- matrix(NA, nrow = 7, ncol = 2)
+colnames(corratac) <- c("Activity", "Rank")
+rownames(corratac) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  p1 <- cor.test(CH1.CSE.df[,paste0(i,".BasalNorm.FC")],CH1.CSE.df[,paste0(i,".CPMNorm.FC.CHEQ")], method="pearson")[["estimate"]][["cor"]]
+  p2 <- cor.test(rank.list[[paste0(i,".combined")]]$rank.Ac, rank.list[[paste0(i,".combined")]]$rank.ATAC, method = "spearman")[["estimate"]][["rho"]]
+  corratac[i,1] <- p1
+  print(p1)
+  corratac[i,2] <- p2
+  print(p2)
+}
+
+setEPS()
+postscript(file = paste0("analysis/CHEQseq/Plots/Correlation_table_Ac_vs_ATAC_lib.eps"), 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 6, width = 4)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,1,2,3), nrow=2, ncol=2), widths=c(5,1), heights=c(2.5,4.5))
+  # layout.show(7)
+  
+  # Plot data
+  breaks2 <- seq(-1, 1,length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(11, "RdBu"))
+  par(mar =  c( 0.5, 5, 6, 0.5 ) )
+  image(x = t(corratac[nrow(corratac):1,]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="")
+  title("CHEQ-seq H3K27Ac library\nvs CHEQ-seq ATAC library", line = 3, cex = 1)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(corratac)),
+       labels = rev(c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")),
+       las= 2, tick = F, cex.axis = 1.2, font=1)
+  axis(side = 3,
+       at=seq(0,1,length.out=ncol(corratac)),
+       labels = c("Activity", "Ranking"),
+       las= 1, tick = F, cex.axis = 1.2, font=1)
+    
+  # Add scale
+  par(mar=c(2.5,0.5,6,3))
+  image.scale(corratac, col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  #mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-1, 1, by=1), las=2)
+  box()
+dev.off()
+```

@@ -1,0 +1,368 @@
+---
+title: "Luciferase analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load CHEQseq data
+```{r}
+cheq.001.luc <- read.table(file = "cheq.001.luc.csv", header = T, sep = "\t")
+cheq.099.luc <- read.table(file = "cheq.099.luc.csv", header = T, sep = "\t")
+# Add mutated enhancers with na values
+tmp <- data.frame(enhancer = levels(DM.mut.luc$enhancer),
+                  BasalNorm.FC = rep(NA, length(levels(DM.mut.luc$enhancer))),
+                  phenotype = rep(NA, length(levels(DM.mut.luc$enhancer))))
+cheq.001.luc <- rbind(cheq.001.luc, tmp)
+cheq.001.luc$enhancer <- factor(cheq.001.luc$enhancer, levels = luc$enhancer[1:24])
+cheq.001.luc$fill <- "A"
+cheq.099.luc <- rbind(cheq.099.luc, tmp)
+cheq.099.luc$enhancer <- factor(cheq.099.luc$enhancer, levels = luc$enhancer[1:24])
+cheq.099.luc$fill <- "A"
+```
+
+## Plot CHEQseq data
+```{r}
+library(ggplot2)
+# MM001
+p001.1 <- ggplot(data = cheq.001.luc, aes(x = enhancer, y = log2(BasalNorm.FC), fill= fill)) +
+            geom_bar(stat="identity", width = 0.4, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("#801596")) +
+            labs(y = "CHEQ-seq\nLog2 FC")
+print(p001.1)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/CHEQseq-MM001.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+p001.1 <- p001.1 + theme(axis.text.x = element_blank())
+
+
+# MM099
+p099.1 <- ggplot(data = cheq.099.luc, aes(x = enhancer, y = log2(BasalNorm.FC), fill= fill)) +
+            geom_bar(stat="identity", width = 0.4, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("#801596")) +
+            labs(y = "CHEQ-seq\nLog2 FC")
+print(p099.1)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/CHEQseq-MM099.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+p099.1 <- p099.1 + theme(axis.text.x = element_blank())
+```
+
+# Load luciferase data
+```{r}
+luc <- read.table(file = "Luc_values.csv", header = T, sep = "\t")
+luc$Rep <- as.factor(luc$Rep)
+names(luc)[1] <- "enhancer"
+luc$enhancer <- factor(luc$enhancer, levels = luc$enhancer[1:24])
+luc.mean <- read.table(file = "Luc_mean_values.csv", header = T, sep = "\t")
+names(luc.mean)[1] <- "enhancer"
+```
+
+## Plot luciferase (mean replicates)
+```{r}
+library(ggplot2)
+# MM001
+p001.2 <- ggplot(data = luc.mean[luc.mean$Line == "MM001",], aes(x = enhancer, y = log2(Value))) +
+            geom_bar(stat="identity", width = 0.4, color = "black", size = 0.25, fill= "#f2b351") +
+            geom_errorbar(aes(ymin=log2(Value-SEM), ymax=log2(Value+SEM)), width=.2) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.position = "none") +
+            # annotation_logticks(sides = "l")+
+            labs(y = "Log2 FC")
+print(p001.2)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/luc-MM001.pdf"),device = "pdf",width = 6,height = 3.5, useDingbats = F)
+
+# MM099
+p099.2 <- ggplot(data = luc.mean[luc.mean$Line == "MM099",], aes(x = enhancer, y = log2(Value))) +
+            geom_bar(stat="identity", width = 0.4, color = "black", size = 0.25, fill= "#f2b351") +
+            geom_errorbar(aes(ymin=log2(Value-SEM), ymax=log2(Value+SEM)), width=.2) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.position = "none") +
+            # annotation_logticks(sides = "l")+
+            labs(y = "Log2 FC")
+print(p099.2)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/luc-MM099.pdf"),device = "pdf",width = 6,height = 3.5, useDingbats = F)
+```
+
+## Plot luciferase (all replicates)
+```{r}
+library(ggplot2)
+# MM001
+p001.3 <- ggplot(data = luc[luc$Line == "MM001",], aes(x = enhancer, y = log2(Value), fill = Rep)) +
+            geom_bar(stat="identity", position = "dodge", width = 0.6, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("#f2c47c", "#f2b351", "#e4961a", "#ab7f39")) +
+            # annotation_logticks(sides = "l")+
+            labs(y = "Luciferase\nLog2 FC", fill = "Replicate")
+print(p001.3)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/luc_rep-MM001.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+p001.3 <- p001.3 + theme(axis.text.x = element_blank())
+
+# MM099
+p099.3 <- ggplot(data = luc[luc$Line == "MM099",], aes(x = enhancer, y = log2(Value), fill = Rep)) +
+            geom_bar(stat="identity", position = "dodge", width = 0.6, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("#f2c47c", "#f2b351", "#e4961a", "#ab7f39")) +
+            # annotation_logticks(sides = "l")+
+            labs(y = "Luciferase\nLog2 FC", fill = "Replicate")
+print(p099.3)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/luc_rep-MM099.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+p099.3 <- p099.3 + theme(axis.text.x = element_blank())
+```
+
+# Load DeepMEL scores
+```{r}
+library(stringr)
+# WT data
+DM.luc <- read.table(file = "500bpMMseq_.500bp_prediction.txt", header = T, sep = "\t", stringsAsFactors = F)
+DM.luc$names <- c("FOSL2_1A", "FOSL2_1B", "SERPINE1_1A", "SERPINE1_1B", "SERPINE1_2", "SERPINE1_6", "FGF2_1A", "FGF2_1B", "FGF2_2", "FLNC_1A", "FLNC_1B", "HEG1_1", "BLK_3", "BLK_5", "COL1A2_1", "COL5A1_1", "COL5A1_2", "COL5A1_3", "COL5A1_4", "COL5A1_5", "COL5A1_8", "ALPK2_2", "AXL_2", "ABCC3_1", "GPR39_1", "GPR39_2", "EDN1_1", "EDN1_3", "CDH1_1", "CDH1_2", "SOX10_1A", "SOX10_1B", "SOX10_3A", "SOX10_3B", "SOX10_5A", "SOX10_5B", "IRF4_1", "KIT_1A", "KIT_1B", "MLANA_1", "SGCD_2A", "SGCD_2B", "SGCD_3", "MITF_1", "TYR_1", "TYR_2")
+names(DM.luc)[1] <- "enhancer"
+for (i in new.names.500$old_names){
+  DM.luc[DM.luc$names == i, "enhancer"] <- as.character(new.names.500[new.names.500$old_names == i, "new_names"])
+}
+DM.luc <- DM.luc[DM.luc$enhancer %in% c("ABCC3_11-I", "COL5A1_-17-D", "GPR39_23-I", "MLANA_5-I", "IRF4_4-I", "TYR_-9-D", "SOX10_15-3UA", "SOX10_-56-DA"), c(1,16,17,18,20)]
+DM.luc$enhancer <- as.factor(DM.luc$enhancer)
+DM.luc$enhancer <- factor(DM.luc$enhancer, levels = c("ABCC3_11-I", "COL5A1_-17-D", "GPR39_23-I", "MLANA_5-I", "IRF4_4-I", "TYR_-9-D", "SOX10_15-3UA", "SOX10_-56-DA"))
+names(DM.luc) <- c("enhancer", "Topic_15", "Topic_16", "Topic_17", "Topic_19")
+DM.luc <- tidyr::gather(DM.luc, key = "Topic", value = "Value", Topic_15, Topic_16, Topic_17, Topic_19)
+
+
+# Mutated data
+## Load data
+DM.mut.luc <- read.table(file = "ATAC_mut_deepmel2_gabpa_prediction_scores.txt", header = T, sep = "\t", stringsAsFactors = F)
+## Keep only topic 15,16,17,19
+DM.mut.luc <- DM.mut.luc[,c(1,16,17,18,20)]
+names(DM.mut.luc)[1] <- "enhancer"
+## Remove COL5A1_4 values
+DM.mut.luc <- DM.mut.luc[grep(pattern = "COL5A1_4", DM.mut.luc$enhancer, invert = T),]
+## Correct first name
+DM.mut.luc[DM.mut.luc$enhancer == "ABCC3_11-I==mut-AP1", "enhancer"] <- "ABCC3_11-I==mut_AP1"
+## Remove extra mutation info
+DM.mut.luc$enhancer <- paste0(str_split(DM.mut.luc$enhancer, pattern = "_",simplify = T)[,1], "_", str_split(DM.mut.luc$enhancer, pattern = "_",simplify = T)[,2], "_", str_split(DM.mut.luc$enhancer, pattern = "_",simplify = T)[,3])
+## Transform in long table
+DM.mut.luc <- tidyr::gather(DM.mut.luc, key = "Topic", value = "Value", Topic_15, Topic_16, Topic_17, Topic_19)
+DM.mut.luc$enhancer <- as.factor(DM.mut.luc$enhancer)
+
+# Combine DM df
+DM.luc <- rbind(DM.luc, DM.mut.luc)
+DM.luc$enhancer <- factor(DM.luc$enhancer, levels = luc$enhancer[1:24])
+```
+
+## Plot DeepMEL
+```{r}
+library(ggplot2)
+# Topic 16 and 17
+p001.4 <- ggplot(data = DM.luc[DM.luc$Topic %in% c("Topic_15", "Topic_16", "Topic_17"),], aes(x = enhancer, y = Value, fill = Topic)) +
+            geom_bar(stat="identity", position = "dodge", width = 0.8, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("white", "#7099CA", "#1C5395"), labels = c("15", "16", "17")) +
+            labs(y = "Prediction score")
+print(p001.4)
+# ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/DM-16-17.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+
+# Topic 19
+p099.4 <- ggplot(data = DM.luc[DM.luc$Topic %in% c("Topic_19"),], aes(x = enhancer, y = Value, fill = Topic)) +
+            geom_bar(stat="identity", position = "dodge", width = 0.4, color = "black", size = 0.25) +
+            theme(panel.background = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(colour="black", size = 7),
+                  axis.text.x = element_text(angle = 60, hjust = 1),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_text(size = 8),
+                  legend.key = element_blank(),
+                  legend.title = element_text(size = 7),
+                  legend.text = element_text(size = 7),
+                  legend.key.size = unit(0.8,"line")) +
+            scale_fill_manual(values = c("#E41A1A"), labels = c("19")) +
+            labs(y = "Prediction score")
+print(p099.4)
+# ggsave(filename = paste0("analysis/CHEQseq/Plots/Luciferase/DM-19.pdf"),device = "pdf",width = 6.5,height = 3.5, useDingbats = F)
+```
+
+# Plot all graphs on top of each other
+```{r}
+library(grid)
+library(gtable)
+# MM001
+pdf(file = paste0("analysis/CHEQseq/Plots/Luciferase/Stacked_MM001.pdf"), width = 6.5,height = 4.5)
+grid.newpage()
+grid.draw(rbind(ggplotGrob(p001.1), ggplotGrob(p001.3), ggplotGrob(p001.4), size = "last"))
+dev.off()
+
+# MM099
+pdf(file = paste0("analysis/CHEQseq/Plots/Luciferase/Stacked_MM099.pdf"), width = 6.5,height = 4.5)
+grid.newpage()
+grid.draw(rbind(ggplotGrob(p099.1), ggplotGrob(p099.3), ggplotGrob(p099.4), size = "last"))
+dev.off()
+```
+
+############
+# Stats luciferase
+```{r}
+# MM001
+## MLANA_5-I
+for (i in c("MLANA_5-I==mut_MITF", "MLANA_5-I==mut_SOX", "MLANA_5-I==mut_ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "MLANA_5-I", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "MLANA_5-I", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## IRF4_4-I
+for (i in c("IRF4_4-I==mut_MITF", "IRF4_4-I==mut_SOX", "IRF4_4-I==mut_ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "IRF4_4-I", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "IRF4_4-I", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## TYR_-9-D
+print("TYR_-9-D")
+print("Greater:")
+print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "TYR_-9-D", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == "TYR_-9-D==mut_SOX", "Value"]), paired = T, alternative = "greater")$p.value)
+print("Less:")
+print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "TYR_-9-D", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == "TYR_-9-D==mut_SOX", "Value"]), paired = T, alternative = "less")$p.value)
+print("###############")
+## SOX10_15-3UA
+for (i in c("SOX10_15-3UA==mut_ZEB", "SOX10_15-3UA==mut_SOX-ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "SOX10_15-3UA", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "SOX10_15-3UA", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## SOX10_-56-DA
+for (i in c("SOX10_-56-DA==mut_ZEB", "SOX10_-56-DA==mut_MITF-ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "SOX10_-56-DA", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM001" & luc$enhancer == "SOX10_-56-DA", "Value"]), log2(luc[luc$Line == "MM001" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+```
+
+```{r}
+# MM099
+## ABCC3_11-I
+for (i in c("ABCC3_11-I==mut_AP1", "ABCC3_11-I==mut_ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "ABCC3_11-I", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "ABCC3_11-I", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## COL5A1_-17-D
+for (i in c("COL5A1_-17-D==mut_AP1", "COL5A1_-17-D==mut_ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "COL5A1_-17-D", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "COL5A1_-17-D", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## GPR39_23-I
+print("GPR39_23-I")
+print("Greater:")
+print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "GPR39_23-I", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == "GPR39_23-I==mut_AP1", "Value"]), paired = T, alternative = "greater")$p.value)
+print("Less:")
+print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "GPR39_23-I", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == "GPR39_23-I==mut_AP1", "Value"]), paired = T, alternative = "less")$p.value)
+print("###############")
+## SOX10_15-3UA
+for (i in c("SOX10_15-3UA==mut_ZEB", "SOX10_15-3UA==mut_SOX-ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_15-3UA", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_15-3UA", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+## SOX10_-56-DA
+for (i in c("SOX10_-56-DA==mut_ZEB", "SOX10_-56-DA==mut_MITF-ZEB")){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_-56-DA", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_-56-DA", "Value"]), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+```
+
+```{r}
+## SOX10_15-3UA
+for (i in levels(luc$enhancer)){
+  print(i)
+  print("Greater:")
+  print(t.test(log2(rowMeans(cbind(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_15-3UA", "Value"],luc[luc$Line == "MM099" & luc$enhancer == "SOX10_-56-DA", "Value"]))), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "greater")$p.value)
+  print("Less:")
+  print(t.test(log2(rowMeans(cbind(luc[luc$Line == "MM099" & luc$enhancer == "SOX10_15-3UA", "Value"],luc[luc$Line == "MM099" & luc$enhancer == "SOX10_-56-DA", "Value"]))), log2(luc[luc$Line == "MM099" & luc$enhancer == i, "Value"]), paired = T, alternative = "less")$p.value)
+  print("###############")
+}
+```

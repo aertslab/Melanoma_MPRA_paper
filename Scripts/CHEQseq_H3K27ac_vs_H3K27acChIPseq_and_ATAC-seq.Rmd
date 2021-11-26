@@ -1,0 +1,1120 @@
+---
+title: "H3K27Ac and ATAC vs long enhancers activity"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis")
+```
+
+# Load new names
+```{r}
+new.names <- read.table(file = "/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/region_new_names.tsv", header = T, sep = "\t")
+```
+
+# Load data H3K27Ac quantification
+```{r}
+Ac.long <- new.env()
+Ac.long[["MM001"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM001.bed", header = F, sep = "\t")
+Ac.long[["MM001"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM001.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM029"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM029.bed", header = F, sep = "\t")
+Ac.long[["MM029"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM029.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM047"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM047.bed", header = F, sep = "\t")
+Ac.long[["MM047"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM047.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM057"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM057.bed", header = F, sep = "\t")
+Ac.long[["MM057"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM057.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM074"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM074.bed", header = F, sep = "\t")
+Ac.long[["MM074"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM074.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM087"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM087.bed", header = F, sep = "\t")
+Ac.long[["MM087"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM087.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+Ac.long[["MM099"]]$H3K27Ac <- read.table(file = "../../H3K27Ac-ATAC_quantification/H3K27Ac_MM099.bed", header = F, sep = "\t")
+Ac.long[["MM099"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM099.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+
+proliferative.enhancers <- c("CDH1_24-I","CDH1_49-I","SOX10_15-3U","SOX10_-3-D","SOX10_-34-D","SOX10_-35-D","SOX10_-56-D","IRF4_4-I","GPM6B_P","KIT_114-D","MLANA_5-I","SGCD_15-I","SGCD_26-I","MITF_P","TYR_-9-D","TYR_-1-D","TYR_P","RRAGD_P")
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  # Rename enhancers
+  for (j in new.names$old_names){
+    levels(Ac.long[[i]]$Copy.Number$Enhancer)[match(j, levels(Ac.long[[i]]$Copy.Number$Enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+    levels(Ac.long[[i]]$H3K27Ac$V1)[match(j, levels(Ac.long[[i]]$H3K27Ac$V1))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  }
+  # Add phenotype to CNN data frame
+  Ac.long[[i]]$Copy.Number$Phenotype <- "MES"
+  Ac.long[[i]]$Copy.Number$Phenotype[Ac.long[[i]]$Copy.Number$Enhancer %in% proliferative.enhancers] <- "MEL"
+  # Normalize for copy number variation  
+  Ac.long[[i]]$H3K27Ac$CNNorm.score <- Ac.long[[i]]$H3K27Ac[,4]/Ac.long[[i]]$Copy.Number[,5]*2
+  Ac.long[[i]]$H3K27Ac$CNNorm.mean.score <- Ac.long[[i]]$H3K27Ac[,5]/Ac.long[[i]]$Copy.Number[,5]*2
+}
+
+Ac.long$combined <- cbind(Ac.long[["MM001"]]$H3K27Ac[,c(1,2,5,8)],
+                          Ac.long[["MM057"]]$H3K27Ac[,c(5,8)],
+                          Ac.long[["MM074"]]$H3K27Ac[,c(5,8)],
+                          Ac.long[["MM087"]]$H3K27Ac[,c(5,8)],
+                          Ac.long[["MM029"]]$H3K27Ac[,c(5,8)],
+                          Ac.long[["MM047"]]$H3K27Ac[,c(5,8)],
+                          Ac.long[["MM099"]]$H3K27Ac[,c(5,8)])
+Ac.long$combined$MEL.mean.score <- rowMeans(Ac.long$combined[,c(3,5,7,9)])
+Ac.long$combined$MEL.CNNorm.mean.score <- rowMeans(Ac.long$combined[,c(4,6,8,10)])
+Ac.long$combined$MES.mean.score <- rowMeans(Ac.long$combined[,c(11,13,15)])
+Ac.long$combined$MES.CNNorm.mean.score <- rowMeans(Ac.long$combined[,c(12,14,16)])
+colnames(Ac.long$combined) <- c("enhancer", "length", "MM001.mean.score", "MM001.CNNorm.mean.score", "MM057.mean.score", "MM057.CNNorm.mean.score", "MM074.mean.score", "MM074.CNNorm.mean.score", "MM087.mean.score", "MM087.CNNorm.mean.score", "MM029.mean.score", "MM029.CNNorm.mean.score", "MM047.mean.score", "MM047.CNNorm.mean.score", "MM099.mean.score", "MM099.CNNorm.mean.score", "MEL.mean.score", "MEL.CNNorm.mean.score", "MES.mean.score", "MES.CNNorm.mean.score")
+Ac.long$combined$phenotype<-"Invasive"
+Ac.long$combined$phenotype[Ac.long$combined$enhancer %in% proliferative.enhancers]<-"Proliferative"
+rownames(Ac.long$combined) <- Ac.long$combined[,1]
+```
+
+# Load data ATAC quantification
+```{r}
+ATAC.long <- new.env()
+ATAC.long[["MM001"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM001.bed", header = F, sep = "\t")
+ATAC.long[["MM001"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM001.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM029"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM029.bed", header = F, sep = "\t")
+ATAC.long[["MM029"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM029.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM047"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM047.bed", header = F, sep = "\t")
+ATAC.long[["MM047"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM047.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM057"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM057.bed", header = F, sep = "\t")
+ATAC.long[["MM057"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM057.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM074"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM074.bed", header = F, sep = "\t")
+ATAC.long[["MM074"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM074.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM087"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM087.bed", header = F, sep = "\t")
+ATAC.long[["MM087"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM087.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+ATAC.long[["MM099"]]$ATAC <- read.table(file = "../../H3K27Ac-ATAC_quantification/ATAC_long_MM099.bed", header = F, sep = "\t")
+ATAC.long[["MM099"]]$Copy.Number <- read.table(file = "../../H3K27Ac-ATAC_quantification/Copy_number_long_MM099.bed", header = F, sep = "\t", col.names=c("Chr", "Start", "End", "Enhancer", "Copy.Number"))
+
+
+proliferative.enhancers <- c("CDH1_24-I","CDH1_49-I","SOX10_15-3U","SOX10_-3-D","SOX10_-34-D","SOX10_-35-D","SOX10_-56-D","IRF4_4-I","GPM6B_P","KIT_114-D","MLANA_5-I","SGCD_15-I","SGCD_26-I","MITF_P","TYR_-9-D","TYR_-1-D","TYR_P","RRAGD_P")
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  # Rename enhancers
+  for (j in new.names$old_names){
+    levels(ATAC.long[[i]]$Copy.Number$Enhancer)[match(j, levels(ATAC.long[[i]]$Copy.Number$Enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+    levels(ATAC.long[[i]]$ATAC$V1)[match(j, levels(ATAC.long[[i]]$ATAC$V1))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  }
+  # Add phenotype to CNN data frame
+  ATAC.long[[i]]$Copy.Number$Phenotype <- "MES"
+  ATAC.long[[i]]$Copy.Number$Phenotype[ATAC.long[[i]]$Copy.Number$Enhancer %in% proliferative.enhancers] <- "MEL"
+  # Normalize for copy number variation
+  ATAC.long[[i]]$ATAC$CNNorm.score <- ATAC.long[[i]]$ATAC[,4]/ATAC.long[[i]]$Copy.Number[,5]*2
+  ATAC.long[[i]]$ATAC$CNNorm.mean.score <- ATAC.long[[i]]$ATAC[,5]/ATAC.long[[i]]$Copy.Number[,5]*2
+}
+
+ATAC.long$combined <- cbind(ATAC.long[["MM001"]]$ATAC[,c(1,2,5,8)],
+                          ATAC.long[["MM057"]]$ATAC[,c(5,8)],
+                          ATAC.long[["MM074"]]$ATAC[,c(5,8)],
+                          ATAC.long[["MM087"]]$ATAC[,c(5,8)],
+                          ATAC.long[["MM029"]]$ATAC[,c(5,8)],
+                          ATAC.long[["MM047"]]$ATAC[,c(5,8)],
+                          ATAC.long[["MM099"]]$ATAC[,c(5,8)])
+colnames(ATAC.long$combined) <- c("enhancer", "length", "MM001.mean.score", "MM001.CNNorm.mean.score", "MM057.mean.score", "MM057.CNNorm.mean.score", "MM074.mean.score", "MM074.CNNorm.mean.score", "MM087.mean.score", "MM087.CNNorm.mean.score", "MM029.mean.score", "MM029.CNNorm.mean.score", "MM047.mean.score", "MM047.CNNorm.mean.score", "MM099.mean.score", "MM099.CNNorm.mean.score")
+ATAC.long$combined$phenotype<-"Invasive"
+ATAC.long$combined$phenotype[ATAC.long$combined$enhancer %in% proliferative.enhancers]<-"Proliferative"
+rownames(ATAC.long$combined) <- ATAC.long$combined[,1]
+```
+
+
+# Heatmap Ac profile copy number normalized
+```{r}
+library(gplots)
+library(viridis)
+x <- log1p(x = Ac.long$combined[, c(4,6,8,10,12,14,16)])
+colnames(x) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+setEPS()
+postscript(file = "Plots/H3K27Ac-ATAC/H3K27Ac_heatmap_CNNorm_long_enhancers.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 10)
+heat2 <-heatmap.2(x = as.matrix(x), col = viridis(n=50), trace = "none", cexRow = 0.6, srtCol=45, main = "H3K27Ac ChIP-seq long enhancers - CNNorm Mean score")
+dev.off()
+```
+
+# Heatmap ATAC profile copy number normalized
+```{r}
+library(gplots)
+library(viridis)
+library(RColorBrewer)
+x <- log1p(x = ATAC.long$combined[, c(4,6,8,10,12,14,16)])
+colnames(x) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+colfunc <- colorRampPalette(brewer.pal(9, "Reds"))
+setEPS()
+postscript(file = "Plots/H3K27Ac-ATAC/ATAC_heatmap_CNNorm_long_enhancers.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 10)
+heatmap.2(x = as.matrix(x[rev(heat2$rowInd),heat2$colInd]), Rowv = F, Colv = F, dendrogram = "none", col = inferno(n=50), trace = "none", cexRow = 0.6, srtCol=45, main = "ATAC-seq long enhancers - CNNorm Mean score")
+dev.off()
+```
+
+# Copy number profile
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+p <- ggplot(Ac.long[[i]]$Copy.Number, aes(x = reorder(x = Enhancer, X = Phenotype, FUN=max), y = Copy.Number, color = Phenotype)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 2, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 7)) +
+  scale_color_manual(values = c("#377EB8", "#E41A1C")) +
+  ggtitle(label = paste0(i)) +
+  labs(x = "Enhancers", y = "Copy Number Variation", color = "Enhancer \nphenotype")
+#ggsave(filename = paste0("Plots/Activity_per_line/Intron/CHEQseq_Intron_Enhancers_expression_",i,".eps"),device = "eps",width = 7,height = 3.5)
+print(p)
+}
+```
+
+
+# Correlation tables Ac and ATAC intersamples
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "Plots/H3K27Ac-ATAC/H3K27Ac_CNNorm_Correlation.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = Ac.long$combined[, c(4,6,8,10,12,14,16)], method = "pearson")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "H3K27Ac Correlation CNNorm", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+dev.off()
+
+setEPS()
+postscript(file = "Plots/H3K27Ac-ATAC/ATACseq_CNNorm_correlation.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = ATAC.long$combined[, c(4,6,8,10,12,14,16)], method = "pearson")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "ATACseq Correlation CNNorm", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+dev.off()
+```
+
+
+# Correlation Ac vs activity per cell line
+```{r}
+library(dplyr)
+library(ggplot2)
+Ac.long$Ac.CHEQ <- full_join(x = Ac.long$combined[, c(1:3,5,7,9,11,13,15)],
+                              y = CH1.intron.df[,c(1:9)],
+                              by = "enhancer")
+Ac.long$Ac.CHEQ.CNNorm <- full_join(x = Ac.long$combined[, c(1,2,4,6,8,10,12,14,16)],
+                                     y = CH1.intron.df[,c(1:9)],
+                                     by = "enhancer")
+
+for (i in c("MM001", "MM057", "MM074", "MM087","MM029", "MM047", "MM099")) {
+p<-ggplot(Ac.long$Ac.CHEQ.CNNorm, aes(x = Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")], 
+                                      y = log2(Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")]), y = max(log2(na.omit(Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")]))), hjust = 0, label = paste0("r = ", round(cor(x = cbind(na.omit(Ac.long$Ac.CHEQ.CNNorm)[,paste0(i,".CNNorm.mean.score")], log2(na.omit(Ac.long$Ac.CHEQ.CNNorm)[,paste0(i,".BasalNorm.FC")])),  method="pearson", use = "pairwise.complete.obs")[1,2], digits = 4))) +
+  annotate("text", x = min(Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")]), y = max(log2(na.omit(Ac.long$Ac.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")])))-1, hjust = 0, label = paste0("Rsquare = ", round(cor(x = cbind(na.omit(Ac.long$Ac.CHEQ.CNNorm)[,paste0(i,".CNNorm.mean.score")], log2(na.omit(Ac.long$Ac.CHEQ.CNNorm)[,paste0(i,".BasalNorm.FC")])),,  method="spearman", use = "pairwise.complete.obs")[1,2], digits = 4))) +
+  labs(x = "H3K27Ac ChIP-seq mean score", y = "CHEQ-seq Log2 FC", color = "Phenotype", title = paste0("Correlation ",i," - H3K27Ac ChIP-seq vs CHEQ-seq Intron Activity"))
+ggsave(filename = paste0("Plots/H3K27Ac-ATAC/H3K27Ac_CCNorm_CHEQseq_correlation_scatter_",i,".pdf"),device = "pdf",width = 9,height = 6, useDingbats = F)
+print(p)
+}
+```
+
+# Correlation ATAC vs activity per cell line
+```{r}
+library(dplyr)
+library(ggplot2)
+ATAC.long$ATAC.CHEQ <- full_join(x = ATAC.long$combined[, c(1:3,5,7,9,11,13,15)],
+                              y = CH1.intron.df[,c(1:9)],
+                              by = "enhancer")
+ATAC.long$ATAC.CHEQ.CNNorm <- full_join(x = ATAC.long$combined[, c(1,2,4,6,8,10,12,14,16)],
+                                     y = CH1.intron.df[,c(1:9)],
+                                     by = "enhancer")
+
+for (i in c("MM001", "MM057", "MM074", "MM087","MM029", "MM047", "MM099")) {
+p<-ggplot(ATAC.long$ATAC.CHEQ.CNNorm, aes(x = ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")], 
+                                          y = log2(ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")]), y = max(log2(na.omit(ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")]))), hjust = 0, label = paste0("r = ", round(cor(cbind(na.omit(ATAC.long$ATAC.CHEQ.CNNorm)[,paste0(i,".CNNorm.mean.score")],log2(na.omit(ATAC.long$ATAC.CHEQ.CNNorm)[,paste0(i,".BasalNorm.FC")])), method="pearson", use = "pairwise.complete.obs")[1,2],digits = 4))) +
+  annotate("text", x = min(ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".CNNorm.mean.score")]), y = max(log2(na.omit(ATAC.long$ATAC.CHEQ.CNNorm[,paste0(i,".BasalNorm.FC")])))-1, hjust = 0, label = paste0("Rsquare = ", round(cor(cbind(na.omit(ATAC.long$ATAC.CHEQ.CNNorm)[,paste0(i,".CNNorm.mean.score")],log2(na.omit(ATAC.long$ATAC.CHEQ.CNNorm)[,paste0(i,".BasalNorm.FC")])), method="spearman", use = "pairwise.complete.obs")[1,2],digits = 4))) +
+  labs(x = "ATAC-seq mean score", y = "CHEQ-seq Log2 FC", color = "Phenotype", title = paste0("Correlation ",i," - ATAC-seq vs CHEQ-seq Intron Activity"))
+ggsave(filename = paste0("Plots/H3K27Ac-ATAC/ATAC_CNNorm_CHEQseq_correlation_scatter_",i,".pdf"),device = "pdf",width = 9,height = 6, useDingbats = F)
+print(p)
+}
+```
+
+```{r}
+# Function to generate scale with image()
+image.scale <- function(z, zlim, col = heat.colors(12),
+breaks, horiz=TRUE, ylim=NULL, xlim=NULL, ...){
+ if(!missing(breaks)){
+  if(length(breaks) != (length(col)+1)){stop("must have one more break than colour")}
+ }
+ if(missing(breaks) & !missing(zlim)){
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1)) 
+ }
+ if(missing(breaks) & missing(zlim)){
+  zlim <- range(z, na.rm=TRUE)
+  zlim[2] <- zlim[2]+c(zlim[2]-zlim[1])*(1E-3)#adds a bit to the range in both directions
+  zlim[1] <- zlim[1]-c(zlim[2]-zlim[1])*(1E-3)
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1))
+ }
+ poly <- vector(mode="list", length(col))
+ for(i in seq(poly)){
+  poly[[i]] <- c(breaks[i], breaks[i+1], breaks[i+1], breaks[i])
+ }
+ xaxt <- ifelse(horiz, "s", "n")
+ yaxt <- ifelse(horiz, "n", "s")
+ if(horiz){YLIM<-c(0,1); XLIM<-range(breaks)}
+ if(!horiz){YLIM<-range(breaks); XLIM<-c(0,1)}
+ if(missing(xlim)) xlim=XLIM
+ if(missing(ylim)) ylim=YLIM
+ plot(1,1,t="n",ylim=ylim, xlim=xlim, xaxt=xaxt, yaxt=yaxt, xaxs="i", yaxs="i", ...)  
+ for(i in seq(poly)){
+  if(horiz){
+   polygon(poly[[i]], c(0,0,1,1), col=col[i], border=NA)
+  }
+  if(!horiz){
+   polygon(c(0,0,1,1), poly[[i]], col=col[i], border=NA)
+  }
+ }
+}
+```
+
+# Heatmap H3K27Ac CNNorm vs ATAC CNNorm vs CHEQseq (ordered by Acetylation)
+```{r}
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  library(dplyr)
+  library(RColorBrewer)
+  pdf(file = paste0("Plots/H3K27Ac-ATAC/",i,"CNNorm_profile_comparison_with_5p.pdf"), 
+             height = 7, width = 6.8)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,2,2,2,2,1,3,3,3,3,1,4,4,4,4,1,5,5,5,5,1,6,7,8,9), nrow=5, ncol=5), widths=c(4.5,3,3,3,1.6), heights=c(0.8,3.5,3.5,3.5,3.5))
+  # layout.show(7)
+  plot.new()
+  text(0.5,0.5,paste0(i),cex=1.5,font=2)
+  
+  # Prepare matrix
+  heatx <- Ac.long$combined[,c("enhancer",paste0(i, ".CNNorm.mean.score"))] %>% 
+    inner_join(y = ATAC.long$combined[,c("enhancer",paste0(i, ".CNNorm.mean.score"))], 
+               by = "enhancer", 
+               suffix = c(".H3K27Ac", ".ATAC")) %>% 
+    inner_join(y = CH1.intron.df[,c("enhancer",paste0(i, ".BasalNorm.FC"))], 
+               by = "enhancer") %>%
+    full_join(y = CH1.5p.df[,c("enhancer",paste0(i, ".CPMNorm.FC"))],
+              by = "enhancer")
+  heatx <-  arrange(heatx, heatx[,2])
+  rownames(heatx) <- heatx$enhancer
+  heatx <- as.matrix(heatx[,-1])
+  
+  # H3K27AC
+  breaks1 <- seq(min(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]), max(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]),length.out=100)
+  colfunc1 <- colorRampPalette(brewer.pal(9, "Reds"))
+  par(mar =  c( 0.5, 6, 2, 0.5 ))
+  image(x = t(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]),
+        col = colfunc1(n = length(breaks1)-1),
+        breaks=breaks1,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "H3K27Ac ChIP-seq",
+        cex.main = 1.2)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(heatx)),
+       labels = rownames(heatx),
+       las= 2, tick = F, cex.axis = 1, font=2)
+
+  # ATAC
+  breaks2 <- seq(min(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]), max(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]),length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(9, "Blues"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+  image(x = t(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "ATAC-seq",
+        cex.main = 1.2)
+
+  # Activity Intron
+  breaks3 <- c(seq(min(log2(heatx[, paste0(i, ".BasalNorm.FC")])), max(log2(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+               seq(max(log2(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0(i, ".BasalNorm.FC")])),length.out=75)[-1])
+  colfunc3 <- colorRampPalette(c("#FCFBFD","#FCFBFD","#3F007D"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+  image(x = t(log2(heatx[, paste0(i, ".BasalNorm.FC")])),
+        col=colfunc3(n = length(breaks3)-1),
+        breaks=breaks3,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "CHEQ-seq Intron",
+        cex.main = 1.2)
+  
+  # Activity 5'
+  breaks4 <- c(seq(min(na.omit(log2(na.omit(heatx[, paste0(i, ".CPMNorm.FC")])))), max(log2(CH1.5p[[i]]$merged.cpm.input.norm[CH1.5p[[i]]$merged.cpm.input.norm$padj >= 0.05, "CPMNorm.FC"])),length.out=75), 
+               seq(max(log2(CH1.5p[[i]]$merged.cpm.input.norm[CH1.5p[[i]]$merged.cpm.input.norm$padj >= 0.05, "CPMNorm.FC"])), max(na.omit(log2(heatx[, paste0(i, ".CPMNorm.FC")]))),length.out=75)[-1])
+  colfunc4 <- colorRampPalette(c("#FCFBFD", "#FCFBFD", "#FCFBFD", "#66C2A4", "#00441B"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+  image(x = t(log2(heatx[, paste0(i, ".CPMNorm.FC")])),
+        col=colfunc4(n = length(breaks4)-1),
+        breaks=breaks4,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "CHEQ-seq 5'",
+        cex.main = 1.2)
+
+  # Scale H3K27Ac
+  par(mar = c(2.5,0.5,3.25,3.8))
+  image.scale(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")], col=colfunc1(length(breaks1)-1), breaks=breaks1, horiz=FALSE, yaxt="n")
+  mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(0, max(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]), by=1), las=2)
+
+  # Scale ATAC
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")], col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(0, max(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]), by=0.5), las=2)
+
+  #Scale Activity Intron
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(log2(heatx[, paste0(i, ".BasalNorm.FC")]), col=colfunc3(length(breaks3)-1), breaks=breaks3, horiz=FALSE, yaxt="n")
+  mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-10, max(log2(heatx[, paste0(i, ".BasalNorm.FC")])), by=2), las=2)
+  
+  #Scale Activity 5'
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(log2(heatx[, paste0(i, ".CPMNorm.FC")]), col=colfunc4(length(breaks4)-1), breaks=breaks4, horiz=FALSE, yaxt="n")
+  mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-10, max(na.omit(log2(heatx[, paste0(i, ".CPMNorm.FC")]))), by=2), las=2)
+  
+  box()
+  dev.off()
+}
+```
+
+# Heatmap H3K27Ac CNNorm vs ATAC CNNorm vs CHEQseq (ordered by CHEQseq Intron value)
+```{r}
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  library(dplyr)
+  library(RColorBrewer)
+  pdf(file = paste0("Plots/H3K27Ac-ATAC/",i,"CNNorm_profile_comparison_with_5p_CHEQseq_sorted.pdf"), 
+             height = 7, width = 6.8)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,2,2,2,2,1,3,3,3,3,1,4,4,4,4,1,5,5,5,5,1,6,7,8,9), nrow=5, ncol=5), widths=c(5.5,3,3,3,1.6), heights=c(0.8,3.5,3.5,3.5,3.5))
+  # layout.show(7)
+  plot.new()
+  text(0.5,0.5,paste0(i),cex=1.5,font=2)
+  
+  # Prepare matrix
+  heatx <- Ac.long$combined[,c("enhancer",paste0(i, ".CNNorm.mean.score"))] %>% 
+    inner_join(y = ATAC.long$combined[,c("enhancer",paste0(i, ".CNNorm.mean.score"))], 
+               by = "enhancer", 
+               suffix = c(".H3K27Ac", ".ATAC")) %>% 
+    inner_join(y = CH1.intron.df[,c("enhancer",paste0(i, ".BasalNorm.FC"))], 
+               by = "enhancer") %>%
+    full_join(y = CH1.5p.df[,c("enhancer",paste0(i, ".CPMNorm.FC"))],
+              by = "enhancer")
+  heatx <-  arrange(heatx, heatx[,4])
+  rownames(heatx) <- heatx$enhancer
+  heatx <- as.matrix(heatx[,-1])
+  
+  # H3K27AC
+  breaks1 <- seq(min(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]), max(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]),length.out=100)
+  colfunc1 <- colorRampPalette(brewer.pal(9, "Reds"))
+  par(mar =  c( 0.5, 10, 2, 0.5 ))
+  image(x = t(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]),
+        col = colfunc1(n = length(breaks1)-1),
+        breaks=breaks1,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "H3K27Ac ChIP-seq",
+        cex.main = 1.2)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(heatx)),
+       labels = rownames(heatx),
+       las= 2, tick = F, cex.axis = 1.2, font=2)
+
+  # ATAC
+  breaks2 <- seq(min(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]), max(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]),length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(9, "Blues"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+  image(x = t(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "ATAC-seq",
+        cex.main = 1.2)
+
+  # Activity Intron
+  breaks3 <- c(seq(min(log2(heatx[, paste0(i, ".BasalNorm.FC")])), max(log2(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+               seq(max(log2(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0(i, ".BasalNorm.FC")])),length.out=75)[-1])
+  colfunc3 <- colorRampPalette(c("#FCFBFD","#FCFBFD","#3F007D"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+  image(x = t(log2(heatx[, paste0(i, ".BasalNorm.FC")])),
+        col=colfunc3(n = length(breaks3)-1),
+        breaks=breaks3,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "CHEQ-seq Intron",
+        cex.main = 1.2)
+  
+  # Activity 5'
+  breaks4 <- c(seq(min(na.omit(log2(na.omit(heatx[, paste0(i, ".CPMNorm.FC")])))), max(log2(CH1.5p[[i]]$merged.cpm.input.norm[CH1.5p[[i]]$merged.cpm.input.norm$padj >= 0.05, "CPMNorm.FC"])),length.out=75), 
+               seq(max(log2(CH1.5p[[i]]$merged.cpm.input.norm[CH1.5p[[i]]$merged.cpm.input.norm$padj >= 0.05, "CPMNorm.FC"])), max(na.omit(log2(heatx[, paste0(i, ".CPMNorm.FC")]))),length.out=75)[-1])
+  colfunc4 <- colorRampPalette(c("#FCFBFD", "#FCFBFD", "#FCFBFD", "#66C2A4", "#00441B"))
+  par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+  image(x = t(log2(heatx[, paste0(i, ".CPMNorm.FC")])),
+        col=colfunc4(n = length(breaks4)-1),
+        breaks=breaks4,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="",
+        main = "CHEQ-seq 5'",
+        cex.main = 1.2)
+
+  # Scale H3K27Ac
+  par(mar = c(2.5,0.5,3.25,3.8))
+  image.scale(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")], col=colfunc1(length(breaks1)-1), breaks=breaks1, horiz=FALSE, yaxt="n")
+  mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(0, max(heatx[, paste0(i, ".CNNorm.mean.score.H3K27Ac")]), by=1), las=2)
+
+  # Scale ATAC
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")], col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(0, max(heatx[, paste0(i, ".CNNorm.mean.score.ATAC")]), by=0.5), las=2)
+
+  #Scale Activity Intron
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(log2(heatx[, paste0(i, ".BasalNorm.FC")]), col=colfunc3(length(breaks3)-1), breaks=breaks3, horiz=FALSE, yaxt="n")
+  mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-10, max(log2(heatx[, paste0(i, ".BasalNorm.FC")])), by=2), las=2)
+  
+  #Scale Activity 5'
+  par(mar=c(2.5,0.5,3.25,3.8))
+  image.scale(log2(heatx[, paste0(i, ".CPMNorm.FC")]), col=colfunc4(length(breaks4)-1), breaks=breaks4, horiz=FALSE, yaxt="n")
+  mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-10, max(na.omit(log2(heatx[, paste0(i, ".CPMNorm.FC")]))), by=2), las=2)
+  
+  box()
+  dev.off()
+}
+```
+
+# Correlation table CNNorm
+```{r}
+# Generate correlation table
+corrAc.atac <- matrix(NA, nrow = 7, ncol = 3)
+colnames(corrAc.atac) <- c("H3K27Ac.vs.CHEQseq", "ATAC.vs.CHEQseq", "RNA.vs.CHEQseq")
+rownames(corrAc.atac) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+for (i in c(0:6)){
+  p1 <- cor(Ac.long$Ac.CHEQ.CNNorm[,-c(1,2,17)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  p2 <- cor(ATAC.long$ATAC.CHEQ.CNNorm[,-c(1,2,17)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  p3 <- cor(CH1.intron.rna[c(40,11,30:36,47,48,24:26,7,12,28,22,3:5,17,21,1,39,42), -c(8,16:18)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  corrAc.atac[1+i,1] <- p1
+  print(p1)
+  corrAc.atac[1+i,2] <- p2
+  print(p2)
+  corrAc.atac[1+i,3] <- p3
+  print(p3)
+}
+
+setEPS()
+postscript(file = paste0("Plots/H3K27Ac-ATAC/Correlation_table_CNNorm.eps"), 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 6, width = 5.5)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,1,2,3), nrow=2, ncol=2), widths=c(5.5,0.8), heights=c(2,5))
+  # layout.show(7)
+  
+  # Plot data
+  breaks2 <- seq(-1, 1,length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(11, "RdBu"))
+  par(mar =  c( 0.5, 5, 4, 0.5 ) )
+  image(x = t(corrAc.atac[nrow(corrAc.atac):1,]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="")
+  title("Correlation score CNNorm", line = 3, cex = 1)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(corrAc.atac)),
+       labels = rownames(corrAc.atac[nrow(corrAc.atac):1,]),
+       las= 2, tick = F, cex.axis = 1, font=1)
+  axis(side = 3,
+       at=seq(0,1,length.out=ncol(corrAc.atac)),
+       labels = c("H3K27Ac ChIP-seq\nvs CHEQseq", "ATAC-seq\nvs CHEQseq", "RNA-seq\nvs CHEQseq"),
+       las= 1, tick = F, cex.axis = 1, font=1)
+    
+  # Add scale
+  par(mar=c(2.5,0.5,4,3))
+  image.scale(corrAc.atac, col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  axis(side=4, at=seq(-1, 1, by=1), las=2)
+  box()
+dev.off()
+```
+
+# Correlation Ac and ATAC
+```{r}
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  print(i)
+print(cor.test(Ac.long$Ac.CHEQ.CNNorm[[paste0(i,".CNNorm.mean.score")]], Ac.long$Ac.CHEQ.CNNorm[[paste0(i,".BasalNorm.FC")]], method = "pearson"))
+print(cor.test(ATAC.long$ATAC.CHEQ.CNNorm[[paste0(i,".CNNorm.mean.score")]], ATAC.long$ATAC.CHEQ.CNNorm[[paste0(i,".BasalNorm.FC")]], method = "pearson"))
+}
+```
+
+# Correlation Ac vs ATAC
+```{r}
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  print(i)
+print(cor.test(Ac.long$Ac.CHEQ.CNNorm[[paste0(i,".CNNorm.mean.score")]], ATAC.long$ATAC.CHEQ.CNNorm[[paste0(i,".CNNorm.mean.score")]], method = "pearson"))
+}
+```
+
+# Correlation table CNNorm 5'
+```{r}
+library(dplyr)
+
+Ac.long$Ac.CHEQ.CNNorm.5p <- inner_join(x = Ac.long$combined[, c(1,2,4,6,8,10,12,14,16)],
+                                        y = CH1.5p.df[,c(1:9)],
+                                        by = "enhancer")
+ATAC.long$ATAC.CHEQ.CNNorm.5p <- inner_join(x = ATAC.long$combined[, c(1,2,4,6,8,10,12,14,16)],
+                                            y = CH1.5p.df[,c(1:9)],
+                                            by = "enhancer")
+RNA.5p.df <- inner_join(x = CH1.intron.rna[,c(1:8)], y = CH1.5p.df[,c(1:9)], by = "enhancer")
+
+# Generate correlation table
+corrAc.atac <- matrix(NA, nrow = 7, ncol = 3)
+colnames(corrAc.atac) <- c("H3K27Ac.vs.CHEQseq", "ATAC.vs.CHEQseq", "RNA.vs.CHEQseq")
+rownames(corrAc.atac) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+for (i in c(0:6)){
+  p1 <- cor(Ac.long$Ac.CHEQ.CNNorm.5p[,-c(1,2,17)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  p2 <- cor(ATAC.long$ATAC.CHEQ.CNNorm.5p[,-c(1,2,17)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  p3 <- cor(RNA.5p.df[,-c(8,16)], method="pearson", use = "pairwise.complete.obs")[8+i,1+i]
+  corrAc.atac[1+i,1] <- p1
+  print(p1)
+  corrAc.atac[1+i,2] <- p2
+  print(p2)
+  corrAc.atac[1+i,3] <- p3
+  print(p3)
+}
+
+setEPS()
+postscript(file = paste0("Plots/H3K27Ac-ATAC/Correlation_table_CNNorm_5p.eps"), 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 8.27, width = 8)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,1,2,3), nrow=2, ncol=2), widths=c(5.5,0.6), heights=c(2,5))
+  # layout.show(7)
+
+  # Plot data
+  breaks2 <- seq(-1, 1,length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(11, "RdBu"))
+  par(mar =  c( 0.5, 5, 4, 0.5 ) )
+  image(x = t(corrAc.atac[nrow(corrAc.atac):1,]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="")
+  title("Correlation score CNNorm", line = 3, cex = 1)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(corrAc.atac)),
+       labels = rownames(corrAc.atac[nrow(corrAc.atac):1,]),
+       las= 2, tick = F, cex.axis = 0.8, font=1)
+  axis(side = 3,
+       at=seq(0,1,length.out=ncol(corrAc.atac)),
+       labels = c("H3K27Ac ChIP-seq vs CHEQ-seq", "ATAC-seq vs CHEQ-seq", "RNA-seq vs CHEQ-seq"),
+       las= 1, tick = F, cex.axis = 1, font=1)
+    
+  # Add scale
+  par(mar=c(2.5,0.5,4,3))
+  image.scale(corrAc.atac, col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  axis(side=4, at=seq(-1, 1, by=1), las=2)
+  box()
+dev.off()
+```
+
+# Correlation with length?
+```{r}
+#H3K27Ac
+for (i in c("MM001","MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(MM.Ac.CHEQ, aes(x = length, y = log2(MM.Ac.CHEQ[,paste0(i,".mean.score")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  xlim(1200, NA) +
+  labs(x = "Length (bp)", y = "H3K27Ac ChIP-seq mean score", color = "Phenotype", title = paste0(i," - H3K27Ac vs Enhancer length"))
+ggsave(filename = paste0("Plots/H3K27Ac-ATAC/H3K27Ac_vs_length_scatter_",i,".pdf"),device = "pdf",width = 9,height = 6, useDingbats = F)
+print(p)
+}
+```
+
+```{r}
+#Length vs Enhancer activity
+library(ggplot2)
+for (i in c("MM001","MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(MM.Ac.CHEQ, aes(x = length, y = log2(MM.Ac.CHEQ[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_hline(yintercept = log2(1), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  xlim(1200, NA) +
+  labs(x = "Length (bp)", y = "Log2 FC", color = "Phenotype", title = paste0(i," - CHEQseq Intron vs Enhancer length"))
+ggsave(filename = paste0("Plots/H3K27Ac-ATAC/CHEQseq_vs_length_scatter_",i,".pdf"),device = "pdf",width = 9,height = 6, useDingbats = F)
+print(p)
+}
+```
+
+#####################################
+# TF ChIP-seq
+```{r}
+MITF_ChIP <- read.table(file = "../../H3K27Ac-ATAC_quantification/MITF_score_long_region.bed", header = F, sep = "\t", col.names = c("enhancer","size","covered","sum","mean0","mean"))
+SOX10_ChIP <- read.table(file = "../../H3K27Ac-ATAC_quantification/SOX10_score_long_region.bed", header = F, sep = "\t", col.names = c("enhancer","size","covered","sum","mean0","mean"))
+JUN_ChIP <- read.table(file = "../../H3K27Ac-ATAC_quantification/cJun_score_long_region.bed", header = F, sep = "\t", col.names = c("enhancer","size","covered","sum","mean0","mean"))
+JUNB_ChIP <- read.table(file = "../../H3K27Ac-ATAC_quantification/JunB_score_long_region.bed", header = F, sep = "\t", col.names = c("enhancer","size","covered","sum","mean0","mean"))
+for (j in new.names$old_names){ 
+  levels(MITF_ChIP$enhancer)[match(j, levels(MITF_ChIP$enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  levels(SOX10_ChIP$enhancer)[match(j, levels(SOX10_ChIP$enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  levels(JUN_ChIP$enhancer)[match(j, levels(JUN_ChIP$enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  levels(JUNB_ChIP$enhancer)[match(j, levels(JUNB_ChIP$enhancer))] <- as.character(new.names[new.names$old_names == j, "new_names"])
+  }
+```
+
+# Heatmap MM001 - MITF - SOX10 - MM029 - JUN - JUNB
+```{r}
+library(dplyr)
+library(RColorBrewer)
+pdf(file = paste0("Plots/H3K27Ac-ATAC/TF-ChIP-seq_heatmap.pdf"), 
+           height = 7, width = 9.5)
+# Set layout
+par(mar=c(0,1,0.5,1))
+layout(matrix(c(1,2,2,2,2,2,2,1,3,3,3,3,3,3,1,4,4,4,4,4,4,1,5,5,5,5,5,5,1,6,6,6,6,6,6,1,7,7,7,7,7,7,1,8,9,10,11,12,13), nrow=7, ncol=7), widths=c(6,3,3,3,3,3,1.6), heights=c(0.8,3.5,3.5,3.5,3.5,3.5,3.5))
+# layout.show(7)
+plot.new()
+text(0.5,0.5,paste0("TF ChIP-seq (Mean score)"),cex=1.5,font=2)
+
+# Prepare matrix
+heatx <- MITF_ChIP[,c(1,5)] %>%
+  inner_join(y = SOX10_ChIP[,c(1,5)],
+             by = "enhancer",
+             suffix = c(".MITF", ".SOX10")) %>%
+  inner_join(y = JUN_ChIP[,c(1,5)],
+             by = "enhancer") %>%
+  inner_join(y = JUNB_ChIP[,c(1,5)],
+             by = "enhancer",
+             suffix = c(".JUN", ".JUNB")) %>%
+  inner_join(y = Ac.long$Ac.CHEQ[, c("enhancer", "MM001.BasalNorm.FC", "MM029.BasalNorm.FC")],
+             by = "enhancer",
+             suffix = c(".JUN", ".JUNB"))
+heatx <-  arrange(heatx, heatx[,6])
+rownames(heatx) <- heatx$enhancer
+heatx <- as.matrix(na.omit(heatx[,-1]))
+
+# Activity MM001
+breaks1 <- c(seq(min(log2(heatx[, paste0("MM001.BasalNorm.FC")])), max(log2(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm[CH1.intron[["MM001"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+             seq(max(log2(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm[CH1.intron[["MM001"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0("MM001.BasalNorm.FC")])),length.out=75)[-1])
+colfunc1 <- colorRampPalette(c("#FCFBFD","#FCFBFD","#3F007D"))
+par(mar =  c( 0.5, 10, 2, 0.5 ))
+image(x = t(log2(heatx[, paste0("MM001.BasalNorm.FC")])),
+      col=colfunc1(n = length(breaks1)-1),
+      breaks=breaks1,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "CHEQ-seq\nMM001",
+      cex.main = 1.2)
+axis(side = 2,
+     at=seq(0,1,length.out=nrow(heatx)),
+     labels = rownames(heatx),
+     las= 2, tick = F, cex.axis = 1.2, font=2)
+
+# MITF
+breaks3 <- seq(min(heatx[,1]), max(heatx[,1]), length.out=100)
+colfunc3 <- colorRampPalette(brewer.pal(9, "Greens"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[,1]),
+      col = colfunc3(n = length(breaks3)-1),
+      breaks=breaks3,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "MITF",
+      cex.main = 1.2)
+
+# SOX10
+breaks4 <- seq(min(heatx[,2]), max(heatx[,2]), length.out=100)
+colfunc4 <- colorRampPalette(brewer.pal(9, "Blues"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+image(x = t(heatx[,2]),
+      col=colfunc4(n = length(breaks4)-1),
+      breaks=breaks4,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "SOX10",
+      cex.main = 1.2)
+
+# Activity MM029
+breaks2 <- c(seq(min(log2(heatx[, paste0("MM029.BasalNorm.FC")])), max(log2(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm[CH1.intron[["MM029"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+             seq(max(log2(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm[CH1.intron[["MM029"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0("MM029.BasalNorm.FC")])),length.out=75)[-1])
+colfunc2 <- colorRampPalette(c("#FCFBFD", "#FCFBFD", "#00441B"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(log2(heatx[, paste0("MM029.BasalNorm.FC")])),
+      col=colfunc2(n = length(breaks2)-1),
+      breaks=breaks2,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "CHEQ-seq\nMM029",
+      cex.main = 1.2)
+
+# JUN
+breaks5 <- seq(min(heatx[,3]), max(heatx[,3]), length.out=100)
+colfunc5 <- colorRampPalette(brewer.pal(9, "OrRd"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[,3]),
+      col=colfunc5(n = length(breaks5)-1),
+      breaks=breaks5,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "JUN",
+      cex.main = 1.2)
+
+# JUNB
+breaks6 <- seq(min(heatx[,4]), max(heatx[,4]), length.out=100)
+colfunc6 <- colorRampPalette(brewer.pal(9, "Reds"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+image(x = t(heatx[,4]),
+      col=colfunc6(n = length(breaks6)-1),
+      breaks=breaks6,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "JUNB",
+      cex.main = 1.2)
+
+#Scale Activity MM001
+par(mar=c(0.25,0.5,3.25,3.5))
+image.scale(log2(heatx[, paste0("MM001.BasalNorm.FC")]), col=colfunc1(length(breaks1)-1), breaks=breaks1, horiz=FALSE, yaxt="n")
+mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(-10, max(log2(heatx[, paste0("MM001.BasalNorm.FC")])), by=2), las=2)
+
+# Scale MITF
+par(mar=c(0.5,0.5,3,3.5))
+image.scale(heatx[,1], col=colfunc3(length(breaks3)-1), breaks=breaks3, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,1]), by=0.1), las=2)
+
+# Scale SOX10
+par(mar=c(0.5,0.5,3,3.5))
+image.scale(heatx[,2], col=colfunc4(length(breaks4)-1), breaks=breaks4, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,2]), by=0.05), las=2)
+
+#Scale Activity MM029
+par(mar=c(0.5,0.5,3,3.5))
+image.scale(log2(heatx[, paste0("MM029.BasalNorm.FC")]), col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(-10, max(na.omit(log2(heatx[, paste0("MM029.BasalNorm.FC")]))), by=2), las=2)
+
+#Scale JUN
+par(mar=c(0.5,0.5,3,3.5))
+image.scale(heatx[,3], col=colfunc5(length(breaks5)-1), breaks=breaks5, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,3]), by=0.05), las=2)
+
+#Scale JUNB
+par(mar=c(0.5,0.5,3,3.5))
+image.scale(heatx[,4], col=colfunc6(length(breaks6)-1), breaks=breaks6, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,4]), by=0.05), las=2)
+
+box()
+dev.off()
+```
+
+# Heatmap MM001 - MITF - SOX10 - H3K27ac
+```{r}
+library(dplyr)
+library(RColorBrewer)
+pdf(file = paste0("Plots/H3K27Ac-ATAC/MM001_TF_ChIP.pdf"), 
+           height = 7, width = 6.8)
+# Set layout
+par(mar=c(0,1,0.5,1))
+layout(matrix(c(1,2,2,2,2,1,3,3,3,3,1,4,4,4,4,1,5,5,5,5,1,6,7,8,9), nrow=5, ncol=5), widths=c(6,3,3,3,1.5), heights=c(0.8,3.5,3.5,3.5,3.5))
+# layout.show(7)
+plot.new()
+text(0.5,0.5,"MM001",cex=1.5,font=2)
+
+# Prepare matrix
+heatx <- MITF_ChIP[,c(1,5)] %>%
+  inner_join(y = SOX10_ChIP[,c(1,5)],
+             by = "enhancer",
+             suffix = c(".MITF", ".SOX10")) %>%
+  inner_join(y = Ac.long$Ac.CHEQ.CNNorm[, c("enhancer", "MM001.BasalNorm.FC", "MM001.CNNorm.mean.score")],
+             by = "enhancer")
+heatx <-  arrange(heatx, heatx[,4])
+rownames(heatx) <- heatx$enhancer
+heatx <- as.matrix(na.omit(heatx[,-1]))
+
+# Activity MM001
+breaks1 <- c(seq(min(log2(heatx[, paste0("MM001.BasalNorm.FC")])), max(log2(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm[CH1.intron[["MM001"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+             seq(max(log2(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm[CH1.intron[["MM001"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0("MM001.BasalNorm.FC")])),length.out=75)[-1])
+colfunc1 <- colorRampPalette(c("#FCFBFD","#FCFBFD","#3F007D"))
+par(mar =  c( 0.5, 10, 2, 0.5 ))
+image(x = t(log2(heatx[, paste0("MM001.BasalNorm.FC")])),
+      col=colfunc1(n = length(breaks1)-1),
+      breaks=breaks1,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "CHEQ-seq Intron",
+      cex.main = 1.2)
+axis(side = 2,
+     at=seq(0,1,length.out=nrow(heatx)),
+     labels = rownames(heatx),
+     las= 2, tick = F, cex.axis = 1.2, font=2)
+
+# MITF
+breaks3 <- seq(min(heatx[,1]), max(heatx[,1]), length.out=100)
+colfunc3 <- colorRampPalette(brewer.pal(9, "Greens"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[,1]),
+      col = colfunc3(n = length(breaks3)-1),
+      breaks=breaks3,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "MITF ChIP-seq",
+      cex.main = 1.2)
+
+# SOX10
+breaks4 <- seq(min(heatx[,2]), max(heatx[,2]), length.out=100)
+colfunc4 <- colorRampPalette(brewer.pal(9, "Blues"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+image(x = t(heatx[,2]),
+      col=colfunc4(n = length(breaks4)-1),
+      breaks=breaks4,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "SOX10 ChIP-seq",
+      cex.main = 1.2)
+
+# H3K27AC
+breaks2 <- seq(min(heatx[, "MM001.CNNorm.mean.score"]), max(heatx[, "MM001.CNNorm.mean.score"]),length.out=100)
+colfunc2 <- colorRampPalette(brewer.pal(9, "Greys"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[, "MM001.CNNorm.mean.score"]),
+      col = colfunc2(n = length(breaks2)-1),
+      breaks=breaks2,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "H3K27Ac ChIP-seq",
+      cex.main = 1.2)
+
+#Scale Activity MM001
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(log2(heatx[, paste0("MM001.BasalNorm.FC")]), col=colfunc1(length(breaks1)-1), breaks=breaks1, horiz=FALSE, yaxt="n")
+mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(-10, max(log2(heatx[, paste0("MM001.BasalNorm.FC")])), by=2), las=2)
+
+# Scale MITF
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[,1], col=colfunc3(length(breaks3)-1), breaks=breaks3, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,1]), by=0.1), las=2)
+
+# Scale SOX10
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[,2], col=colfunc4(length(breaks4)-1), breaks=breaks4, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,2]), by=0.05), las=2)
+
+# Scale H3K27Ac
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[, "MM001.CNNorm.mean.score"], col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[, "MM001.CNNorm.mean.score"]), by=0.5), las=2)
+
+box()
+dev.off()
+```
+
+
+# Heatmap MM029 - JUN - JUNB - H3K27ac
+```{r}
+library(dplyr)
+library(RColorBrewer)
+pdf(file = paste0("Plots/H3K27Ac-ATAC/MM029_TF_ChIP.pdf"), 
+           height = 7, width = 6.8)
+# Set layout
+par(mar=c(0,1,0.5,1))
+layout(matrix(c(1,2,2,2,2,1,3,3,3,3,1,4,4,4,4,1,5,5,5,5,1,6,7,8,9), nrow=5, ncol=5), widths=c(6,3,3,3,1.5), heights=c(0.8,3.5,3.5,3.5,3.5))
+# layout.show(7)
+plot.new()
+text(0.5,0.5,"MM029",cex=1.5,font=2)
+
+# Prepare matrix
+heatx <- JUN_ChIP[,c(1,5)] %>%
+  inner_join(y = JUNB_ChIP[,c(1,5)],
+             by = "enhancer",
+             suffix = c(".JUN", ".JUNB")) %>%
+  inner_join(y = Ac.long$Ac.CHEQ.CNNorm[, c("enhancer", "MM029.BasalNorm.FC", "MM029.CNNorm.mean.score")],
+             by = "enhancer")
+heatx <-  arrange(heatx, heatx[,4])
+rownames(heatx) <- heatx$enhancer
+heatx <- as.matrix(na.omit(heatx[,-1]))
+
+# Activity MM029
+breaks1 <- c(seq(min(log2(heatx[, paste0("MM029.BasalNorm.FC")])), max(log2(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm[CH1.intron[["MM029"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), length.out=75), 
+             seq(max(log2(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm[CH1.intron[["MM029"]]$merged.cpm.input.basal.norm$padj >= 0.05, "BasalNorm.FC"])), max(log2(heatx[, paste0("MM029.BasalNorm.FC")])),length.out=75)[-1])
+colfunc1 <- colorRampPalette(c("#FCFBFD","#FCFBFD","#3F007D"))
+par(mar =  c( 0.5, 10, 2, 0.5 ))
+image(x = t(log2(heatx[, paste0("MM029.BasalNorm.FC")])),
+      col=colfunc1(n = length(breaks1)-1),
+      breaks=breaks1,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "CHEQ-seq Intron",
+      cex.main = 1.2)
+axis(side = 2,
+     at=seq(0,1,length.out=nrow(heatx)),
+     labels = rownames(heatx),
+     las= 2, tick = F, cex.axis = 1., font=2)
+
+# JUN
+breaks3 <- seq(min(heatx[,1]), max(heatx[,1]), length.out=100)
+colfunc3 <- colorRampPalette(brewer.pal(9, "OrRd"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[,1]),
+      col=colfunc3(n = length(breaks3)-1),
+      breaks=breaks3,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "JUN ChIP-seq",
+      cex.main = 1.2)
+
+# JUNB
+breaks4 <- seq(min(heatx[,2]), max(heatx[,2]), length.out=100)
+colfunc4 <- colorRampPalette(brewer.pal(9, "Reds"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ) )
+image(x = t(heatx[,2]),
+      col=colfunc4(n = length(breaks4)-1),
+      breaks=breaks4,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "JUNB ChIP-seq",
+      cex.main = 1.2)
+
+# H3K27AC
+breaks2 <- seq(min(heatx[, "MM029.CNNorm.mean.score"]), max(heatx[, "MM029.CNNorm.mean.score"]),length.out=100)
+colfunc2 <- colorRampPalette(brewer.pal(9, "Greys"))
+par(mar =  c( 0.5, 0.5, 2, 0.5 ))
+image(x = t(heatx[, "MM029.CNNorm.mean.score"]),
+      col = colfunc2(n = length(breaks2)-1),
+      breaks=breaks2,
+      xaxt="n", yaxt="n",
+      xlab="", ylab="",
+      main = "H3K27Ac ChIP-seq",
+      cex.main = 1.2)
+
+#Scale Activity MM029
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(log2(heatx[, paste0("MM029.BasalNorm.FC")]), col=colfunc1(length(breaks1)-1), breaks=breaks1, horiz=FALSE, yaxt="n")
+mtext(text = "Log2 FC", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(-10, max(log2(heatx[, paste0("MM029.BasalNorm.FC")])), by=1), las=2)
+
+# Scale JUN
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[,1], col=colfunc3(length(breaks3)-1), breaks=breaks3, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,1]), by=0.05), las=2)
+
+# Scale JUNB
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[,2], col=colfunc4(length(breaks4)-1), breaks=breaks4, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[,2]), by=0.05), las=2)
+
+# Scale H3K27Ac
+par(mar=c(2.5,0.5,3.25,3.8))
+image.scale(heatx[, "MM029.CNNorm.mean.score"], col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+axis(side=4, at=seq(0, max(heatx[, "MM029.CNNorm.mean.score"]), by=0.5), las=2)
+
+box()
+dev.off()
+```
+
+####################################
+# Using feature counts to get number of reads in regions
+
+## A helper function
+```{r, eval=FALSE}
+regionNamesToDF <- function(region_names){
+  seqnames <- sapply(strsplit(region_names, split = ":"), "[", 1)
+  coords <- sapply(strsplit(region_names, split = ":"), "[", 2)
+  start <- sapply(strsplit(coords, split = "-"), "[", 1)
+  end <- sapply(strsplit(coords, split = "-"), "[", 2)
+  dataframe <- cbind(seqnames, start, end)
+  return(dataframe)
+}
+```
+
+```{r}
+# Load regions
+MEL.regions <- read.table('/staging/leuven/stg_00002/lcb/lcb_projects/CH1/H3K27Ac-ATAC_quantification/ChIP_H3K27ac_DESeq2_11.samples.topPROLIF.adjp0.05log2FC1.intersectMACS2q0.05nomodel.bed', sep='\t', row.names = 4, check.names=FALSE)
+MES.regions <- read.table('/staging/leuven/stg_00002/lcb/lcb_projects/CH1/H3K27Ac-ATAC_quantification/ChIP_H3K27ac_DESeq2_11.samples.topINVASIVE.adjp0.05log2FC1.intersectMACS2q0.05nomodel.bed', sep='\t', row.names = 4, check.names=FALSE)
+# Only in the mm10 regions
+# library(GenomicRanges)
+# regions <- rownames(MEL.regions)[grep('mm10', rownames(MEL.regions))]
+# regions <- as.vector(sapply(strsplit(regions, split = "__"), "[", 1))
+# regions <- as.data.frame(regionNamesToDF(regions))
+```
+
+```{r}
+library(Rsubread)
+#ChIP-seq
+MITF_path <- '/staging/leuven/stg_00002/lcb/lcb_projects/CH1/H3K27Ac-ATAC_quantification/MITF_CHIPseq__SRR1594290_rep1.minMQ4.sorted.bam'
+SOX10_path <- '/staging/leuven/stg_00002/lcb/lminn/Misc/SOX10_CHIPseq__SRR1594291_rep1.minMQ4.sorted.bam'
+JUN_path <- '/staging/leuven/stg_00002/lcb/zkalender/Runs/NovaSeq6000_20200730/10.BAM/10.HG19/MM099_cJun.sorted.dedup.q30.bam'
+JUNB_path <- '/staging/leuven/stg_00002/lcb/zkalender/Runs/NovaSeq6000_20200730/10.BAM/10.HG19/MM099_JunB.sorted.dedup.q30.bam'
+files <- c(MITF_path, SOX10_path, JUN_path, JUNB_path)
+# Format regions
+MEL.geneID <- paste(MEL.regions[,1], ':', MEL.regions[,2], '-', MEL.regions[,3], sep='')
+MEL.regions <- cbind(MEL.geneID, MEL.regions)
+colnames(MEL.regions) <- c('GeneID', 'Chr', 'Start', 'End')
+MEL.regions$Strand <- rep('*', nrow(MEL.regions))
+
+# Count reads
+count.data <- Rsubread::featureCounts(files, annot.ext=MEL.regions, read2pos=5, isPairedEnd=TRUE, nthreads=10)
+counts_frame <- count.data$counts
+# regions <- rownames(region2bc)[grep('mm10', rownames(region2bc))]
+rownames(counts_frame) <- rownames(MEL.regions)
+# saveRDS(counts_frame, file='/staging/leuven/stg_00002/lcb/cbravo/Liver/CHEQ-seq_experiments/undersequenced/features/counts_frame.RDS')
+```
+
+```{r}
+# Format regions
+MES.geneID <- paste(MES.regions[,1], ':', MES.regions[,2], '-', MES.regions[,3], sep='')
+MES.regions <- cbind(MES.geneID, MES.regions)
+colnames(MES.regions) <- c('GeneID', 'Chr', 'Start', 'End')
+MES.regions$Strand <- rep('*', nrow(MES.regions))
+
+# Count reads
+MES.count.data <- Rsubread::featureCounts(files, annot.ext=MES.regions, read2pos=5, isPairedEnd=TRUE, nthreads=10)
+MES.counts_frame <- MES.count.data$counts
+# regions <- rownames(region2bc)[grep('mm10', rownames(region2bc))]
+rownames(MES.counts_frame) <- rownames(MES.regions)
+```
+
+# t-test
+```{r}
+for (i in c(1:4)){
+print(t.test(counts_frame[,i],MES.counts_frame[,i], alternative = "less", paired = F))
+}
+for (i in c(1:4)){
+print(t.test(counts_frame[,i],MES.counts_frame[,i], alternative = "greater", paired = F))
+}
+```
+

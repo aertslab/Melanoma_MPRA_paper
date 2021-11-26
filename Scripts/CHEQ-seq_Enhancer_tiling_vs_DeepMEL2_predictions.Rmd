@@ -1,0 +1,76 @@
+---
+title: "OLS activity vs prediction"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load datasets
+OLSA.MM057.wt.act <- read.csv(file = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/CHEQ-seq_OLS-A/data/cheq-seq__OLS-A__MM057__filter_min_5.wt__shuffled.bedGraph", header = F,sep = "\t",stringsAsFactors = F)
+OLSB.MM057.wt.act <- read.csv(file = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/CHEQ-seq_OLS-B/data/cheq-seq__OLS-B__MM057__filter_min_5.wt__shuffled.bedGraph", header = F,sep = "\t",stringsAsFactors = F)
+colnames(OLSA.MM057.wt.act) <- c("Chromosome", "Start", "End", "Activity")
+colnames(OLSB.MM057.wt.act) <- c("Chromosome", "Start", "End", "Activity")
+OLSA.MM057.wt.act$Name <- paste(OLSA.MM057.wt.act$Chromosome, OLSA.MM057.wt.act$Start, OLSA.MM057.wt.act$End)
+OLSA.MM057.wt.act <- OLSA.MM057.wt.act[,c(5,4)]
+OLSB.MM057.wt.act$Name <- paste(OLSB.MM057.wt.act$Chromosome, OLSB.MM057.wt.act$Start, OLSB.MM057.wt.act$End)
+OLSB.MM057.wt.act <- OLSB.MM057.wt.act[,c(5,4)]
+OLS.MM057.wt.act <- rbind(OLSA.MM057.wt.act, OLSB.MM057.wt.act)
+list.filenames <- list.files(path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Ibrahim predictions/", pattern = "*wt*")
+list.OLS.MM057.wt.pred <- list()
+for (i in 1:length(list.filenames)){
+list.OLS.MM057.wt.pred[[i]]<-read.csv(file = paste0("/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Ibrahim predictions/",list.filenames[i]), header = F,sep = "\t",stringsAsFactors = F)
+}
+names(list.OLS.MM057.wt.pred)<-list.filenames
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+list.OLS.MM057.wt.pred[[i]]$Name <- paste(list.OLS.MM057.wt.pred[[i]]$V1, list.OLS.MM057.wt.pred[[i]]$V2, list.OLS.MM057.wt.pred[[i]]$V3)
+}
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+list.OLS.MM057.wt.pred[[i]] <- list.OLS.MM057.wt.pred[[i]][,c(5,4)]
+}
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+colnames(list.OLS.MM057.wt.pred[[i]]) <- c("Name", "Prediction")
+}
+# OLSA.MM057.wt.predT4 <- read.csv(file = "/staging/leuven/stg_00002/lcb/itask/files/David_190bp_enhancer_activity/OLS_A/wt/Topic_4.bedGraph", header = F,sep = "\t",stringsAsFactors = F)
+# colnames(OLSA.MM057.wt.predT4) <- c("Chromosome", "Start", "End", "Prediction")
+# OLSA.MM057.wt.predT4$Name <- paste(OLSA.MM057.wt.predT4$Chromosome, OLSA.MM057.wt.predT4$Start, OLSA.MM057.wt.predT4$End)
+# OLSA.MM057.wt.predT4 <- OLSA.MM057.wt.predT4[,c(5,4)]
+```
+
+```{r}
+# Combine activity_A and prediction dataset
+library(dplyr)
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+list.OLS.MM057.wt.pred[[i]] <- inner_join(OLS.MM057.wt.act, list.OLS.MM057.wt.pred[[i]], by = "Name")
+}
+```
+
+```{r}
+library(ggplot2)
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+p <- ggplot(list.OLS.MM057.wt.pred[[i]], aes(log2(Activity), log2(Prediction))) +
+      geom_point()+
+      labs(title = names(list.OLS.MM057.wt.pred[i]))
+print(p)
+}
+```
+
+```{r}
+library(ggplot2)
+for (i in 1:length(list.OLS.MM057.wt.pred)){
+p <- ggplot(list.OLS.MM057.wt.pred[[i]], aes(log2(Activity), Prediction)) +
+      geom_point()+
+      labs(title = names(list.OLS.MM057.wt.pred[i]))
+print(p)
+}
+```
+
+
+```{r}
+ggplot(OLSA.MM057.wt.comb, aes(Activity, Prediction)) +
+      geom_point()+
+      labs(title = "Topic 4")
+```
+

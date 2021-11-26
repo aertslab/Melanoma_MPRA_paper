@@ -1,0 +1,601 @@
+---
+title: "SOX10-KD_library_processing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("utils_SOX10-KD.R")
+```
+
+# Initiate environment
+```{r}
+CSE.SOX10KD <- new.env()
+attr(CSE.SOX10KD, "name") <- "SOX10-KD"
+```
+
+```{r}
+process.enh.cDNA.plasmid(env = CSE.SOX10KD, 
+                        line = 'MM087_rep1', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__ee96a1__CheqSeq_OLS_Liesbeth_cDNA_MM087_R1_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__6a95bd__CheqSeq_OLS_Liesbeth_plasmid_DNA_MM087_R1_count_final.txt', 
+                        min.plasmid.bcs = 10,
+                        min.cDNA.bcs = 10, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/analysis/data/')
+
+process.enh.cDNA.plasmid(env = CSE.SOX10KD, 
+                        line = 'MM087_rep2', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__f8d190__CheqSeq_OLS_Liesbeth_cDNA_MM087_R2_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__91783c__CheqSeq_OLS_Liesbeth_plasmid_DNA_MM087_R2_count_final.txt', 
+                        min.plasmid.bcs = 10,
+                        min.cDNA.bcs = 10, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/analysis/data/')
+
+process.enh.cDNA.plasmid(env = CSE.SOX10KD, 
+                        line = 'MM087_rep3', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__b672df__CheqSeq_OLS_Liesbeth_cDNA_MM087_R3_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/counting/10.bc_count/CH1__91e110__CheqSeq_OLS_Liesbeth_plasmid_DNA_MM087_R3_count_final.txt', 
+                        min.plasmid.bcs = 10,
+                        min.cDNA.bcs = 10, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/SOX10-KD_library/analysis/data/')
+```
+
+## MA plots
+```{r}
+library(scales)
+library(ggpubr)
+library(dplyr)
+for (i in c("MM087_rep1","MM087_rep2","MM087_rep3")) {
+  ma.data <- CSE.SOX10KD[[i]]$merged
+  ma.data <- left_join(ma.data, CSE.SOX10KD[[i]]$merged.input.basal.norm[,c("synthetic.region","padj")], by = "synthetic.region")
+  A <- rowMeans(log2(ma.data[,c("loess.CPM.counts.plasmid","loess.CPM.counts.cDNA")]))
+  M <- unlist(log2(ma.data[,c("loess.CPM.counts.cDNA")])-log2(ma.data[,c("loess.CPM.counts.plasmid")]))
+  p <-ggplot(data = ma.data, aes(x = A, y = M, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+        geom_point() +
+        geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              legend.key = element_blank()) +
+        scale_color_manual(values = c("grey80", "#70DB70"), labels = c(">= 0.05", "< 0.05")) +
+        labs(title = paste0("CHEQ-seq SOX10 KD - ",i), color = "Adjusted\np-value")
+  ggsave(filename = paste0("plots/MA_plots/",i,"_MA-plot.pdf"), device = "pdf", width = 7, height = 4, useDingbats = F)
+  print(p)
+}
+```
+
+# Combine replicates
+```{r}
+library(dplyr)
+CSE.SOX10KD$MM087_comb$merged.input.basal.norm <- inner_join(x = CSE.SOX10KD$MM087_rep1$merged.input.basal.norm[,c("synthetic.region","class","CPM.Input.BasalNorm")], 
+                                                             y = CSE.SOX10KD$MM087_rep2$merged.input.basal.norm[, c("synthetic.region", "CPM.Input.BasalNorm")],
+                                                             by = "synthetic.region", suffix = c(".rep1", ".rep2")) %>%
+                                                  inner_join(CSE.SOX10KD$MM087_rep3$merged.input.basal.norm[, c("synthetic.region", "CPM.Input.BasalNorm")],
+                                                             by = "synthetic.region", suffix = c(".rep2", ".rep3"))
+CSE.SOX10KD$MM087_comb$merged.input.basal.norm$CPM.Input.BasalNorm <- rowMeans(CSE.SOX10KD$MM087_comb$merged.input.basal.norm[, c("CPM.Input.BasalNorm","CPM.Input.BasalNorm.rep1","CPM.Input.BasalNorm.rep2")])
+CSE.SOX10KD$MM087_comb$merged.input.basal.norm$log.CPM.Input.BasalNorm <- log2(CSE.SOX10KD$MM087_comb$merged.input.basal.norm$CPM.Input.BasalNorm)
+CSE.SOX10KD$MM087_comb$merged.input.basal.norm <- CSE.SOX10KD$MM087_comb$merged.input.basal.norm[, c("synthetic.region", "class", "CPM.Input.BasalNorm", "log.CPM.Input.BasalNorm")]
+
+write.table(x = CSE.SOX10KD[["MM087_comb"]]$merged.input.basal.norm[!CSE.SOX10KD[["MM087_comb"]]$merged.input.basal.norm$class == "Neg_Control", c("synthetic.region", "log.CPM.Input.BasalNorm")],
+                file = "data/MM087_comb_SOX10-KD__filter_15-15__cpm_basal_normalized.tsv",
+                quote = F, sep = "\t", row.names = F, col.names = T)
+saveRDS(object = CSE.SOX10KD, file = "CSE-SOX10KD.rds")
+```
+
+# Define active enhancers on combined data
+```{r}
+library(ggplot2)
+library(robustbase)
+library(stats)
+
+sample <- CSE.SOX10KD[["MM087_comb"]]$merged.input.basal.norm
+subsettype <- "Neg-Control"
+
+# robust fit of a gaussian by robust estimates of it's two params
+## Use median
+location <- median(x = log2(sample[sample$class == subsettype, "CPM.Input.BasalNorm"]))
+print(paste0("Median: ",location))
+scale <- mad(x = log2(sample[sample$class == subsettype, "CPM.Input.BasalNorm"]))
+
+# Check fit
+p2 <- ggplot(data = sample, mapping = aes(x = log2(CPM.Input.BasalNorm), fill = class)) +
+        geom_density(size = 0, alpha = .5) +  
+        stat_function(fun = dnorm, args = list(mean = location, sd = scale)) + 
+        theme_minimal() +
+        labs(title = "MM087")
+print(p2)
+
+# Determine p-values for all
+sample$pvalue <- pnorm(q = sample$log.CPM.Input.BasalNorm, mean = location, sd = scale, lower.tail = F)
+sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+
+p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = class)) + 
+        geom_bar() +
+        theme_minimal() +
+        labs(title = "MM087")
+print(p3)
+
+p <- ggplot(sample, aes(x = padj, y = log2(CPM.Input.BasalNorm), fill = class)) +
+  geom_point(pch = 21, size = 3) +
+  geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  labs(x = "Adjusted p-value", y = "Log2 Expression", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", title = "MM087")
+print(p)
+
+# Get stats
+print("Proportions of active tiles:\n")
+print(table(sample[sample$padj < 0.05, "class"])/sum(sample$padj < 0.05)*100)
+print(paste0("Percentage of active shuffled: ", nrow(sample[sample$padj < 0.05 & sample$class == subsettype,])/nrow(sample[sample$class == subsettype,])*100, "%"))
+print(paste0("Number of Human active tiles: ",nrow(sample[sample$padj < 0.05 & sample$class == "Human",])))
+print("")
+
+# Save results
+CSE.SOX10KD[["MM087_comb"]]$merged.input.basal.norm <- sample
+```
+
+# Correlation between replicates
+```{r}
+library(ggplot2)
+library(dplyr)
+for (i in c("MM087_rep2", "MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep1"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep1 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep1-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+for (i in c("MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep2"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep2 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep2-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+```
+
+# Correlation between replicates (human only)
+```{r}
+library(ggplot2)
+library(dplyr)
+for (i in c("MM087_rep2", "MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep1"]][["merged.input.basal.norm"]][CSE.SOX10KD[["MM087_rep1"]][["merged.input.basal.norm"]]$class %in% c("Human", "Neg-Control"), c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]][["merged.input.basal.norm"]][CSE.SOX10KD[[i]][["merged.input.basal.norm"]]$class %in% c("Human", "Neg-Control"), c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep1 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep1-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+for (i in c("MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep2"]][["merged.input.basal.norm"]][CSE.SOX10KD[["MM087_rep2"]][["merged.input.basal.norm"]]$class %in% c("Human", "Neg-Control"),c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]][["merged.input.basal.norm"]][CSE.SOX10KD[[i]][["merged.input.basal.norm"]]$class %in% c("Human", "Neg-Control"), c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep2 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep2-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+```
+
+
+# Correlation between replicates Human regions only
+```{r}
+library(ggplot2)
+for (i in c("MM087_rep2", "MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep1"]]$merged.input.basal.norm[CSE.SOX10KD[["MM087_rep1"]]$merged.input.basal.norm$class %in% c("Human","Neg-Control"),c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]]$merged.input.basal.norm[CSE.SOX10KD[[i]]$merged.input.basal.norm$class %in% c("Human","Neg-Control"),c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep1 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep1-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+for (i in c("MM087_rep3")){
+  tmp <- inner_join(x = CSE.SOX10KD[["MM087_rep2"]]$merged.input.basal.norm[CSE.SOX10KD[["MM087_rep2"]]$merged.input.basal.norm$class %in% c("Human","Neg-Control"),c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.SOX10KD[[i]]$merged.input.basal.norm[CSE.SOX10KD[[i]]$merged.input.basal.norm$class %in% c("Human","Neg-Control"),c("synthetic.region","CPM.Input.BasalNorm","class")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep2 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep2-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+```
+
+# Select top human regions
+```{r}
+library(tidyverse)
+hum.reg.names <- arrange(CSE.SOX10KD$MM087_comb$merged.input.basal.norm[CSE.SOX10KD$MM087_comb$merged.input.basal.norm$class == "Human",],-CPM.Input.BasalNorm)
+hum.reg.names <- head(hum.reg.names[,"synthetic.region"], n= 10)
+hum.reg.names
+write(x = hum.reg.names, file = "data/top-human-names.txt", sep = ",")
+```
+
+
+##############################
+# DESeq method for combined samples
+
+## Prepare data frame
+```{r}
+library(dplyr)
+DEdf <- CSE.SOX10KD$MM087_rep1$merged[,c("synthetic.region", "counts.plasmid", "counts.cDNA")]
+names(DEdf) <- c("synthetic.region", "MM087.rep1.plasmid", "MM087.rep1.cDNA")
+DEdf <- inner_join(DEdf, CSE.SOX10KD$MM087_rep2$merged[,c("synthetic.region", "counts.plasmid", "counts.cDNA")],
+                  by = "synthetic.region")
+names(DEdf) <- c("synthetic.region", "MM087.rep1.plasmid", "MM087.rep1.cDNA", "MM087.rep2.plasmid", "MM087.rep2.cDNA")
+DEdf <- inner_join(DEdf, CSE.SOX10KD$MM087_rep3$merged[,c("synthetic.region", "counts.plasmid", "counts.cDNA")],
+                  by = "synthetic.region")
+names(DEdf) <- c("synthetic.region", "MM087.rep1.plasmid", "MM087.rep1.cDNA", "MM087.rep2.plasmid", "MM087.rep2.cDNA", "MM087.rep3.plasmid", "MM087.rep3.cDNA")
+DEdf <- as.data.frame(DEdf)
+row.names(x = DEdf) <- DEdf[,"synthetic.region"]
+DEdf <- DEdf[,-1]
+
+samples <- sort(colnames(DEdf))
+coldata <- c('MM087', 'Control', 'MM087', 'Control', 'MM087', 'Control')
+names(coldata) <- samples
+coldata <- as.data.frame(coldata)
+colnames(coldata) <- 'condition'
+```
+
+## Run DESeq2
+```{r}
+library("DESeq2")
+dds <- DESeqDataSetFromMatrix(countData = DEdf,
+                              colData = coldata[colnames(DEdf),,drop=FALSE],
+                              design = ~ condition)
+```
+
+```{r}
+dds$condition <- relevel(dds$condition, ref = "Control")
+```
+
+```{r}
+dds <- DESeq(dds)
+res <- results(dds)
+```
+
+```{r}
+res <- results(dds, name="condition_cDNA_vs_Plasmid")
+```
+
+## MA plot
+```{r}
+plotMA(res, ylim = c(-1.5, 6.3))
+```
+
+# Plot Log2FC vs adjusted p-value
+```{r}
+res2 <-as.data.frame(res)
+print(nrow(res2[res2$log2FoldChange >0 & res2$padj < 0.05,]))
+ggplot(res2, aes(x = padj, y = log2FoldChange)) +
+  geom_point(pch = 21, size = 3) +
+  geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+  labs(x = "Adjusted p-value", y = "Log2 FC")
+```
+
+## Keep only human and human shuffled sequences
+```{r}
+res.human <- na.omit(res2[grep(pattern = "Human", x = row.names(res2)),])
+res.human$class <- "Human"
+res.human[grep(pattern = "Neg-Control", x = row.names(res.human)), "class"] <- "Neg-Control"
+```
+
+```{r}
+library(ggplot2)
+p <- ggplot(data = res.human, aes(x = log2(baseMean), y = log2FoldChange, fill = ifelse(padj < 0.05,'grey80', 'black'))) +
+      geom_point(pch = 21, aes(color = class)) +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            strip.text.x = element_text(size = 8, color = "white"),
+            strip.background = element_rect(fill = "black"),
+            legend.key = element_blank()) +
+      scale_fill_manual(values = c("grey80", "#70DB70"), labels = c(">= 0.05", "< 0.05")) +
+      scale_color_manual(values = c(alpha("black",0), alpha("red", 1))) +
+      labs(title = paste0("CHEQ-seq SOX10 KD"), fill = "Adjusted\np-value", color = "Class", x = "A", y = "M")
+ggsave(filename = "plots/MA_plots/MM087_DEseq2_MA-plot.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+# 
+# p1 <- p + aes(fill = class) +
+#           scale_fill_manual(values = c("#7099CA", "#4D4D4D"), labels = c("Human", "Neg-Control")) +
+#           labs(color = "Enhancer \nclass")
+# print(p1)
+```
+
+# Number of Human active enhancers
+```{r}
+print(nrow(res.human[res.human$log2FoldChange>0 & res.human$padj<0.05,]))
+write(x = row.names(res.human[res.human$log2FoldChange>0 & res.human$padj<0.05,]), file = "HOMER/data/active-human-names.txt", sep = ",")
+write(x = row.names(res.human[res.human$log2FoldChange<=0 | res.human$padj>=0.05,]), file = "HOMER/data/inactive-human-names.txt", sep = ",")
+```
+
+# Violin plot expression
+```{r}
+res.human[grep(pattern = "restTopic", x = row.names(res.human)), "class"] <- "Human Rest Topic 11"
+ggplot(res.human, aes(x = class, y = log2FoldChange)) +
+  geom_violin() +
+  geom_jitter(data = res.human[res.human$padj<0.05,], aes(x = class, y = log2FoldChange), width = 0.15)
+nrow(res.human[res.human$class == "Human" & res.human$padj<0.05 & res.human$log2FoldChange>0,])/nrow(res.human[res.human$class == "Human",])*100
+nrow(res.human[res.human$class == "Human Rest Topic 11" & res.human$padj<0.05 & res.human$log2FoldChange>0,])/nrow(res.human[res.human$class == "Human Rest Topic 11",])*100
+```
+
+###############################################
+# Cluster Buster analysis
+## Load cbust results
+```{r}
+library(stringr)
+cb.sox <- read.table(file = "cbust/results/cluster_score_df/SOX10_dimers.c_0.0__m_0.0.bed",sep = "\t",stringsAsFactors = F)
+cb.mitf <- read.table(file = "cbust/results/cluster_score_df/homer__RTCATGTGAC_MITF.c_0.0__m_0.0.bed",sep = "\t",stringsAsFactors = F)
+names(cb.sox) <- c("synthetic.region","c_score")
+names(cb.mitf) <- c("synthetic.region","c_score")
+cb.sox$synthetic.region <- str_split(string = cb.sox$synthetic.region, pattern = "::", simplify = T)[,1]
+cb.mitf$synthetic.region <- str_split(string = cb.mitf$synthetic.region, pattern = "::", simplify = T)[,1]
+cb.comb <- full_join(x = cb.sox, y = cb.mitf, by = "synthetic.region", suffix = c(".sox", ".mitf"))
+act.human <- res.human
+act.human$synthetic.region <- row.names(act.human)
+cb.comb <- inner_join(x = cb.comb, y = act.human[,c("synthetic.region", "log2FoldChange","padj")], by = "synthetic.region")
+cb.comb[is.na(cb.comb)] <- 0
+```
+
+## Plot results
+```{r}
+library(ggplot2)
+p <- ggplot(cb.comb, aes(x = c_score.sox, y = c_score.mitf, fill = log2FoldChange)) +
+      geom_point(pch = 21, aes(size = -log2(padj))) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "C_score SOX dimer", y = "C_score MITF", fill = "CHEQ-seq\nlog2 FC", size = "CHEQ-seq\n-log2 Adjusted p-value")
+ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+p1 <- p + ylim(NA,9)
+ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF_y_zoom.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p1)
+```
+
+# Add cbust score to DEseq result df
+```{r}
+act.human <- full_join(x = act.human, y = cb.comb[, c("synthetic.region","c_score.sox", "c_score.mitf")], by = "synthetic.region")
+act.human[is.na(act.human)] <- 0
+```
+
+# Plot c-scores on MA plot
+```{r}
+library(ggplot2)
+p <- ggplot(data = act.human, aes(x = log2(baseMean), y = log2FoldChange, color = c_score.sox, size = c_score.sox)) +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            strip.text.x = element_text(size = 8, color = "white"),
+            strip.background = element_rect(fill = "black"),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("grey80", "#70DB70"), labels = c(">= 0.05", "< 0.05")) +
+      # scale_color_manual(values = c(alpha("black",0), alpha("red", 1))) +
+      labs(color = "SOX C-score", x = "A", y = "M", size = "SOX C-score")
+ggsave(filename = "cbust/plots/MA-plot_c-score_SOX.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+p1 <- p + aes(color = c_score.mitf, size = c_score.mitf) +
+          labs(color = "MITF C-score", size = "MITF C-score")
+ggsave(filename = "cbust/plots/MA-plot_c-score_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p1)
+
+p <- ggplot(data = act.human[act.human$c_score.mitf < 10,], aes(x = log2(baseMean), y = log2FoldChange, color = c_score.mitf, size = c_score.mitf)) +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            strip.text.x = element_text(size = 8, color = "white"),
+            strip.background = element_rect(fill = "black"),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("grey80", "#70DB70"), labels = c(">= 0.05", "< 0.05")) +
+      # scale_color_manual(values = c(alpha("black",0), alpha("red", 1))) +
+      labs(color = "MITF C-score", x = "A", y = "M", size = "MITF C-score")
+ggsave(filename = "cbust/plots/MA-plot_c-score_MITF_extrem_removed.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+```
+
+# Plot CHEQseq value vs c-score
+```{r}
+library(ggplot2)
+p <- ggplot(act.human, aes(x = c_score.sox, y = log2FoldChange)) +
+      geom_point(pch = 21, aes(size = -log2(padj))) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "C_score SOX dimer", y = "CHEQ-seq log2 FC", size = "CHEQ-seq\n-log2 Adjusted p-value")
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+p1 <- p + aes(x = c_score.mitf)
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF_y_zoom.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p1)
+p2 <- p1 + xlim(NA,10)
+print(p2)
+p3 <- p2 + aes(x = log2(c_score.mitf))
+print(p3)
+```
+
+################################
+# Load DeepMEL2 data
+```{r}
+DM.SOX10KD <- read.table(file = "/staging/leuven/stg_00002/lcb/itask/files/David_190bp_enhancer_activity/Liesbeth_SOX10KD/Liesbeth_sox10kd_predictions_deepmel2Gabpa.txt", header = T, sep = "\t", stringsAsFactors = F)
+names(DM.SOX10KD)[1] <- "synthetic.region"
+act.human <- inner_join(x = act.human, y= DM.SOX10KD, by = "synthetic.region")
+```
+
+# Plot c-score vs corresponding topic
+```{r}
+p <- ggplot(act.human, aes(x = c_score.sox, y = Topic_16, fill = log2FoldChange)) +
+      geom_point(pch = 21, aes(size = -log2(padj))) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "C-score SOX dimer", y = "Topic 16 DM2 score", fill = "CHEQ-seq\nlog2 FC", size = "CHEQ-seq\n-log2 Adjusted p-value")
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+p <- ggplot(act.human, aes(x = c_score.mitf, y = Topic_17, fill = log2FoldChange)) +
+      geom_point(pch = 21, aes(size = -log2(padj))) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "C-score MITF", y = "Topic 17 DM2 score", fill = "CHEQ-seq\nlog2 FC", size = "CHEQ-seq\n-log2 Adjusted p-value")
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+
+p <- ggplot(act.human[act.human$c_score.mitf < 10,], aes(x = c_score.mitf, y = Topic_17, fill = log2FoldChange)) +
+      geom_point(pch = 21, aes(size = -log2(padj))) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "C-score MITF", y = "Topic 17 DM2 score", fill = "CHEQ-seq\nlog2 FC", size = "CHEQ-seq\n-log2 Adjusted p-value")
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+```
+
+## Plot DM score vs CHEQseq activity
+```{r}
+for (i in c(1:48)){
+p <- ggplot(na.omit(act.human), aes(x = log2FoldChange, y = na.omit(act.human[,paste0("Topic_",i)]))) +
+      geom_point(pch = 21) +
+      # geom_text(data = subset(na.omit(act.human), log2FoldChange>4), label = str_split(subset(na.omit(act.human), log2FoldChange>4)[,"synthetic.region"], pattern = "@@", simplify = T)[,2], check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2)+
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black", size = 7),
+            axis.title = element_text(size = 8),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 7),
+            legend.text = element_text(size = 7),
+            legend.key.size = unit(0.8,"line")) +
+      # scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+      labs(x = "Log2 FC", y = paste0("Topic ",i," DM2 score"))
+# ggsave(filename = "cbust/plots/c-score_SOX_vs_MITF.pdf",device = "pdf",width = 5,height = 3, useDingbats = F)
+print(p)
+}
+```
+

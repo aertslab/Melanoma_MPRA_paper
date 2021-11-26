@@ -1,0 +1,613 @@
+---
+title: "HOMER"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# HOMER on ATAC-seq signal 
+# Prepare data to run HOMER on accessibility
+## Create env for each sample
+```{r}
+library(stringr)
+OLS.A.tiles <- read.table('/staging/leuven/stg_00002/lcb/dmauduit_HPC/CHEQseq_synth/Final_libraries/OLS_david_libA_3166701.fa', header = F, stringsAsFactors = F)
+OLS.A.tiles <- OLS.A.tiles[grep(pattern = ">", x = OLS.A.tiles[,1]),]
+OLS.A.tiles <- str_split(string = OLS.A.tiles, pattern = ">", simplify = T)[,2]
+
+OLS.B.tiles <- read.table('/staging/leuven/stg_00002/lcb/dmauduit_HPC/CHEQseq_synth/Final_libraries/OLS_david_libB_3166711.fa', header = F, stringsAsFactors = F)
+OLS.B.tiles <- OLS.B.tiles[grep(pattern = ">", x = OLS.B.tiles[,1]),]
+OLS.B.tiles <- str_split(string = OLS.B.tiles, pattern = ">", simplify = T)[,2]
+
+homer.tiles <- new.env()
+for (i in c('MM029_rep1','MM057_rep1','MM074_rep2','MM087_rep2','MM087_rep3','MM087_rep4','MM099_rep1')){
+    homer.tiles[[paste0("OLS-A_",i)]] <- new.env()
+    homer.tiles[[paste0("OLS-A_",i)]]$accessibility <- data.frame("synthetic.region" = OLS.A.tiles)
+}
+
+for (i in c('MM001_rep1','MM029_rep1','MM057_rep1','MM087_rep3','MM087_rep4','MM099_rep1')){
+    homer.tiles[[paste0("OLS-B_",i)]] <- new.env()
+    homer.tiles[[paste0("OLS-B_",i)]]$accessibility <- data.frame("synthetic.region" = OLS.B.tiles)
+}
+```
+
+## Assign ATAC-seq signal to tiles
+```{r}
+library(stringr)
+library(Rsubread)
+
+SAF <- list()
+for (line in names(homer.tiles)){
+    # Create a SAF format file with the tiles coordinates for featureCounts
+    homer.tiles[[line]]$accessibility$Chr <- str_split(homer.tiles[[line]]$accessibility$synthetic.region, ":", simplify=T)[,1]
+    homer.tiles[[line]]$accessibility$Start <- str_split(str_split(homer.tiles[[line]]$accessibility$synthetic.region, ":", simplify=T)[,2],"-",simplify=T)[,1]
+    homer.tiles[[line]]$accessibility$End <- str_split(str_split(homer.tiles[[line]]$accessibility$synthetic.region, "-", simplify=T)[,2],"@@",simplify=T)[,1]
+    homer.tiles[[line]]$accessibility$Strand <- "-"
+    SAF[[line]] <- homer.tiles[[line]]$accessibility[,c('synthetic.region','Chr','Start','End','Strand')]
+    colnames(SAF[[line]]) <- c('GeneID','Chr','Start','End','Strand')
+
+    # Perform featureCounts and save the results back in the tiles matrix
+    counts <-list()
+    line_name <- str_split(line,"_",simplify=T)[,2]
+    counts[[line]] <- featureCounts(files=paste('/staging/leuven/stg_00002/lcb/lvanaers/MM_ATAC_dataset/hg19/10.Bam/',line_name,'_BL.sorted.dedup.q30.bam',sep=''), annot.ext=SAF[[line]],useMetaFeatures=FALSE, allowMultiOverlap=TRUE, isPairedEnd=TRUE, nthreads = 6)
+    homer.tiles[[line]]$accessibility <- cbind(homer.tiles[[line]]$accessibility, counts[[line]]$counts)
+}
+
+```
+
+## Save data
+```{r}
+saveRDS(homer.tiles, file="/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/List_tiles_postFeatureCounts.rds")
+```
+
+## Load data
+```{r}
+homer.tiles <- readRDS(file="/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/List_tiles_postFeatureCounts.rds")
+```
+
+```{r}
+for (line in names(homer.tiles)){
+    # Extract the phenotype of the original enhancer
+    library(stringr)
+    library(pipeR)
+    library(dplyr)
+    enh <- str_split(homer.tiles[[line]]$accessibility$synthetic.region, '@@',simplify=T)[,2] %>>%
+    { str_split( . ,  '==',simplify=T)[,1] }
+    homer.tiles[[line]]$accessibility$enhancer <- enh
+    lookup <- read.table('/staging/leuven/stg_00002/lcb/lminn/MPRA_David/Long_phenotype.txt',header=F)
+    homer.tiles[[line]]$accessibility$phenotype <-  sapply(homer.tiles[[line]]$accessibility$enhancer, function(x) lookup$V2[match(x, lookup$V1)])
+    
+    # Remove mutated and shuffled tiles
+    homer.tiles[[line]]$accessibility <- homer.tiles[[line]]$accessibility[-grep('shuffled',homer.tiles[[line]]$accessibility$synthetic.region),]
+    homer.tiles[[line]]$accessibility <- homer.tiles[[line]]$accessibility[-grep('mut',homer.tiles[[line]]$accessibility$synthetic.region),]
+    
+    # Add a column with the CN of each tile, per cell line
+    l <- str_split(line, "_",simplify=T)[,2]
+    OLS <-substr(str_split(line, "_",simplify=T)[,1], 5, 5)  
+    CN <-  read.table(paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/ATAC_signal/Copy_number_OLS',OLS,'-wt_',l,'.bed',sep=''),header=F)
+    colnames(CN) <- c('chr','start','end','id','cn')
+    homer.tiles[[line]]$accessibility$CN <-  unlist(lapply(homer.tiles[[line]]$accessibility$synthetic.region, function(x) CN$cn[match(x, CN$id)]))
+
+    # Normalise for the CN                                     
+    colnames(homer.tiles[[line]]$accessibility)[6]  <- 'ATACsignal' 
+    homer.tiles[[line]]$accessibility$ATACsignal_CNnorm <- (homer.tiles[[line]]$accessibility$ATACsignal/unlist(homer.tiles[[line]]$accessibility$CN))*2
+    
+    # Z-score normalise tiles CN-norm ATAC-seq signal across the CN-norm ATAC-seq signal of all detected tiles within one large ac regions (i.e. same 'enhancer' ID)
+    homer.tiles[[line]]$accessibility <- homer.tiles[[line]]$accessibility %>% group_by(enhancer) %>% mutate(ATACsignal_CNnorm_scaled = scale(ATACsignal_CNnorm))
+
+    # Sort based on ATACsignal_scaled                          
+    # homer.tiles[[line]]$accessibility <- homer.tiles[[line]]$accessibility[order(homer.tiles[[line]]$accessibility$ATACsignal_CNnorm_scaled,decreasing=T),]
+    
+    # Sort based on ATACsignal                          
+    homer.tiles[[line]]$accessibility <- homer.tiles[[line]]$accessibility[order(homer.tiles[[line]]$accessibility$ATACsignal_CNnorm, decreasing=T),]
+    
+    # Take the top / bottom 1/4th of all tiles ; and then of the prol or inv tiles                                                
+    top <- homer.tiles[[line]]$accessibility[c(1:round(nrow(homer.tiles[[line]]$accessibility)/4)),]
+    bottom <- homer.tiles[[line]]$accessibility[c(round(nrow(homer.tiles[[line]]$accessibility)/4*3):nrow(homer.tiles[[line]]$accessibility)),]
+    
+    temp_top <- top
+    temp_bottom <- bottom                      
+    top_prol <- filter(temp_top, phenotype == 'Proliferative')
+    bottom_prol <- filter(temp_bottom, phenotype == 'Proliferative')
+
+    top_inv <- filter(temp_top, phenotype == 'Invasive')
+    bottom_inv <- filter(temp_bottom, phenotype == 'Invasive')
+                                                    
+     # Print number of all detected and active/inactive enhancer per cell line
+   writeLines(line)
+   print(paste('Number of homer.tiles: ',nrow(homer.tiles[[line]]$accessibility)),sep='')                                                                        
+   print(paste('Number of top accessible homer.tiles: ',nrow(top)))                                   
+   print(paste('Number of bottom accessible homer.tiles: ',nrow(bottom)))   
+   print(paste('Number of top prol accessible homer.tiles: ',nrow(top_prol)))     
+   print(paste('Number of top inv accessible homer.tiles: ',nrow(top_inv)))
+   print(paste('Number of bottom prol accessible homer.tiles: ',nrow(bottom_prol))) 
+   print(paste('Number of bottom inv accessible homer.tiles: ',nrow(bottom_inv)))
+                                                    
+   # Write away: all tiles, all active tiles, all prol tiles, all inv tiles, all active prol tiles and all active inv tiles
+        # all active tiles
+    write.table(top$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all inactive tiles
+    write.table(bottom$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all prol active tiles
+    write.table(top_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv active tiles
+    write.table(top_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all prol inactive tiles
+    write.table(bottom_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv inactive tiles
+    write.table(bottom_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+ 
+    # Take the top 1/4th and bottom 3/4th of all tiles ; and then of the prol or inv tiles                                                
+    top <- homer.tiles[[line]]$accessibility[c(1:round(nrow(homer.tiles[[line]]$accessibility)/4)),]
+    bottom <- homer.tiles[[line]]$accessibility[c((round(nrow(homer.tiles[[line]]$accessibility)/4)+1):nrow(homer.tiles[[line]]$accessibility)),]
+    
+    temp_top <- top
+    temp_bottom <- bottom                      
+    top_prol <- filter(temp_top, phenotype == 'Proliferative')
+    bottom_prol <- filter(temp_bottom, phenotype == 'Proliferative')
+
+    top_inv <- filter(temp_top, phenotype == 'Invasive')
+    bottom_inv <- filter(temp_bottom, phenotype == 'Invasive')
+                                                    
+     # Print number of all detected and active/inactive enhancer per cell line
+   writeLines(line)
+   print(paste('Number of homer.tiles: ',nrow(homer.tiles[[line]]$accessibility)),sep='')                                                                        
+   print(paste('Number of top accessible homer.tiles: ',nrow(top)))                                   
+   print(paste('Number of bottom accessible homer.tiles: ',nrow(bottom)))   
+   print(paste('Number of top prol accessible homer.tiles: ',nrow(top_prol)))     
+   print(paste('Number of top inv accessible homer.tiles: ',nrow(top_inv)))
+   print(paste('Number of bottom prol accessible homer.tiles: ',nrow(bottom_prol))) 
+   print(paste('Number of bottom inv accessible homer.tiles: ',nrow(bottom_inv)))
+                                                    
+   # Write away: all tiles, all active tiles, all prol tiles, all inv tiles, all active prol tiles and all active inv tiles
+        # all active tiles
+    write.table(top$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all inactive tiles
+    write.table(bottom$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all prol active tiles
+    write.table(top_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv active tiles
+    write.table(top_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all prol inactive tiles
+    write.table(bottom_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv inactive tiles
+    write.table(bottom_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+}
+```
+
+# HOMER on CHEQ-seq signal
+## Create dataframe
+```{r}
+for (i in c('MM029_rep1','MM057_rep1','MM074_rep2','MM087_rep2','MM087_rep3','MM087_rep4','MM099_rep1')){
+    homer.tiles[[paste0("OLS-A_",i)]]$activity <- CSE.OLSA[[i]]$merged.input.basal.norm
+}
+
+for (i in c('MM001_rep1','MM029_rep1','MM057_rep1','MM087_rep3','MM087_rep4','MM099_rep1')){
+    homer.tiles[[paste0("OLS-B_",i)]]$activity <- CSE.OLSB[[i]]$merged.input.basal.norm
+}
+```
+
+```{r}
+for (line in names(homer.tiles)){
+    # Remove mutated and shuffled tiles
+    homer.tiles[[line]]$activity <- homer.tiles[[line]]$activity[-grep('shuffled',homer.tiles[[line]]$activity$synthetic.region),]
+    homer.tiles[[line]]$activity <- homer.tiles[[line]]$activity[-grep('mut',homer.tiles[[line]]$activity$synthetic.region),]
+    
+    # Take the active (padj < 0.05) and inactive (padj >= 0.05) of all tiles ; and then of the prol or inv tiles                                                
+    top <- homer.tiles[[line]]$activity[homer.tiles[[line]]$activity$padj < 0.05,]
+    bottom <- homer.tiles[[line]]$activity[homer.tiles[[line]]$activity$padj >= 0.05,]
+    
+    temp_top <- top
+    temp_bottom <- bottom                      
+    top_prol <- filter(temp_top, phenotype == 'Proliferative')
+    bottom_prol <- filter(temp_bottom, phenotype == 'Proliferative')
+
+    top_inv <- filter(temp_top, phenotype == 'Invasive')
+    bottom_inv <- filter(temp_bottom, phenotype == 'Invasive')
+                                                    
+    # Print number of all detected and active/inactive enhancer per cell line
+   writeLines(line)
+   print(paste('Number of homer.tiles: ',nrow(homer.tiles[[line]]$activity)),sep='')                                                                        
+   print(paste('Number of top active homer.tiles: ',nrow(top)))                                   
+   print(paste('Number of bottom active homer.tiles: ',nrow(bottom)))   
+   print(paste('Number of top prol active homer.tiles: ',nrow(top_prol)))     
+   print(paste('Number of top inv active homer.tiles: ',nrow(top_inv)))
+   print(paste('Number of bottom prol active homer.tiles: ',nrow(bottom_prol))) 
+   print(paste('Number of bottom inv active homer.tiles: ',nrow(bottom_inv)))
+                                                    
+   # Write away: all tiles, all active tiles, all prol tiles, all inv tiles, all active prol tiles and all active inv tiles
+        # all active tiles
+    write.table(top$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_all-active-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all inactive tiles
+    write.table(bottom$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+        # all prol active tiles
+    write.table(top_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_prol-active-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv active tiles
+    write.table(top_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_inv-active-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all prol inactive tiles
+    write.table(bottom_prol$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+       # all inv inactive tiles
+    write.table(bottom_inv$synthetic.region,paste('/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Tiles_', line, '_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles.txt',sep=''), quote=F, row.names=F, col.names=F)
+                           
+}
+```
+
+#####################################
+
+# Switch to JupiterLab for HOMER analysis
+## Notebook "CHEQseq_Enhancer_tiling_HOMER_run.ipynb"
+
+#####################################
+
+# Post HOMER results visualization
+## Helper functions
+```{r}
+.parse_homer_subfields <- function(motif_tbl) {
+    cond <- stringr::str_detect(motif_tbl$motif_name, "/") %>%
+        sum(., na.rm = TRUE) > 0
+    if (cond == TRUE) {
+        motif_tbl <- motif_tbl %>%
+            tidyr::separate_('motif_name',
+                             c('motif_name', 'experiment', 'database'),
+                             '/', extra = "drop", fill = "right")
+    }
+
+    ## Detect if parentheses are present in motif_name
+    ## to break apart into motif_name vs. motif_family
+    cond <- stringr::str_detect(motif_tbl$motif_name, '\\(') %>%
+        sum(., na.rm = TRUE) > 0
+    if (cond == TRUE) {
+        motif_tbl <- motif_tbl %>%
+            tidyr::separate_('motif_name',
+                             c('motif_name', 'motif_family'),
+                             '\\(', extra = "drop", fill = "right")
+        motif_tbl$motif_family <- stringr::str_replace(motif_tbl$motif_family, '\\)', '')
+    }
+
+    ## Detect If parentheses are present in experiment
+    ## to break apart into experiment vs. accession
+    if ("experiment" %in% colnames(motif_tbl)) {
+        cond <- stringr::str_detect(motif_tbl$experiment, '\\(') %>%
+            sum(., na.rm = TRUE) > 0
+        if (cond == TRUE) {
+            motif_tbl <- motif_tbl %>%
+                tidyr::separate_('experiment',
+                                 c('experiment', 'accession'),
+                                 '\\(', extra = "drop", fill = "right")
+            motif_tbl$accession <- stringr::str_replace(motif_tbl$accession, '\\)', '')
+        }
+    }
+    return(motif_tbl)
+}
+
+.parse_pcts <- function(x) {
+    stringr::str_replace(x, "%", "") %>%
+        as.numeric() * 0.01
+}
+
+.append_known_pwm <- function(known_results) {
+    library(marge)
+    data(HOMER_motifs, envir = environment())
+    hm <- HOMER_motifs %>%
+        # dplyr::filter(rlang::UQ(rlang::sym('log_odds_detection')) > 0) %>%
+        dplyr::select("motif_name", "motif_family", "experiment", "accession",
+                      "motif_pwm", "log_odds_detection")
+    dplyr::inner_join(known_results, hm, 
+                      by = c("motif_name", "motif_family", "experiment", "accession"))
+}    
+
+.calc_consensus <- function(motif_pwm) {
+    wm <- apply(motif_pwm, 1, which.max)
+    consensus <- colnames(motif_pwm)[wm] %>%
+        paste0(., collapse = '')
+    return(consensus)
+}
+
+# Adapter function to read in both the P and log p
+read_known_results_adapted <- function(path, homer_dir = TRUE) 
+{
+    if (homer_dir == TRUE) {
+        path <- paste0(path, "/knownResults.txt")
+    }
+    if (!file.exists(path)) {
+        warning(paste("File", path, "does not exist"))
+        return(NULL)
+    }
+    col_spec <- readr::cols("c", "c", "d", "d", "d", "d", "c", 
+        "d", "c")
+    raw <- readr::read_tsv(path, col_types = col_spec)
+    colnames(raw) <- c("motif_name", "consensus", "log_p_value","LOG_P_value", 
+        "fdr", "tgt_num", "tgt_pct", "bgd_num", "bgd_pct")
+    tmp <- raw %>% tidyr::separate_("motif_name", c("motif_name", 
+        "experiment", "database"), "/", extra = "drop") %>% mutate_(log_p_value = "-log10(log_p_value)")
+    parsed <- .parse_homer_subfields(tmp) %>% dplyr::mutate_at(vars(contains("pct")), 
+        .parse_pcts)
+    known <- .append_known_pwm(parsed)
+    names(known$motif_pwm) <- known$motif_name
+    return(known)
+}
+```
+
+
+# Post HOMER results visualization
+## Accessibility
+## Load HOMER results "topbottom4th"
+```{r}
+# Make a tibble with the IDs of the comparisons and the paths to the homer results
+library(purrr)
+library(tidyr)
+library(dplyr)
+id1<-c("MM001_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM001_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM001_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM001_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM001_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM001_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM029_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM029_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM029_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM029_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM029_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM029_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM029_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM029_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM029_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM029_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM029_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM029_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM057_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM057_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM057_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM057_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM057_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM057_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM057_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM057_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM057_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM057_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM057_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM057_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+id2<-c("MM074_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM074_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM074_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM074_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM074_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM074_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM087_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM087_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM087_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM087_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM087_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM087_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM087_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM087_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM087_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM087_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM087_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM087_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM099_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM099_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM099_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM099_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM099_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM099_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM099_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM099_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM099_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM099_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM099_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","MM099_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles","MM099_COMBINED_all-inaccessible-tiles_vs_all-accessible-tiles","MM099_COMBINED_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","MM099_COMBINED_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","MM099_COMBINED_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","MM099_COMBINED_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+id <- c(id1,id2)
+tbl <- tibble(id = id)
+results_dir <- "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Homer_5-5BC_ATAC-CNnorm_FILT-topbottom4th_COMBINED/"
+
+subdirs_MM001=c("Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM029=c("Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM057=c("Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM074=c("Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM087=c("Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM099=c("Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-topbottom4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs<-c(subdirs_MM001,subdirs_MM029,subdirs_MM057,subdirs_MM074,subdirs_MM087,subdirs_MM099)
+tbl <- tbl %>% mutate(path = paste0(results_dir, subdirs))
+```
+
+```{r}
+library(purrr)
+library(tidyr)
+# Read in the homer known results
+    # it dislays the not found error for the ones that had an error Homer that said "unable to divide through 0"
+tbl <- tbl %>% mutate(known_results = map(path, read_known_results_adapted)) %>%
+               select(-path) %>%
+               unnest()
+```
+
+# Summarising Characteristics of Motif Enrichment Results
+## In this tidy form, it becomes possible to summarise results on the basis of motif families, as opposed to simply individual motifs. Below, we use the id and motif_family columns to group the results, and summarise a given motif family by taking the most significant individual motif appearance as the summary statistic (e.g., the max -log10 p-value).
+```{r}
+library(marge)
+## Summarise -> report the max logpValue -> binary
+tbl_summary.ATAC <- tbl %>% group_by(id, motif_family) %>%
+                            summarise(top_log_p_value = max(-LOG_P_value)) %>%
+                            ungroup()
+```
+
+## Load HOMER results "top4thbottom3-4th"
+```{r}
+# Make a tibble with the IDs of the comparisons and the paths to the homer results
+library(purrr)
+library(tidyr)
+library(dplyr)
+tbl.ATAC34 <- tibble(id = id)
+results_dir <- "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Homer_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_COMBINED/"
+
+subdirs_MM001=c("Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM001_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM029=c("Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM029_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM057=c("Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM057_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM074=c("Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM074_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM087=c("Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM087_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs_MM099=c("Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-accessible-tiles_vs_all-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_all-inaccessible-tiles_vs_all-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-accessible-tiles_vs_all-inv-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_inv-inaccessible-tiles_vs_all-inv-accessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-accessible-tiles_vs_all-prol-inaccessible-tiles","Homer_MM099_COMBINED_5-5BC_ATAC-CNnorm_FILT-top4thbottom3-4th_prol-inaccessible-tiles_vs_all-prol-accessible-tiles")
+subdirs<-c(subdirs_MM001,subdirs_MM029,subdirs_MM057,subdirs_MM074,subdirs_MM087,subdirs_MM099)
+tbl.ATAC34 <- tbl.ATAC34 %>% mutate(path = paste0(results_dir, subdirs))
+```
+
+```{r}
+library(purrr)
+library(tidyr)
+# Read in the homer known results
+    # it dislays the not found error for the ones that had an error Homer that said "unable to divide through 0"
+tbl.ATAC34 <- tbl.ATAC34 %>% mutate(known_results = map(path, read_known_results_adapted)) %>%
+                             select(-path) %>%
+                             unnest()
+```
+
+# Summarising Characteristics of Motif Enrichment Results
+## In this tidy form, it becomes possible to summarise results on the basis of motif families, as opposed to simply individual motifs. Below, we use the id and motif_family columns to group the results, and summarise a given motif family by taking the most significant individual motif appearance as the summary statistic (e.g., the max -log10 p-value).
+```{r}
+## Summarise -> report the max logpValue -> binary
+tbl_summary.ATAC34 <- tbl.ATAC34 %>% group_by(id, motif_family) %>%
+                                     summarise(top_log_p_value = max(-LOG_P_value)) %>%
+                                     ungroup()
+```
+
+## Activity
+## Load HOMER results
+```{r}
+# Make a tibble with the IDs of the comparisons and the paths to the homer results
+library(purrr)
+library(tidyr)
+library(dplyr)
+tbl.CHEQ <- tibble(id = id)
+results_dir <- "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/Homer/data/Homer_5-5BC_CHEQseq-topbottom4th_COMBINED/"
+
+subdirs_MM001=c("Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM001_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs_MM029=c("Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM029_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs_MM057=c("Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM057_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs_MM074=c("Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM074_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs_MM087=c("Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM087_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs_MM099=c("Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-active-tiles_vs_all-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_all-inactive-tiles_vs_all-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-active-tiles_vs_all-inv-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_inv-inactive-tiles_vs_all-inv-active-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-active-tiles_vs_all-prol-inactive-tiles","Homer_MM099_COMBINED_5-5BC_CHEQseq-topbottom4th_prol-inactive-tiles_vs_all-prol-active-tiles")
+subdirs<-c(subdirs_MM001,subdirs_MM029,subdirs_MM057,subdirs_MM074,subdirs_MM087,subdirs_MM099)
+tbl.CHEQ <- tbl.CHEQ %>% mutate(path = paste0(results_dir, subdirs))
+```
+
+```{r}
+library(purrr)
+library(tidyr)
+# Read in the homer known results
+    # it dislays the not found error for the ones that had an error Homer that said "unable to divide through 0"
+tbl.CHEQ <- tbl.CHEQ %>% mutate(known_results = map(path, read_known_results_adapted)) %>%
+                         select(-path) %>%
+                         unnest()
+```
+
+# Summarising Characteristics of Motif Enrichment Results
+## In this tidy form, it becomes possible to summarise results on the basis of motif families, as opposed to simply individual motifs. Below, we use the id and motif_family columns to group the results, and summarise a given motif family by taking the most significant individual motif appearance as the summary statistic (e.g., the max -log10 p-value).
+```{r}
+library(dplyr)
+## Summarise -> report the max logpValue -> binary
+tbl_summary.CHEQ <- tbl.CHEQ %>% group_by(id, motif_family) %>%
+                                 summarise(top_log_p_value = max(-LOG_P_value)) %>%
+                                 ungroup()
+```
+
+
+# Plotting results
+## ATACseq "topbottom4th" vs CHEQseq
+```{r}
+library(tidyr)
+library(ggplot2)
+library(stringr)
+# Make a scatter plot of all the TF families per comparison
+colnames(tbl_summary.ATAC)[3] <- "ATAC_top_log_p_value"
+colnames(tbl_summary.CHEQ)[3] <- "CHEQ_top_log_p_value"
+tbl_summary.ATAC$id_TFfam <- paste(tbl_summary.ATAC$id,tbl_summary.ATAC$motif_family,sep="@@")
+tbl_summary.CHEQ$id <- str_replace_all(tbl_summary.CHEQ$id, "active", "accessible")
+tbl_summary.CHEQ$id_TFfam <- paste(tbl_summary.CHEQ$id,tbl_summary.CHEQ$motif_family,sep="@@")
+
+total_summary <- merge(tbl_summary.CHEQ,tbl_summary.ATAC[,c("id_TFfam","ATAC_top_log_p_value")],by='id_TFfam')
+    # Delete morig families with ? or nothing
+total_summary_filt <- total_summary[-grep('?',total_summary$motif_family,fixed=T),]
+total_summary_filt <- total_summary_filt %>% drop_na()
+
+for (COMP in unique(total_summary_filt$id)){
+    temp <- total_summary_filt %>% filter(id %in% COMP)
+    plot <- ggplot(temp, aes(CHEQ_top_log_p_value,ATAC_top_log_p_value)) + 
+              geom_point() + 
+              geom_text(label=temp$motif_family, size =3, hjust=0.2, vjust=1.5) + 
+              ggtitle(COMP)
+    print(plot)
+}
+```
+
+## Plot values for all vs all
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM057", "MM074", "MM087", "MM099")){
+    temp <- total_summary_filt[total_summary_filt$id == paste0(i,"_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles"),]
+    temp$motif_color <- temp$motif_family
+    temp[!temp$motif_color %in% c("bHLH","bZIP","ETS","HMG","TEA"), "motif_color"] <- "Other"
+    temp$motif_color <- as.factor(temp$motif_color)
+    temp$motif_color <- factor(temp$motif_color, levels = c("bHLH","HMG","bZIP","TEA","ETS","Other"))
+    plot <- ggplot(temp, aes(x = CHEQ_top_log_p_value, y = ATAC_top_log_p_value, label = motif_family, color = motif_color))+ 
+              geom_point() + 
+              geom_text(data = subset(temp, CHEQ_top_log_p_value >= 5 | ATAC_top_log_p_value >= 5), size =3, hjust=0.2, vjust=-1) + 
+              theme(panel.background = element_blank(),
+                    panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+                    axis.ticks = element_line(colour = "black", size = 0.25),
+                    axis.text = element_text(color = "black"),
+                    legend.key = element_blank()) +
+              # xlim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1.5)) +
+              # ylim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1)) +
+              scale_color_manual(values = c("#1C5395", "#1C5395", "#E41A1C", "#E41A1C", "black", "grey70")) +
+              # scale_y_continuous(trans='log2') +
+              # scale_x_continuous(trans='log2') +
+              labs(title =str_split(string = temp$id[1], pattern = "_",simplify = T)[,1], x = "CHEQ-seq - Top -Log p-value", y = "ATAC-seq - Top -Log p-value", color = "Motif family")
+    print(plot)
+    ggsave(filename = paste0("Homer/plots/",i,"_all-active-vs-all-inactive.pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+}
+```
+
+## ATACseq "top4thbottom3-4th" vs ATACseq "topbottom4th"
+```{r}
+library(tidyr)
+library(ggplot2)
+# Make a scatter plot of all the TF families per comparison
+colnames(tbl_summary.ATAC34)[3] <- "ATAC34_top_log_p_value"
+colnames(tbl_summary.ATAC)[3] <- "ATAC_top_log_p_value"
+tbl_summary.ATAC34$id_TFfam <- paste(tbl_summary.ATAC34$id,tbl_summary.ATAC34$motif_family,sep="@@")
+tbl_summary.ATAC$id_TFfam <- paste(tbl_summary.ATAC$id,tbl_summary.ATAC$motif_family,sep="@@")
+
+total_summary34 <- merge(tbl_summary.ATAC,tbl_summary.ATAC34[,c("id_TFfam","ATAC34_top_log_p_value")],by='id_TFfam')
+    # Delete motif families with ? or nothing
+total_summary_filt34 <- total_summary34[-grep('?',total_summary34$motif_family,fixed=T),]
+total_summary_filt34 <- total_summary_filt34 %>% drop_na()
+
+for (COMP in unique(total_summary_filt34$id)){
+    temp <- total_summary_filt34 %>% filter(id %in% COMP)
+    plot <- ggplot(temp, aes(ATAC_top_log_p_value,ATAC34_top_log_p_value)) + 
+              geom_point() + 
+              geom_text(label=temp$motif_family, size =3, hjust=0.2, vjust=1.5) + 
+              ggtitle(COMP)
+    print(plot)
+}
+```
+
+## ATACseq "top4thbottom3-4th" vs CHEQseq 
+```{r}
+library(tidyr)
+library(ggplot2)
+library(stringr)
+# Make a scatter plot of all the TF families per comparison
+colnames(tbl_summary.ATAC34)[3] <- "ATAC_top_log_p_value"
+colnames(tbl_summary.CHEQ)[3] <- "CHEQ_top_log_p_value"
+tbl_summary.ATAC34$id_TFfam <- paste(tbl_summary.ATAC34$id,tbl_summary.ATAC34$motif_family,sep="@@")
+tbl_summary.CHEQ$id <- str_replace_all(tbl_summary.CHEQ$id, "active", "accessible")
+tbl_summary.CHEQ$id_TFfam <- paste(tbl_summary.CHEQ$id,tbl_summary.CHEQ$motif_family,sep="@@")
+
+total_summary34 <- merge(tbl_summary.CHEQ,tbl_summary.ATAC34[,c("id_TFfam","ATAC_top_log_p_value")],by='id_TFfam')
+    # Delete motif families with ? or nothing
+total_summary_filt34 <- total_summary34[-grep('?',total_summary34$motif_family,fixed=T),]
+total_summary_filt34 <- total_summary_filt34 %>% drop_na()
+
+for (COMP in unique(total_summary_filt34$id)){
+    temp <- total_summary_filt34 %>% filter(id %in% COMP)
+    plot <- ggplot(temp, aes(CHEQ_top_log_p_value,ATAC_top_log_p_value)) + 
+              geom_point() + 
+              geom_text(label=temp$motif_family, size =3, hjust=0.2, vjust=1.5) + 
+              ggtitle(COMP)
+    print(plot)
+}
+```
+
+# Plot values for all vs all
+```{r}
+for (i in c("MM001", "MM029", "MM057", "MM074", "MM087", "MM099")){
+  temp <- total_summary_filt34[total_summary_filt34$id == paste0(i,"_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles"),]
+  temp$motif_color <- temp$motif_family
+  temp[!temp$motif_color %in% c("bHLH","bZIP","ETS","HMG","TEA"), "motif_color"] <- "Other"
+  temp$motif_color <- as.factor(temp$motif_color)
+  temp$motif_color <- factor(temp$motif_color, levels = c("bHLH","HMG","bZIP","TEA","ETS","Other"))
+  plot <- ggplot(temp, aes(x = CHEQ_top_log_p_value, y = ATAC_top_log_p_value, label = motif_family, color = motif_color))+ 
+            geom_point() + 
+            geom_text(data = subset(temp, CHEQ_top_log_p_value >= 5 | ATAC_top_log_p_value >= 5), size =2.5, hjust=0.2, vjust=-1) + 
+            theme(panel.background = element_blank(),
+                  panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+                  axis.ticks = element_line(colour = "black", size = 0.25),
+                  axis.text = element_text(color = "black"),
+                  legend.key = element_blank()) +
+            # xlim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1.5)) +
+            # ylim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1)) +
+            scale_color_manual(values = c("#1C5395", "#1C5395", "#E41A1C", "#E41A1C", "black", "grey70")) +
+            # scale_y_continuous(trans='log2') +
+            # scale_x_continuous(trans='log2') +
+            labs(title =str_split(string = temp$id[1], pattern = "_",simplify = T)[,1], x = "CHEQ-seq - Top -Log p-value", y = "ATAC-seq - Top -Log p-value", color = "Motif family")
+  print(plot)
+  ggsave(filename = paste0("Homer/plots/",i,"bottom3-4th_all-active-vs-all-inactive.pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+}
+```
+
+```{r}
+temp <- total_summary_filt34[grep(pattern = "_COMBINED_all-accessible-tiles_vs_all-inaccessible-tiles", x = total_summary_filt34$id),]
+temp$motif_color <- temp$motif_family
+temp[!temp$motif_color %in% c("AP2","bHLH","bZIP","ETS","HMG","IRF","RHD","TEA"), "motif_color"] <- "Other"
+ggplot(temp, aes(x = CHEQ_top_log_p_value, y = ATAC_top_log_p_value, label = motif_family, color = motif_color))+ 
+  geom_point() + 
+  geom_text(data = subset(temp, CHEQ_top_log_p_value >= 5 | ATAC_top_log_p_value >= 5), size =3, hjust=0.2, vjust=-1) + 
+  facet_grid(~id, scales = "free", space = "fixed") +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank()) +
+  # xlim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1.5)) +
+  # ylim(c(NA,max(temp[,c("CHEQ_top_log_p_value", "ATAC_top_log_p_value")])+1)) +
+  scale_color_manual(values = c("#1C5395", "#1C5395", "#E41A1C", "black", "#1C5395", "#1C5395", "grey70", "#E41A1C", "#E41A1C")) +
+  # scale_y_continuous(trans='log2') +
+  # scale_x_continuous(trans='log2') +
+  labs(x = "CHEQ-seq - Top -Log p-value", y = "ATAC-seq - Top -Log p-value", color = "Motif family")
+ggsave(filename = paste0("Homer/plots/Facet_bottom3-4th_all-active-vs-all-inactive.pdf"),device = "pdf",width = 20,height = 5, useDingbats = F)
+```
+

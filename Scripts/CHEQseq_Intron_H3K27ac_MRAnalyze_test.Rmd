@@ -1,0 +1,44 @@
+---
+title: "IP_MPRAnalyze"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(MPRAnalyze)
+
+source("/ddn1/vol1/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/utils_MPRAnalyze.R")
+```
+
+```{r}
+MPRAnalyze.raw <- new.env()
+MPRAnalyze.raw <- ProcessMPRAnalize(env = MPRAnalyze.raw, 
+                                    library = "long",
+                                    line = "MM001",
+                                    plasmid.counts.file.path = "/ddn1/vol1/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/counting/10.bc_count/CH1__c61f58__CheqSeq_MM001_intron_plasmid_DNA_count_final_clean_NEG.txt", 
+                                    cDNA.counts.file.path = "/ddn1/vol1/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/counting/10.bc_count/CH1__2b00ae__CheqSeq_MM001_Intron_cDNA_count_final_clean_NEG.txt")
+```
+
+```{r}
+# Create object
+obj <- MpraObject(dnaCounts = MPRAnalyze.raw$MM001$plasmid.MPRAnalyze, rnaCounts = MPRAnalyze.raw$MM001$cDNA.MPRAnalyze, 
+                  dnaAnnot = MPRAnalyze.raw$annnotation, rnaAnnot = MPRAnalyze.raw$annnotation)
+```
+
+```{r}
+# Library normalisation
+obj <- estimateDepthFactors(obj, lib.factor = c("cell.line"),
+                            which.lib = "both")
+```
+
+```{r}
+obj <- analyzeQuantification(obj = obj, 
+                              dnaDesign = ~ barcode,
+                              rnaDesign = ~ barcode)
+```
+

@@ -1,0 +1,1536 @@
+---
+title: "CHEQseq_500bp_library"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/utils.R")
+library(dplyr)
+library(ggplot2)
+```
+
+# Load data
+## Initiate environment
+```{r}
+CSE.500bp.CHEQ <- new.env()
+```
+
+## Process lines
+```{r}
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM001",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__68c120__MM001_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__56b839__MM001_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM029",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__f510cf__MM029_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__a191d2__MM029_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM047",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__af95a0__MM047_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__da1a82__MM047_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM057",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__3dfedb__MM057_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__9053be__MM057_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM074",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__35c990__MM074_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__41c39d__MM074_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM087_rep1",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__2e4e4a__MM087_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__c6c8a7__MM087_CHEQseq_500_bp_enh_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM087_rep2",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__2e4e4a__MM087_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__dbcd26__CheqSeq_cDNA_MM087_ATAC_sample_1_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM087_rep3",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__2e4e4a__MM087_CHEQseq_500_bp_enh_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__bfaf33__CheqSeq_cDNA_MM087_ATAC_sample_2_count_final.txt",
+                                 min.barcodes = 10)
+
+CSE.500bp.CHEQ <- ProcessCHEQseq(env = CSE.500bp.CHEQ,
+                                 line = "MM099",
+                                 library = "500bp",
+                                 filter.method = "min.barcodes",
+                                 plasmid.counts.file.path = "counting/10.bc_count/CSE__b53b4f__MM099_CHEQseq_500_bp_plasmid_count_final.txt",
+                                 cDNA.counts.file.path = "counting/10.bc_count/CSE__c5803d__MM099_CHEQseq_500_bp_cDNA_count_final.txt",
+                                 min.barcodes = 10)
+```
+
+# Combine MM087 replicates
+```{r}
+# Calculate mean of replicates
+library(dplyr)
+CSE.atac.87.df <- inner_join(CSE.500bp.CHEQ$MM087_rep1$merged.cpm.input.norm[,c("enhancer", "phenotype", "CPMNorm.FC")], CSE.500bp.CHEQ$MM087_rep2$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], by = "enhancer") %>% inner_join(CSE.500bp.CHEQ$MM087_rep3$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")], by = "enhancer")
+CSE.atac.87.df$mean.CPMNorm.FC <- rowMeans(CSE.atac.87.df[,c("CPMNorm.FC.x", "CPMNorm.FC.y", "CPMNorm.FC")])
+CSE.500bp.CHEQ$MM087$merged.cpm.input.norm <- CSE.atac.87.df[,c("enhancer", "phenotype", "mean.CPMNorm.FC")]
+names(CSE.500bp.CHEQ$MM087$merged.cpm.input.norm) <- c("enhancer", "phenotype", "CPMNorm.FC")
+```
+
+# Save environment
+```{r}
+saveRDS(object = CSE.500bp.CHEQ, file = "analysis/CHEQseq/CHEQseq__500bp__R_environment.RDS")
+```
+
+
+# Barcode number violin plots
+```{r}
+library(reshape2)
+MM.500bp.bc<- rbind(data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.CHEQ[["MM001"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM001"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM001"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.CHEQ[["MM057"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM057"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM057"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.CHEQ[["MM074"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM074"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM074"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM087_rep1",nrow(CSE.500bp.CHEQ[["MM087_rep1"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM087_rep1"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM087_rep1"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.CHEQ[["MM029"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM029"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM029"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.CHEQ[["MM047"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM047"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM047"]]$cDNA.raw$num.barcodes),
+                    data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.CHEQ[["MM099"]]$plasmid.raw)), 
+                               "Plasmid"=CSE.500bp.CHEQ[["MM099"]]$plasmid.raw$num.barcodes, 
+                               "cDNA"=CSE.500bp.CHEQ[["MM099"]]$cDNA.raw$num.barcodes))
+MM.500bp.bc<-melt(MM.500bp.bc, id="MM.line")
+library(ggplot2)
+ggplot(MM.500bp.bc, aes(x=MM.line, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.25, position=position_dodge(0.9)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "analysis/CHEQseq/Plots/CHEQseq_ATAC_BC_range.pdf",device = "pdf",width = 6,height = 3)
+
+ggplot(MM.500bp.bc, aes(x=variable, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.25, position=position_dodge(0.9)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "analysis/CHEQseq/Plots/CHEQseq_ATAC_assay_BC_range.pdf",device = "pdf",width = 5,height = 2.5)
+```
+
+# Enhancer activity profile per line
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+p <- ggplot(CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm[CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+  geom_point(pch = 21, size = 2.5) +
+  geom_hline(yintercept = log2(CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm[CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm$enhancer == "NEG_CTRL","CPMNorm.FC"]), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  # geom_hline(yintercept= log2(CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm[CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm$enhancer == "NEG_CTRL","CPMNorm.FC"]), linetype="dashed", color = "black", size = 0.5) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 FC", fill = "Enhancer\nphenotype", title = paste0(i))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_line/CHEQseq_500bp_activity_",i,".pdf"), device = "pdf",width = 7,height = 3)
+print(p)
+}
+```
+
+# Enhancer activity profile per line with inactive enhancers highlighted
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")){
+  tmp <- CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm
+  tmp$color <- ifelse(tmp$enhancer %in% c("MITF_P", "SOX10_15-3UA", "SOX10_15-3UB", "SGCD_15-IA", "FLNC_-2-DB"), "1", "0")
+  p <- ggplot(tmp, aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = color)) +
+        geom_point(pch = 21, size = 2.5) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("white", "black"), labels = c("Active", "Inactive")) +
+        labs(x = "Enhancers", y = "Log2 FC", fill = "Enhancer\nphenotype", title = paste0(i))
+  # ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_line/CHEQseq_500bp_activity_",i,".eps"),device = "eps",width = 7,height = 3)
+  print(p)
+}
+```
+
+
+## Define activity via fit of Gaussian curve taking list of inactive enhancers as negative control
+```{r}
+library(ggplot2)
+library(robustbase)
+library(stats)
+library(data.table)
+library(stringr)
+CH1.intron <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__R_environment.RDS")
+j <- c("MITF_P", "SOX10_15-3UA", "SOX10_15-3UB", "SGCD_15-IA", "FLNC_-2-DB")
+
+for (i in names(CSE.500bp.CHEQ)[-which(names(CSE.500bp.CHEQ) %in% c("MM087_rep1", "MM087_rep2", "MM087_rep3"))]) {
+  print(i)
+  sample <- CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm
+  
+  # Test normality of control values with Shapiro-Wilk test
+  norm.test <-shapiro.test(sample[sample$enhancer %in% j,"CPMNorm.FC"])
+  print(paste0("Normality test: ",norm.test$p.value))
+  
+  # Robust fit of a gaussian by robust estimates of it's two params from the enhancer values of the opposite phenotype (MEL enh for MES lines and MES enh for MEL lines)
+  if (norm.test$p.value < 0.05){
+    # If the values of control regions are not normally distributed: Use log2 FC values to fit the Gaussian
+    print("Control regions values are NOT normally distributed")
+    location <- median(x = log2(sample[sample$enhancer %in% j, "CPMNorm.FC"]))
+    print(paste0("Median: ",location))
+    scale <- mad(x = log2(sample[sample$enhancer %in% j, "CPMNorm.FC"]))
+    
+    # Check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = log2(CPMNorm.FC), fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = log2(sample$CPMNorm.FC), mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr") 
+  } else {
+    # If the values of control regions are normally distributed: Use FC values to fit the Gaussian
+    print("Control regions values are normally distributed")
+    location <- median(x = sample[sample$enhancer %in% j, "CPMNorm.FC"])
+    print(paste0("Median: ",location))
+    scale <- mad(x = sample[sample$enhancer %in% j, "CPMNorm.FC"])
+    
+    # Check fit
+    p2 <- ggplot(data = sample, mapping = aes(x = CPMNorm.FC, fill = phenotype)) +
+            geom_density(size = 0, alpha = .5) +  
+            stat_function(fun = dnorm, args = list(mean = location, sd = scale)) +
+            ggtitle(label = paste0(i)) +
+            theme_minimal()
+    print(p2)
+    
+    # Determine p-values for all
+    sample$pvalue <- pnorm(q = sample$CPMNorm.FC, mean = location, sd = scale, lower.tail = F)
+    sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+  }
+  
+  # Controlling the FDR on this should result in < 5% false discoveries
+  print(table(sample[sample$padj < 0.05, "phenotype"])/sum(sample$padj < 0.05)*100)
+  print(nrow(sample[sample$padj < 0.05,]))
+  
+  # Save results
+  CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm <- sample
+  
+  p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = phenotype)) + 
+          geom_bar() + 
+          ggtitle(label = paste0(i)) +
+          theme_minimal()
+  print(p3)
+
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3, aes(color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancer", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_line/CHEQseq_500bp_activity_",i,".pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+
+  # With different shapes for TYR and SOX10 enhancers
+  ## Make shape categories
+  sample$pch <- "Others"
+  sample[sample$enhancer %in% c("TYR_-9-D", "TYR_-1-D"),"pch"] <- "TYR"
+  # sample[sample$enhancer %in% c("SOX10_1A", "SOX10_1B","SOX10_3A", "SOX10_3B","SOX10_5A", "SOX10_5B"),"pch"] <- "SOX10"
+  ## Import Ac values
+  ### First convert ATAC names into Ac compatible names
+  sample$region <- as.character(sample$enhancer)
+  sample[grep(pattern = "A$|B$", sample$region), "region"] <- str_replace(string = sample[grep(pattern = "A$|B$", sample$region), "region"], pattern = "A$|B$", replacement = "")
+  sample$region <- as.factor(sample$region)
+  for (k in sample$region){
+    sample[sample$region %in% k,"Intron.FC"] <- if (k %in% CH1.intron[[i]]$merged.cpm.input.basal.norm$enhancer){
+      CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$enhancer %in% k,"BasalNorm.FC"]
+    } else {
+      sample[!sample$region %in% k,]
+    }
+  }
+  ### Replace X by log2(Intron.FC) to sort the enhancers by the value of the original Ac region
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[sample$enhancer != "NEG_CTRL","pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(21,22)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_line/CHEQseq_500bp_activity_",i,"with_shapesMEL.pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+  
+  # With different shapes for COL5A1 and SERPINE1 enhancers
+  ## Make shape categories
+  sample$pch <- "Others"
+  sample[sample$enhancer %in% c("COL5A1_-139-D", "COL5A1_-89-D", "COL5A1_-50-D", "COL5A1_-39-D", "COL5A1_-17-D", "COL5A1_21-I"),"pch"] <- "COL5A1"
+  sample[sample$enhancer %in% c("SERPINE1_-110-IA", "SERPINE1_-110-IB"),"pch"] <- "SERPINE1"
+  
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = reorder(x = enhancer, X = log2(CPMNorm.FC), FUN=median), y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(size = 3, aes(shape = sample[sample$enhancer != "NEG_CTRL","pch"], color = ifelse(padj < 0.05, "<0.05",">=0.05"))) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7.2),
+              axis.text.y = element_text(size = 8.5),
+              axis.text.x = element_text(angle = 60, hjust = 1),
+              axis.title = element_text(size = 9),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        scale_shape_manual(values = c(22,21,23)) +
+        scale_color_manual(values = c('black', 'grey80')) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Enhancers", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", shape = NULL)
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_line/CHEQseq_500bp_activity_",i,"with_shapesMES.pdf"), device = "pdf",width = 7,height = 3, useDingbats = F)
+  print(p)
+  
+  p <- ggplot(sample[sample$enhancer != "NEG_CTRL",], aes(x = padj, y = log2(CPMNorm.FC), fill = phenotype)) +
+        geom_point(pch = 21, size = 3) +
+        geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_blank(),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black", size = 7),
+              axis.title = element_text(size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line")) +
+        scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+        ggtitle(label = paste0(i)) +
+        labs(x = "Adjusted p-value", y = "Log2 FC", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype")
+  print(p)
+}
+saveRDS(object = CSE.500bp.CHEQ, file = "analysis/CHEQseq/CHEQseq__500bp__R_environment.RDS")
+```
+
+# Combining cell lines
+```{r}
+CSE.500bp.CHEQ.df <- cbind(CSE.500bp.CHEQ$MM001$merged.cpm.input.norm[,c("enhancer", "CPMNorm.FC")],
+                           CSE.500bp.CHEQ$MM057$merged.cpm.input.norm$CPMNorm.FC,
+                           CSE.500bp.CHEQ$MM074$merged.cpm.input.norm$CPMNorm.FC,
+                           CSE.500bp.CHEQ$MM087$merged.cpm.input.norm$CPMNorm.FC,
+                           CSE.500bp.CHEQ$MM029$merged.cpm.input.norm$CPMNorm.FC,
+                           CSE.500bp.CHEQ$MM047$merged.cpm.input.norm$CPMNorm.FC,
+                           CSE.500bp.CHEQ$MM099$merged.cpm.input.norm[,c("CPMNorm.FC", "phenotype")])
+colnames(CSE.500bp.CHEQ.df) <- c("enhancer", "MM001.CPMNorm.FC", "MM057.CPMNorm.FC", "MM074.CPMNorm.FC", "MM087.CPMNorm.FC", "MM029.CPMNorm.FC", "MM047.CPMNorm.FC", "MM099.CPMNorm.FC", "phenotype")
+CSE.500bp.CHEQ.df$Intermediate.CPMNorm.FC <- rowMeans(CSE.500bp.CHEQ.df[,c(3:5)])
+CSE.500bp.CHEQ.df$Inv.CPMNorm.FC <- rowMeans(CSE.500bp.CHEQ.df[,c(6:8)])
+CSE.500bp.CHEQ.df <- CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$phenotype != "Control",]
+saveRDS(object = CSE.500bp.CHEQ.df, file = "analysis/CHEQseq/CHEQseq__500bp__combined_dataframe.RDS")
+```
+
+# Percentage of active enhancer per cell line
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(dplyr)
+rename.columns <- function(df, new.colnames = c("enhancer","phenotype", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+
+m <- rbind(cbind(rename.columns(df = CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM087"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM087",nrow(CSE.500bp.CHEQ[["MM087"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.norm))))
+           , cbind(rename.columns(df = CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.norm[,c("enhancer","phenotype", "padj")]), data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.norm))))
+            )
+
+# Plot percentage of 'active' enhancers in each of the MM lines and split per prol and inv
+bin <- m
+bin$value <- ifelse(m$padj < 0.05,1,0)
+bin <- filter(bin, value == 1)
+
+tab <- as.data.frame(table(bin$MM.line, bin$phenotype))
+tab$Perc[tab$Var2 == 'Invasive'] <- tab$Freq[tab$Var2 == 'Invasive']/26
+tab$Perc[tab$Var2 == 'Proliferative'] <- tab$Freq[tab$Var2 == 'Proliferative']/18
+tab <- tab[,-3]
+colnames(tab) <- c('Line','phenotype','Perc')
+ggplot(tab[tab$phenotype != "Control",], aes(x=Line, y=Perc, fill=phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_x_discrete(labels= c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/CHEQseq_ATAC_percent_active_dodge.pdf"), device = "pdf",width = 4,height = 3)
+
+
+library(tidyverse)
+library(ggplot2)
+act.sum <- data.frame(Enhancer = factor(), 
+                      Phenotype = factor(), 
+                      Lines = factor(), 
+                      Count = double())
+for (i in CSE.500bp.CHEQ.df$enhancer){
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM001", "MM057", "MM074", "MM087"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i, 
+                     Phenotype = CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$enhancer == i, "phenotype"], 
+                     Lines = "MEL", 
+                     Count = count)
+  count <- sum(bin[bin$enhancer == i & bin$MM.line %in% c("MM029", "MM047", "MM099"),"value"])
+  act.sum <- add_row(.data = act.sum,
+                      Enhancer = i, 
+                      Phenotype = CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$enhancer == i, "phenotype"], 
+                      Lines = "MES", 
+                      Count = count)
+}
+
+# Count proportion of enhancer active per number of line
+## Number of enhancer per phenotype
+nrow.mel <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative",])
+nrow.mes <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive",])
+## Proportion for each condition
+mel.1 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 1,])/nrow.mel
+mel.2 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 2,])/nrow.mel
+mel.3 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 3,])/nrow.mel
+mel.4 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 4,])/nrow.mel
+mes.1 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 1,])/nrow.mes
+mes.2 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 2,])/nrow.mes
+mes.3 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 3,])/nrow.mes
+## Combine data into dataframe
+act.per <- data.frame(Lines = c("MEL", "MEL", "MEL", "MEL", "MES", "MES", "MES"), Count = as.factor(c("MEL 1","MEL 2","MEL 3","MEL 4","MES 1","MES 2","MES 3")), Percentage = c(mel.1, mel.2, mel.3, mel.4, mes.1, mes.2, mes.3))
+
+ggplot(act.per, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#7099CA", "#4F87CA", "#1C5395", "#2C4B70", "#F25151", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "4 MEL lines", "1 MES line", "2 MES lines", "3 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer\nactive in:")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/CHEQseq_ATAC_active_summary.pdf"), device = "pdf", width = 2.75, height = 3)
+```
+
+# Conservation of activity between Ac and ATAC library
+```{r}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(scales)
+# List of active Ac regions per cell line
+list.enh <- new.env()
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  list.enh[[i]] <- unique(CH1.intron[[i]]$merged.cpm.input.basal.norm[CH1.intron[[i]]$merged.cpm.input.basal.norm$padj < 0.05,"enhancer"])
+}
+
+perc.act <- data.frame(MM.line = factor(), Phenotype = factor(), Percentage = double())
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  # Number of active Ac MEL regions
+  prol.tmp <- CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm[CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm$phenotype == "Proliferative",]
+  prol.tmp$enhancer <- recode_factor(prol.tmp$enhancer, `KIT_114-DA` = "KIT_1", `KIT_114-DB` = "KIT_1", `SOX10_15-3UA` = "SOX10_1", `SOX10_15-3UB` = "SOX10_1", `SOX10_-34-DA` = "SOX10_3", `SOX10_-34-DB` = "SOX10_3", `SOX10_-56-DA` = "SOX10_5", `SOX10_-56-DB` = "SOX10_5", `SGCD_15-IA` = "SGCD_2", `SGCD_15-IB` = "SGCD_2")
+  nb.pro.reg <-length(unique(grep(paste(list.enh[[i]], collapse="|"),x = prol.tmp$enhancer, value = T)))
+  print(nb.pro.reg)
+  # Number of active ATAC MEL regions
+  nb.act.pro <- length(unique(grep(paste(list.enh[[i]], collapse="|"),x = prol.tmp[prol.tmp$padj < 0.05,"enhancer"], value = T)))
+  print(nb.act.pro)
+  
+  # Number of active Ac MES regions
+  inv.tmp <- CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm[CSE.500bp.CHEQ[[i]]$merged.cpm.input.norm$phenotype == "Invasive",]
+  inv.tmp$enhancer <- recode_factor(inv.tmp$enhancer, `FOSL2_-117-IA` = "FOSL2_1", `FOSL2_-117-IB` = "FOSL2_1", `SERPINE1_-110-IA` = "SERPINE1_1", `SERPINE1_-110-IB` = "SERPINE1_1", `FGF2_1A` = "FGF2_1", `FGF2_1B` = "FGF2_1", `FLNC_1A` = "FLNC_1", `FLNC_1B` = "FLNC_1")
+  nb.inv.reg <-length(unique(grep(paste(list.enh[[i]], collapse="|"),x = inv.tmp$enhancer, value = T)))
+  print(nb.inv.reg)
+  # Number of active ATAC MES regions
+  nb.act.inv <- length(unique(grep(paste(list.enh[[i]], collapse="|"),x = inv.tmp[inv.tmp$padj < 0.05,"enhancer"], value = T)))
+  print(nb.act.inv)
+  # Add percentages to data frame
+  perc.act <- add_row(.data = perc.act,
+                      MM.line = i, 
+                      Phenotype = "Proliferative", 
+                      Percentage = nb.act.pro/nb.pro.reg)
+  perc.act <- add_row(.data = perc.act,
+                      MM.line = i, 
+                      Phenotype = "Invasive", 
+                      Percentage = nb.act.inv/nb.inv.reg)
+}
+perc.act$MM.line <- factor(perc.act$MM.line, levels = c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099"))
+print(perc.act)
+saveRDS(object = perc.act, file = "analysis/CHEQseq/CHEQseq__ATAC__percent_conservation.rds")
+
+# Plot 
+ggplot(perc.act, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  # scale_x_discrete(labels= c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of regions active in both\nH3K27ac based  and ATAC-seq based CHEQ-seq", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/CHEQseq_ATAC_percent_maintained_activity.pdf"), device = "pdf",width = 4.1,height = 3)
+```
+
+# Correlation between lines 
+## Activity scatter plot
+```{r}
+library(Hmisc)
+for (i in c("MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df[tab$phenotype != "Control",], aes(x = log2(MM001.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM001.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM001 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM001 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM001vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+for (i in c("MM047", "MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM029.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM029.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM029 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM029 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM029vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+for (i in c("MM057", "MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM047.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM047.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM047 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM047 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM047vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+for (i in c("MM074", "MM087", "MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM057.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM057.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM057 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM057 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM057vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+for (i in c("MM087", "MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM074.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM074.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM074 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM074 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM074vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+for (i in c("MM099")) {
+p<-ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM087.CPMNorm.FC), y = log2(CSE.500bp.CHEQ.df[,paste0(i,".CPMNorm.FC")]), color = phenotype)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_rect(fill = "white")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = -2, y = 4, label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM087.CPMNorm.FC",paste0(i,".CPMNorm.FC"))], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM087 Log2 FC", y = paste0(i," Log2 FC"), color = "Enhancer\nphenotype", title = paste0("Correlation MM087 vs ",i," - CHEQseq 500bp"))
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM087vs",i,".pdf"), device = "pdf",width = 5.5,height = 4, useDingbats = F)
+print(p)
+}
+```
+
+# MM087 rep correlations
+```{r}
+library(Hmisc)
+library(dplyr)
+for (i in c("MM087_rep2", "MM087_rep3")) {
+  tmp <- inner_join(CSE.500bp.CHEQ$MM087_rep1$merged.cpm.input.basal.norm[, c("enhancer", "BasalNorm.FC")],
+                    CSE.500bp.CHEQ[[i]]$merged.cpm.input.basal.norm, by = "enhancer", suffix = c("_MM087_rep1", paste0("_",i)))
+p<-ggplot(tmp, aes(x = log2(BasalNorm.FC_MM087_rep1), y = log2(tmp[,paste0("BasalNorm.FC_",i)]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = min(log2(tmp[,"BasalNorm.FC_MM087_rep1"]),na.rm = T), y = max(log2(tmp[,paste0("BasalNorm.FC_",i)]),na.rm = T), label = paste0("r (log2)= ", round(cor(log2(na.omit(tmp[,c("BasalNorm.FC_MM087_rep1",paste0("BasalNorm.FC_",i))])), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  annotate("text", x = min(log2(tmp[,"BasalNorm.FC_MM087_rep1"]),na.rm = T), y = max(log2(tmp[,paste0("BasalNorm.FC_",i)]),na.rm = T)-1, label = paste0("r = ", round(cor(na.omit(tmp[,c("BasalNorm.FC_MM087_rep1",paste0("BasalNorm.FC_",i))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM087 Log2 Expression", y = paste0(i," Log2 Expression"), color = "Enhancer\nphenotype", title = paste0("Correlation MM001 vs ",i," - CHEQseq ATAC"))
+#ggsave(filename = paste0("Plots/Correlation/5p/CHEQseq_5p_correlation_MM001vs",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+print(p)
+}
+```
+
+## Activity scatter plot per cell state
+```{r}
+library(ggplot2)
+ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM001.CPMNorm.FC), y = log2(Intermediate.CPMNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CSE.500bp.CHEQ.df, MM001.CPMNorm.FC >= 1 | Intermediate.CPMNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  # annotate("text", x = min(log2(CSE.500bp.CHEQ.df$MM001.CPMNorm.FC)), y = max(log2(CSE.500bp.CHEQ.df$Intermediate.CPMNorm.FC)), label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM001.CPMNorm.FC","Intermediate.CPMNorm.FC")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM001 Log2 FC", y = "Intermediate Log2 FC", color = "Enhancer\nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM001vsIntermediate.pdf"), device = "pdf",width = 5,height = 4, useDingbats = F)
+
+ggplot(CSE.500bp.CHEQ.df, aes(x = log2(MM001.CPMNorm.FC), y = log2(Inv.CPMNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CSE.500bp.CHEQ.df, MM001.CPMNorm.FC >= 1 | Inv.CPMNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  # annotate("text", x = min(log2(CSE.500bp.CHEQ.df$MM001.CPMNorm.FC)), y = max(log2(CSE.500bp.CHEQ.df$Inv.CPMNorm.FC)), label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("MM001.CPMNorm.FC","Inv.CPMNorm.FC")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "MM001 Log2 FC", y = "MES-like Log2 FC", color = "Enhancer\nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MM001vsMES.pdf"), device = "pdf",width = 5,height = 4, useDingbats = F)
+
+ggplot(CSE.500bp.CHEQ.df, aes(x = log2(Intermediate.CPMNorm.FC), y = log2(Inv.CPMNorm.FC), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  geom_text(data = subset(CSE.500bp.CHEQ.df, Intermediate.CPMNorm.FC >= 1 | Inv.CPMNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black", size = 7),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key = element_blank()) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  # annotate("text", x = min(log2(CSE.500bp.CHEQ.df$Intermediate.CPMNorm.FC)), y = max(log2(CSE.500bp.CHEQ.df$Inv.CPMNorm.FC)), label = paste0("r = ", round(cor(CSE.500bp.CHEQ.df[,c("Intermediate.CPMNorm.FC","Inv.CPMNorm.FC")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+  labs(x = "Intermediate Log2 FC", y = "MES-like Log2 FC", color = "Enhancer\nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_IntermediatevsMES.pdf"), device = "pdf",width = 5,height = 4, useDingbats = F)
+
+# Facet plot
+plot <- melt(CSE.500bp.CHEQ.df[,c("enhancer", "MM001.CPMNorm.FC", "Intermediate.CPMNorm.FC", "Inv.CPMNorm.FC","phenotype")], id.vars = c("enhancer", "Inv.CPMNorm.FC","phenotype"))
+var.labs <- c("MM001 vs MES", "Intermediate vs MES")
+names(var.labs) <- c("MM001.CPMNorm.FC", "Intermediate.CPMNorm.FC")
+ggplot(plot, aes(x = log2(Inv.CPMNorm.FC), y = log2(value), color = phenotype, label = enhancer)) +
+  geom_point() +
+  geom_smooth(method = "lm", alpha = 0.1) +
+  facet_grid(~variable , scales = "free", labeller = labeller(variable = var.labs)) +
+  geom_text(data = subset(plot, value >= 1 | Inv.CPMNorm.FC >= 1), check_overlap = F, vjust = 0, nudge_y = 0.15, size = 2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        strip.text.x = element_text(size = 8, color = "white"),
+        strip.background = element_rect(fill = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "MES Log2 FC", y = "Log2 FC", color = "Enhancer\nphenotype")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_500bp_correlation_MES_facets.pdf"), device = "pdf",width = 8.2,height = 4, useDingbats = F)
+```
+
+# Correlation per enhancer phenotype
+```{r}
+cor(CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$phenotype == "Invasive", c("MM001.CPMNorm.FC","Intermediate.CPMNorm.FC", "Inv.CPMNorm.FC")], method = "pearson", use = "pairwise.complete.obs")
+cor(CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$phenotype == "Proliferative", c("MM001.CPMNorm.FC","Intermediate.CPMNorm.FC", "Inv.CPMNorm.FC")], method = "pearson", use = "pairwise.complete.obs")
+```
+
+```{r}
+for (i in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099","Intermediate","Inv")) {
+  print(paste0(i,":"))
+  print(mean(CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$phenotype == "Invasive", paste0(i,".CPMNorm.FC")]))
+  print(mean(CSE.500bp.CHEQ.df[CSE.500bp.CHEQ.df$phenotype == "Proliferative", paste0(i,".CPMNorm.FC")]))
+}
+```
+
+## Pearson correlation table per cell line
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq/Plots/Correlation/CorrClust_CHEQseq_500bp.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.CHEQ.df[,c(2:8)]), method = "pearson")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq 500 bp Input normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+## Pearson correlation table per cell line (log2)
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq/Plots/Correlation/CorrClust_CHEQseq_500bp_log2.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = log2(na.omit(CSE.500bp.CHEQ.df[,c(2:8)])), method = "pearson")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq 500 bp Input normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+## Spearman correlation table per cell line
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq/Plots/Correlation/CorrClust_CHEQseq_500bp_spearman.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = log2(na.omit(CSE.500bp.CHEQ.df[,c(2:8)])), method = "spearman")
+colnames(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+row.names(M) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq 500 bp Input normalised", order = "hclust", addrect = 2)
+dev.off()
+```
+
+## Pearson correlation table per cell state
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq/Plots/Correlation/CorrClustCHEQseqATAC_pheno.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.CHEQ.df[,c(2,10,11)]), method = "pearson")
+colnames(M) <- c("MM001", "Intermediate", "MES")
+row.names(M) <- c("MM001", "Intermediate", "MES")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", title = "CHEQ-seq ATAC library", addrect = 2)
+dev.off()
+```
+
+# Correlation between STARRseq and CHEQseq
+## Combining data frames and ploting Pearson correlation table per cell line
+```{r}
+library(dplyr)
+CSE.500bp.df <- inner_join(x = CSE.500bp.CHEQ.df, 
+                           y = CSE.500bp.STARR.df, 
+                           by = "enhancer", 
+                           suffix = c(".CHEQ", ".STARR"))
+saveRDS(object = CSE.500bp.df, file = "analysis/CHEQseq/CHEQseq+STARRseq__500bp__combined_dataframe.RDS")
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq/Plots/Correlation/CorrClust_CHEQvsSTARR.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.df[,c(2:8,12:18)]), method = "pearson")
+colnames(M) <- c("MM001.CHEQ", "MM057.CHEQ", "MM074.CHEQ", "MM087.CHEQ", "MM029.CHEQ", "MM047.CHEQ", "MM099.CHEQ", "MM001.STARR", "MM057.STARR", "MM074.STARR", "MM087.STARR", "MM029.STARR", "MM047.STARR", "MM099.STARR")
+row.names(M) <- c("MM001.CHEQ", "MM057.CHEQ", "MM074.CHEQ", "MM087.CHEQ", "MM029.CHEQ", "MM047.CHEQ", "MM099.CHEQ", "MM001.STARR", "MM057.STARR", "MM074.STARR", "MM087.STARR", "MM029.STARR", "MM047.STARR", "MM099.STARR")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "CHEQseq vs STARRseq - Input normalised", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+dev.off()
+```
+
+# Activity ratio Inv vs Prol
+## Calculate activity score
+```{r}
+library(stringr)
+library(robustbase)
+proliferative.enhancers.500bp <- c("CDH1_24-I", "CDH1_49-I", "SOX10_15-3UA", "SOX10_15-3UB", "SOX10_-34-DA", "SOX10_-34-DB", "SOX10_-56-DA", "SOX10_-56-DB", "IRF4_4-I", "KIT_114-DA", "KIT_114-DB", "MLANA_5-I", "SGCD_15-IA", "SGCD_15-IB", "SGCD_26-I", "MITF_P", "TYR_-9-D", "TYR_-1-D")
+temp <- as.matrix(CSE.500bp.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),c(2:8)])
+rownames(temp) <- CSE.500bp.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),1]
+boxplot(x = temp)
+score.median <- colMedians(temp[!rownames(temp) %in% proliferative.enhancers.500bp,]) / colMedians(temp[rownames(temp) %in% proliferative.enhancers.500bp,])
+score.mean <- colMeans(temp[!rownames(temp) %in% proliferative.enhancers.500bp,]) / colMeans(temp[rownames(temp) %in% proliferative.enhancers.500bp,])
+ATAC.enhancer.score.activity.median <- data.frame(Activity = score.median, MM_line = str_split(string = names(score), pattern = "[.]" ,simplify = T)[,1], library = "CHEQ-seq ATAC")
+ATAC.enhancer.score.activity.mean <- data.frame(Activity = score.mean, MM_line = str_split(string = names(score), pattern = "[.]" ,simplify = T)[,1], library = "CHEQ-seq ATAC")
+saveRDS(object = ATAC.enhancer.score.activity.median, file = "analysis/CHEQseq/CHEQseq__ATAC__score_activity_median.rds")
+saveRDS(object = ATAC.enhancer.score.activity.mean, file = "analysis/CHEQseq/CHEQseq__ATAC__score_activity_mean.rds")
+```
+
+## Plot activity ratio
+```{r}
+library(ggplot2)
+# Ratios with median
+ggplot(ATAC.enhancer.score.activity.median, aes(x=reorder(x = MM_line, X = log2(Activity)), y=log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "analysis/CHEQseq/Plots/CHEQseq_ATAC_activity_score_median.pdf",device = "pdf",width = 5,height = 3)
+
+# Ratios with mean
+ggplot(ATAC.enhancer.score.activity.mean, aes(x=reorder(x = MM_line, X = log2(Activity)), y=log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8",  "#377EB8",  "#377EB8", "#E41A1C")) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "analysis/CHEQseq/Plots/CHEQseq_ATAC_activity_score_mean.pdf",device = "pdf",width = 5,height = 3)
+```
+
+## Calculate significance MEL vs MES activity ratio
+```{r}
+# t test on ratio values
+print("Ratio with median")
+t.test(ATAC.enhancer.score.activity.median[c(5:7),"Activity"], ATAC.enhancer.score.activity.median[c(1:4),"Activity"], alternative = "greater")$p.value
+print("Ratio with mean")
+t.test(ATAC.enhancer.score.activity.mean[c(5:7),"Activity"], ATAC.enhancer.score.activity.mean[c(1:4),"Activity"], alternative = "greater")$p.value
+
+## Remove low expression enhancer when region has 2 enhancers
+ratio.df <- CSE.500bp.CHEQ.df[!CSE.500bp.CHEQ.df$enhancer %in% c("NEG_CTRL"),]
+ratio.df <- ratio.df[c(1:17,19,20,22,24:28,30,31,33,35,36,38,39,42:44),]
+# t-test per state (pooled MES values vs MEL values)
+## MEL state
+x.mel <- c()
+y.mel <- c()
+for (i in c("MM001", "MM057", "MM074", "MM087")){
+  x.mel <- c(x.mel, ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC")])
+  y.mel <- c(y.mel, ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC")])
+}
+print("MEL state t.test")
+t.test(x.mel, y.mel, alternative = "greater")$p.value
+
+## MES state
+x.mes <- c()
+y.mes <- c()
+for (i in c("MM029", "MM047", "MM099")){
+  x.mes <- c(x.mes, ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC")])
+  y.mes <- c(y.mes, ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(i,".CPMNorm.FC")])
+}
+print("MES state t.test")
+t.test(y.mes, x.mes, alternative = "greater")$p.value
+
+print("MEL enhancers, MEL vs MES lines")
+t.test(x.mel, x.mes, alternative = "greater")$p.value
+
+print("MES enhancers, MEL vs MES lines")
+t.test(y.mes, y.mel, alternative = "greater")$p.value
+```
+
+```{r}
+# Wilcoxon test
+library(ggpubr)
+library(dplyr)
+## Values MEL vs MES enhancers per state
+wilc.mel <- rbind(data.frame(CPMNorm.FC = na.omit(x.mel), Phenotype = "MEL", State = "MEL"),
+                  data.frame(CPMNorm.FC = na.omit(y.mel), Phenotype = "MES", State = "MEL"),
+                  data.frame(CPMNorm.FC = na.omit(x.mes), Phenotype = "MEL", State = "MES"),
+                  data.frame(CPMNorm.FC = na.omit(y.mes), Phenotype = "MES", State = "MES"))
+print("MEL state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES state, MEL vs MES enhancers")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+
+## Values MEL lines vs MES lines per enhancer states
+print("MEL enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MEL", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MEL" & wilc.mel$State == "MES", "CPMNorm.FC"], alternative = "greater")$p.value
+print("MES enhancers, MEL vs MES lines")
+wilcox.test(wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MES", "CPMNorm.FC"], wilc.mel[wilc.mel$Phenotype == "MES" & wilc.mel$State == "MEL", "CPMNorm.FC"], alternative = "greater")$p.value
+```
+
+```{r}
+# Bootstrapping followed by t.test
+## For MES group
+k <- 30 # Bootstrap 30 times
+n_mes <- 10 # 10 mes enhancers
+n_mel <- 6 # 6 mel enhancers
+ratio_vector_mes <- vector()
+for (j in c("MM029", "MM047", "MM099")){
+  MES <- ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC")]
+  MEL <- ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE) # Sample mes
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE) # Sample mel
+    ratio_vector_mes <- c(ratio_vector_mes, median(subset_mes)/median(subset_mel)) # Median ratio
+  }
+}
+
+## Same for MEL
+k <- 30
+n_mes <- 10
+n_mel <- 6
+ratio_vector_mel <- vector()
+for (j in c("MM001", "MM057", "MM074", "MM087")){
+  MES <- ratio.df[!ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC")]
+  MEL <- ratio.df[ratio.df$enhancer %in% proliferative.enhancers.500bp, paste0(j,".CPMNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE)
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE)
+    ratio_vector_mel <- c(ratio_vector_mel, median(subset_mes)/median(subset_mel))
+  }
+}
+## Test
+t.test(ratio_vector_mes, ratio_vector_mel, alternative='greater')
+```
+
+
+# Per enhancer analysis
+## Generating data frame
+```{r}
+rename.columns.plasm <- function(df, new.colnames = c("enhancer","CPMNorm.FC", "phenotype", "pvalue", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.500bp.df<-rbind(cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM087"]]$merged.cpm.input.norm[,c("enhancer","CPMNorm.FC", "phenotype", "pvalue", "padj")]), data.frame("MM.line"=rep("MM087",nrow(CSE.500bp.CHEQ[["MM087"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.norm))))
+                 , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.norm)))))
+```
+
+## Plot activity per enhancer
+```{r}
+library(ggplot2)
+for(i in levels(MM.500bp.df$enhancer)) {
+ p<- ggplot(MM.500bp.df[MM.500bp.df$enhancer==i,], aes(x=MM.line, y=log2(CPMNorm.FC), group=MM.line, fill = phenotype)) + 
+    geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.500bp.df[MM.500bp.df$enhancer==i,"padj"] < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.title.y = element_text(size=9),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x = element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = ifelse(MM.500bp.df[MM.500bp.df$enhancer==i,"phenotype"] == "Invasive",'#E41A1C','#1C5395'), labels = i) +
+    scale_x_discrete(drop=FALSE) +
+    labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ print(p)
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_ATAC_",i,"_activity.pdf"),device = "pdf",width = 5,height = 2.5, useDingbats = F)
+}
+```
+
+## Plot activity for 2 ATAC peak in an Ac region
+```{r}
+for (i in c("KIT_114-D", "SOX10_15-3U", "SOX10_-34-D", "SOX10_-56-D", "SGCD_15-I")){
+p <-ggplot(MM.500bp.df[MM.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+  geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.500bp.df[MM.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  scale_fill_manual(values = c("#1C5395", "#7099CA")) + 
+  labs(y = "CHEQ-seq - Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,".pdf"),device = "pdf",width = 5,height = 2.5, useDingbats = F)
+print(p)
+}
+
+for (i in c("FOSL2_-117-I","SERPINE1_-110-I", "FGF2_-62-D", "FLNC_-2-D")){
+p <-ggplot(MM.500bp.df[MM.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+  geom_point(pch = 21, size = 5, stroke = 1.5, aes(color = ifelse(MM.500bp.df[MM.500bp.df$enhancer %in% c(paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  scale_fill_manual(values = c("#E41A1C", "#F27C7C")) + 
+  labs(y = "CHEQ-seq - Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,".pdf"),device = "pdf",width = 5,height = 2.5, useDingbats = F)
+print(p)
+}
+```
+
+## Plot activity for 2 ATAC peak in an Ac region across CHEQseq Intron and CHEQseq and STARRseq ATAC with facets
+```{r}
+# Making combined dataset
+rename.columns <- function(df, new.colnames = c("enhancer","CPMNorm.FC", "phenotype", "pvalue", "padj")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+CH1.intron <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__R_environment.RDS")
+CH1.5p <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__5p__R_environment.RDS")
+
+MM.IP.df<-rbind(cbind(rename.columns(df = CH1.intron[["MM001"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM001",nrow(CH1.intron[["MM001"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM057"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM057",nrow(CH1.intron[["MM057"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM074"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM074",nrow(CH1.intron[["MM074"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM087"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM087",nrow(CH1.intron[["MM087"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM029"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM029",nrow(CH1.intron[["MM029"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM047"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM047",nrow(CH1.intron[["MM047"]]$merged.cpm.input.basal.norm))))
+               , cbind(rename.columns(df = CH1.intron[["MM099"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM099",nrow(CH1.intron[["MM099"]]$merged.cpm.input.basal.norm))))
+)
+MM.FP.df<-rbind(cbind(rename.columns(df = CH1.5p[["MM001"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM001",nrow(CH1.5p[["MM001"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+               , cbind(rename.columns(df = CH1.5p[["MM057"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM057",nrow(CH1.5p[["MM057"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+               , cbind(rename.columns(df = CH1.5p[["MM074"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM074",nrow(CH1.5p[["MM074"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+               , cbind(rename.columns(df = CH1.5p[["MM087"]]$merged.cpm.input.norm), data.frame("MM.line"=rep("MM087",nrow(CH1.5p[["MM087"]]$merged.cpm.input.norm))))
+               , cbind(rename.columns(df = CH1.5p[["MM029"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM029",nrow(CH1.5p[["MM029"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+               , cbind(rename.columns(df = CH1.5p[["MM047"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM047",nrow(CH1.5p[["MM047"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+               , cbind(rename.columns(df = CH1.5p[["MM099"]]$merged.cpm.input.norm[,c(1,4:7)]), data.frame("MM.line"=rep("MM099",nrow(CH1.5p[["MM099"]]$merged.cpm.input.norm[,c(1,4:7)]))))
+)
+MM.all.df <- rbind(cbind(MM.IP.df, data.frame("Library" = "CHEQ-seq Intron H3K27Ac")),
+                   cbind(MM.FP.df, data.frame("Library" = "CHEQ-seq 5' H3K27Ac")),
+                   cbind(MM.500bp.df, data.frame("Library" = "CHEQ-seq ATAC")),
+                   cbind(MM.STARR.500bp.df, data.frame("Library" = "STARR-seq ATAC")))
+
+# Ploting
+library(ggplot2)
+for (i in c("KIT_114-D", "SOX10_15-3U", "SOX10_-34-D", "SOX10_-56-D", "SGCD_15-I")){
+p <-ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+  geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+  facet_grid(Library ~., scales = "free") +
+  theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        strip.text.y = element_text(size = 8, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  scale_fill_manual(values = c("#2c4b70", "#1C5395", "#7099CA")) + 
+  labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,"_facets_vertical.pdf"),device = "pdf",width = 5.5,height = 8, useDingbats = F)
+print(p)
+}
+
+for (i in c("FOSL2_-117-I","SERPINE1_-110-I", "FGF2_-62-D", "FLNC_-2-D")){
+p <-ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+  geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+  facet_grid(Library ~., scales = "free") +
+  theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank(),
+        strip.text.y = element_text(size = 8, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  scale_fill_manual(values = c("#ab3939", "#E41A1C", "#F27C7C")) + 
+  labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,"_facets_vertical.pdf"),device = "pdf",width = 5.5,height = 8, useDingbats = F)
+print(p)
+}
+```
+
+## Plot activity per enhancer across CHEQseq Intron and 5' and CHEQseq and STARRseq ATAC with facets
+```{r}
+library(ggplot2)
+for (i in levels(MM.all.df$enhancer)){
+p <-ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),], aes(x = MM.line, y = log2(CPMNorm.FC), fill = enhancer)) +
+  geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")),"padj"] < 0.05,'grey80', 'black'))) +
+  facet_grid(~Library , scales = "free") +
+  theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8),
+        legend.key = element_blank(),
+        strip.text.x = element_text(size = 8, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  scale_fill_manual(values = ifelse(MM.all.df[MM.all.df$enhancer==i,"phenotype"] == "Invasive", c("#ab3939", "#E41A1C", "#F27C7C"), c("#2c4b70", "#1C5395", "#7099CA"))) + 
+  labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,"_facets.pdf"),device = "pdf",width = 9.5,height = 2.5, useDingbats = F)
+print(p)
+}
+```
+
+## Plot activity per assay per region
+```{r}
+library(ggplot2)
+library(stringr)
+MM.all.df$region <- MM.all.df$enhancer
+MM.all.df[grep(pattern = "A$|B$", MM.all.df$region), "region"] <- str_replace(string = MM.all.df[grep(pattern = "A$|B$", MM.all.df$region), "region"],pattern = "A$|B$", replacement = "")
+for (i in c("KIT_114-D")){
+  p <-ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001",], aes(x = Library, y = log2(CPMNorm.FC), fill = enhancer)) +
+        geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001","padj"] < 0.05,'grey80', 'black'))) +
+        facet_grid(~region , scales = "free_y") +
+        theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              axis.title.y = element_text(size = 8),
+              axis.title.x = element_blank(),) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        scale_fill_manual(values = c("#2c4b70", "#377eb8", "#91caf9")) + #1C5395
+        labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_",i,"_regions_per_assay.pdf"),device = "pdf",width = 2.5,height = 4, useDingbats = F)
+  print(p)
+}
+
+i <- c("SOX10_15-3U", "SOX10_-3-D", "SOX10_-34-D", "SOX10_-35-D", "SOX10_-56-D")
+ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001",], aes(x = Library, y = log2(CPMNorm.FC), fill = enhancer)) +
+        geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001","padj"] < 0.05,'grey80', 'black'))) +
+        facet_grid(~region , scales = "free_y") +
+        theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              axis.title.y = element_text(size = 8),
+              axis.title.x = element_blank(),) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        scale_fill_manual(values = c(rep("#2c4b70", length(i)), rep(c("#377eb8", "#91caf9"), length(i)))) + #1C5395
+        labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_SOX10_regions_per_assay.pdf"),device = "pdf",width = 7,height = 4, useDingbats = F)
+  
+  i <- c("TYR_-9-D","TYR_-1-D","TYR_P")
+ggplot(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001",], aes(x = Library, y = log2(CPMNorm.FC), fill = enhancer)) +
+        geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001","padj"] < 0.05,'grey80', 'black'))) +
+        facet_grid(~region , scales = "free_y") +
+        theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 7),
+              legend.text = element_text(size = 7),
+              legend.key.size = unit(0.8,"line"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              axis.title.y = element_text(size = 8),
+              axis.title.x = element_blank(),) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        scale_fill_manual(values = c(rep("#2c4b70", length(i)), rep(c("#377eb8", "#91caf9"), length(i)))) + #1C5395 #7099CA
+        labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_TYR_regions_per_assay.pdf"),device = "pdf",width = 4.5,height = 4, useDingbats = F)
+  
+  i <- c("KIT_114-D","TYR_-9-D","TYR_-1-D","TYR_P","SOX10_15-3U", "SOX10_-3-D", "SOX10_-34-D", "SOX10_-35-D", "SOX10_-56-D")
+ggplot(transform(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001",], region=factor(region,levels=c("SOX10_15-3U", "SOX10_-3-D", "SOX10_-34-D", "SOX10_-35-D", "SOX10_-56-D","KIT_114-D","TYR_-9-D","TYR_-1-D","TYR_P"))), aes(x = Library, y = log2(CPMNorm.FC), fill = enhancer)) +
+    geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(MM.all.df[MM.all.df$enhancer %in% c(i, paste0(i,"A"), paste0(i,"B")) & MM.all.df$MM.line == "MM001","padj"] < 0.05,'grey80', 'black'))) +
+    facet_wrap(~region, nrow = 2, ncol = 5, as.table = F) +
+    theme(panel.background = element_rect(color = "black", size = 0.5, fill = "white"),
+          panel.grid = element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+          legend.key = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          legend.key.size = unit(0.8,"line"),
+          strip.text.x = element_text(size = 9, color = "white"),
+          strip.background = element_rect(fill = "black"),
+          axis.title.y = element_text(size = 9),
+          axis.title.x = element_blank(),) +
+    ylim(NA,5) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c(rep("#2c4b70", length(i)), rep(c("#377eb8", "#91caf9"), length(i)))) + #1C5395 #7099CA
+    labs(y = "Log2 FC", fill = "Enhancer", color = "Adjusted\np-value")
+ggsave(filename = paste0("analysis/CHEQseq/Plots/Activity_per_enhancer/CHEQseq_all_regions_per_assay.pdf"),device = "pdf",width = 7,height = 4, useDingbats = F)
+  
+```
+
+## Correlation between line per enhancer phenotype
+```{r}
+cor(x = na.omit(CSE.500bp.df[CSE.500bp.df$phenotype.CHEQ == "Invasive",c(2:8,12:18)]), method = "pearson")
+cor(x = na.omit(CSE.500bp.df[CSE.500bp.df$phenotype.CHEQ == "Proliferative",c(2:8,12:18)]), method = "pearson")
+```
+
+
+## Pearson correlation table per cell state
+```{r}
+library(corrplot)
+setEPS()
+postscript(file = "analysis/CHEQseq//Plots/Correlation/CorrClust_MELvsMES_CHEQvsSTARR.eps", 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 7, width = 7)
+M <- cor(x = na.omit(CSE.500bp.df[,c(10:11,20:21)]), method = "pearson")
+colnames(M) <- c("MEL.CHEQ", "MES.CHEQ", "MEL.STARR", "MES.STARR")
+row.names(M) <- c("MEL.CHEQ", "MES.CHEQ", "MEL.STARR", "MES.STARR")
+corrplot(M, method="color", addCoef.col = "grey", tl.col="black", title = "MEL vs MES CHEQseq vs STARRseq - Input normalised", order = "hclust", addrect = 2, mar = c(0, 0, 1.5, 0))
+dev.off()
+```
+
+## Scatter plots enhancer activity CHEQseq vs STARRseq
+```{r}
+library(Hmisc)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  a <- cor.test(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")]), log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")]), method="pearson")
+  b <- cor.test(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")]), log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")]), method="spearman")
+  p<-ggplot(CSE.500bp.df, aes(x = log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")]), 
+                              y = log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")]), color = phenotype.CHEQ)) +
+      geom_smooth(method = "lm", alpha =0.1) +
+      geom_point() +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            legend.key = element_rect(fill = "white")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+      annotate("text", x = min(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")])), y = max(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")])), label = paste0("Pearson's r = ", round(a[["estimate"]][["cor"]],digits = 4)), hjust = 0) +
+      annotate("text", x = min(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")])), y = max(log2(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")]))-0.5, label = paste0("Spearman's rho = ", round(b[["estimate"]][["rho"]],digits = 4)), hjust = 0) +
+      ggtitle(label = paste0("Correlation ",i," - CHEQ-seq vs STARR-seq")) +
+      labs(x = "CHEQ-seq Log2 FC", y = "STARR-seq Log2 FC", color = "Enhancer\nphenotype")
+  ggsave(filename = paste0("analysis/CHEQseq/Plots/Correlation/CHEQseq_vs_STARRseq_correlation_",i,".pdf"),device = "pdf",width = 5,height = 4, useDingbats = F)
+  print(p)
+}
+```
+
+```{r}
+cor(x = na.omit(log2(CSE.500bp.df[,c(2:8,12:18)])), method = "pearson")
+cor.test(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I","MM029.CPMNorm.FC.CHEQ"], CSE.500bp.df[!CSE.500bp.df$enhancer == "COL5A1_21-I","MM029.CPMNorm.FC.STARR"], method="pearson")
+```
+
+```{r}
+library(Hmisc)
+for (i in c("MM001","MM029")) {
+  a <- cor.test(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.CHEQ")], CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.STARR")], method="pearson")
+  p<-ggplot(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",], aes(x = CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.CHEQ")], 
+                              y = CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.STARR")], color = phenotype.CHEQ)) +
+      geom_smooth(method = "lm", alpha =0.1) +
+      geom_point() +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            legend.key = element_rect(fill = "white")) +
+      scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+      annotate("text", x = min(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.CHEQ")]), y = max(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.STARR")]), label = paste0("r = ", round(a[["estimate"]][["cor"]],digits = 4)), hjust = 0) +
+      annotate("text", x = min(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.CHEQ")]), y = max(CSE.500bp.df[!CSE.500bp.df$enhancer == "ABCC3_11-I",paste0(i,".CPMNorm.FC.STARR")])-0.5, label = paste0("p-value = ", format(a[["p.value"]], nsmall = 3, digits = 4)), hjust = 0) +
+      ggtitle(label = paste0("Correlation ",i," - CHEQ-seq vs STARR-seq")) +
+      labs(x = "CHEQ-seq Log2 FC", y = "STARR-seq Log2 FC", color = "Enhancer\nphenotype")
+  print(p)
+}
+```
+
+# Ranking comparison CHEQseq vs STARRseq
+## Function
+```{r}
+plotRanks <- function(a, b, labels.offset=0.1, arrow.len=0.1)
+  {
+  old.par <- par(mar=c(1,1,1,1))
+
+  # Find the length of the vectors
+  len.1 <- length(a)
+  len.2 <- length(b)
+
+  # Plot two columns of equidistant points
+  plot(rep(1, len.1), 1:len.1, pch=20, cex=0.8, 
+       xlim=c(0, 3), ylim=c(0, max(len.1, len.2)),
+       axes=F, xlab="", ylab="") # Remove axes and labels
+  points(rep(2, len.2), 1:len.2, pch=20, cex=0.8)
+
+  # Put labels next to each observation
+  text(rep(1-labels.offset, len.1), 1:len.1, a)
+  text(rep(2+labels.offset, len.2), 1:len.2, b)
+
+  # Now we need to map where the elements of a are in b
+  # We use the match function for this job
+  a.to.b <- match(a, b)
+
+  # Now we can draw arrows from the first column to the second
+  arrows(rep(1.02, len.1), 1:len.1, rep(1.98, len.2), a.to.b, 
+         length=arrow.len, angle=20)
+  par(old.par)
+  }
+```
+
+## Plot top 10 enhancers per cell line for CHEQseq (left) and STARRseq (right)
+```{r}
+library(RColorBrewer)
+library(dplyr)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+p1 <- arrange(CSE.500bp.df[,c("enhancer", paste0(i,".CPMNorm.FC.CHEQ"))], desc(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")]))
+p2 <- arrange(CSE.500bp.df[,c("enhancer", paste0(i,".CPMNorm.FC.STARR"))], desc(CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")]))
+
+plotRanks(a = rev(p1[1:10,1]), b = rev(p2[1:10,1])) 
+}
+```
+
+## Generate ranking per line and assay
+```{r}
+library(dplyr)
+
+rank.list.ATAC <- list()
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list.ATAC[[paste0(i,".CHEQ")]] <- CSE.500bp.CHEQ.df[order(CSE.500bp.CHEQ.df[,paste0(i,'.CPMNorm.FC')], decreasing = T),c('enhancer',paste0(i,'.CPMNorm.FC'),'phenotype')]
+  rank.list.ATAC[[paste0(i,".CHEQ")]] <- rank.list.ATAC[[paste0(i,".CHEQ")]][rank.list.ATAC[[paste0(i,".CHEQ")]]$enhancer != "NEG_CTRL",]
+  rank.list.ATAC[[paste0(i,".CHEQ")]]$rank <- c(1:nrow(rank.list.ATAC[[paste0(i,".CHEQ")]]))
+  rank.list.ATAC[[paste0(i,".STARR")]] <- CSE.500bp.STARR.df[order(CSE.500bp.STARR.df[,paste0(i,'.CPMNorm.FC')], decreasing = T),c('enhancer',paste0(i,'.CPMNorm.FC'),'phenotype')]
+  rank.list.ATAC[[paste0(i,".STARR")]]$rank <- c(1:nrow(rank.list.ATAC[[paste0(i,".STARR")]]))
+}
+
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")){
+  rank.list.ATAC[[paste0(i,".combined")]] <- inner_join(x = rank.list.ATAC[[paste0(i,".CHEQ")]][,c(1,2,4)],
+                                                        y = rank.list.ATAC[[paste0(i,".STARR")]],
+                                                        by = "enhancer",
+                                                        suffix = c(".CHEQ", ".STARR"))
+}
+```
+
+## Plot ranking scatter plot
+```{r}
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  a <- cor.test(log2(rank.list.ATAC[[paste0(i,".combined")]]$rank.CHEQ), log2(rank.list.ATAC[[paste0(i,".combined")]]$rank.STARR), method = "pearson")
+  b <- cor.test(rank.list.ATAC[[paste0(i,".combined")]]$rank.CHEQ, rank.list.ATAC[[paste0(i,".combined")]]$rank.STARR, method = "spearman")
+  p<-ggplot(rank.list.ATAC[[paste0(i,".combined")]], aes(x = rank.CHEQ, y = rank.STARR, color = phenotype)) +
+      geom_smooth(method = "lm", alpha =0.1) +
+      geom_point() +
+      theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            legend.key = element_rect(fill = "white")) +
+      scale_x_reverse() +
+      scale_y_reverse() +
+      scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+      annotate("text", x = 42, y = 3, label = paste0("Pearson's r = ", round(a[["estimate"]][["cor"]], 4)), hjust = 0) +
+      annotate("text", x = 42, y = 5, label = paste0("p-value = ", format(a(rank.cor[["p.value"]], 6), nsmall = 2)), hjust = 0) +
+      labs(x = "Enhancer Rank - CHEQ-seq ATAC Library", y = "Enhancer Rank - STARR-seq ATAC Library", color = "Phenotype", title = paste0("Rank correlation ",i))
+  # ggsave(filename = paste0("analysis/CHEQseq/Plots/H3K27Ac_vs_ATAC_library_rank_correlation_",i,".eps"),device = "eps",width = 9,height = 6)
+  print(p)
+}
+```
+
+## Correlation table CHEQseq vs STARRseq (image plot with Activity and Ranking correlation per line)
+```{r}
+library(RColorBrewer)
+# Generate correlation table
+corratac <- matrix(NA, nrow = 7, ncol = 2)
+colnames(corratac) <- c("Activity", "Rank")
+rownames(corratac) <- c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")
+
+for (i in c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")) {
+  p1 <- cor.test(CSE.500bp.df[,paste0(i,".CPMNorm.FC.CHEQ")],CSE.500bp.df[,paste0(i,".CPMNorm.FC.STARR")], method="pearson")[["estimate"]][["cor"]]
+  p2 <- cor.test(rank.list.ATAC[[paste0(i,".combined")]]$rank.CHEQ, rank.list.ATAC[[paste0(i,".combined")]]$rank.STARR, method = "spearman")[["estimate"]][["rho"]]
+  corratac[i,1] <- p1
+  print(p1)
+  corratac[i,2] <- p2
+  print(p2)
+}
+
+setEPS()
+postscript(file = paste0("analysis/CHEQseq/Plots/Correlation_table_CHEQ-vs-STARR_lib.eps"), 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 6, width = 4)
+  # Set layout
+  par(mar=c(0,1,0.5,1))
+  layout(matrix(c(1,1,2,3), nrow=2, ncol=2), widths=c(5,1), heights=c(2,5))
+  # layout.show(7)
+  
+  # Plot data
+  breaks2 <- seq(-1, 1,length.out=100)
+  colfunc2 <- colorRampPalette(brewer.pal(11, "RdBu"))
+  par(mar =  c( 0.5, 5, 4, 0.5 ) )
+  image(x = t(corratac[nrow(corratac):1,]),
+        col=colfunc2(n = length(breaks2)-1),
+        breaks=breaks2,
+        xaxt="n", yaxt="n",
+        xlab="", ylab="")
+  title("CHEQ-seq vs STARR-seq ATAC library", line = 3, cex = 1)
+  axis(side = 2,
+       at=seq(0,1,length.out=nrow(corratac)),
+       labels = rev(c("MM001", "MM057", "MM074", "MM087", "MM029", "MM047", "MM099")),
+       las= 2, tick = F, cex.axis = 1.2, font=1)
+  axis(side = 3,
+       at=seq(0,1,length.out=ncol(corratac)),
+       labels = c("Activity", "Ranking"),
+       las= 1, tick = F, cex.axis = 1.2, font=1)
+  
+  # Add scale
+  par(mar=c(2, 0.5, 4, 2.9))
+  image.scale(corratac, col=colfunc2(length(breaks2)-1), breaks=breaks2, horiz=FALSE, yaxt="n")
+  #mtext(text = "Mean score", side = 3, cex = 0.55, font = 2, line = 0.5, adj = 0)
+  axis(side=4, at=seq(-1, 1, by=1), las=2)
+  box()
+dev.off()
+```
+
+# Expression range
+```{r}
+library(ggplot2)
+ggplot(MM.500bp.df[MM.500bp.df$enhancer != "NEG_CTRL",], aes(x=MM.line, y=log2(CPMNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(data = MM.500bp.df[MM.500bp.df$enhancer != "NEG_CTRL" & MM.500bp.df$padj >= 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    geom_point(data = MM.500bp.df[MM.500bp.df$enhancer != "NEG_CTRL" & MM.500bp.df$padj < 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 FC", fill = "Enhancer\nphenotype", title = "CHEQseq ATAC - Expression range", color = "Adjusted\np-value")
+ggsave(filename = "analysis/CHEQseq/Plots/Expression_range_violin_CHEQseq-ATAC.pdf",device = "pdf",width = 7,height = 5, useDingbat = F)
+```
+
+# Expression range with basal normalized data
+```{r}
+library(ggplot2)
+rename.columns.plasm <- function(df, new.colnames = c("enhancer","BasalNorm.FC", "phenotype")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.500bp.basal.df<-rbind(cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM001",nrow(CSE.500bp.CHEQ[["MM001"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM057",nrow(CSE.500bp.CHEQ[["MM057"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM074",nrow(CSE.500bp.CHEQ[["MM074"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM087_rep1"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM087",nrow(CSE.500bp.CHEQ[["MM087_rep1"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM029",nrow(CSE.500bp.CHEQ[["MM029"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM047",nrow(CSE.500bp.CHEQ[["MM047"]]$merged.cpm.input.basal.norm))))
+                         , cbind(rename.columns.plasm(df = CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.basal.norm), data.frame("MM.line"=rep("MM099",nrow(CSE.500bp.CHEQ[["MM099"]]$merged.cpm.input.basal.norm)))))
+
+MM.500bp.basal.df <- cbind(MM.500bp.basal.df, MM.500bp.df[MM.500bp.df$enhancer != "NEG_CTRL","padj"])
+names(MM.500bp.basal.df)[5] <- "padj"
+ggplot(MM.500bp.basal.df, aes(x=MM.line, y=log2(BasalNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(data = MM.500bp.basal.df[MM.500bp.basal.df$padj >= 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    geom_point(data = MM.500bp.basal.df[MM.500bp.basal.df$padj < 0.05,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 FC", fill = "Enhancer\nphenotype", title = "CHEQseq ATAC - Expression range", color = "Adjusted\np-value")
+```
+
+####################
+# Bed file active ATAC-seq peaks
+```{r}
+bed.atac <- read.table(file = "../../../dmauduit_HPC/CHEQseq_5p_Intron/CHEQseq_500bp/500bpMMseq.bed", header = F, col.names = c("chr", "start", "end", "enhancer" ))
+library(dplyr)
+bed.atac[bed.atac$enhancer %in% CSE.500bp.CHEQ$MM001$merged.cpm.input.norm[CSE.500bp.CHEQ$MM001$merged.cpm.input.norm$padj < 0.05,"enhancer"],]
+```
+
+
+```{r}
+library(stringr)
+write.table(x = bed.atac[bed.atac$enhancer %in% CSE.500bp.CHEQ$MM001$merged.cpm.input.norm[CSE.500bp.CHEQ$MM001$merged.cpm.input.norm$padj < 0.05,"enhancer"],], file = "MM001.act.500.bed", sep = "\t", row.names = F, col.names = F, quote = F)
+write.table(x = bed.atac[bed.atac$enhancer %in% CSE.500bp.CHEQ$MM029$merged.cpm.input.norm[CSE.500bp.CHEQ$MM029$merged.cpm.input.norm$padj < 0.05,"enhancer"],], file = "MM029.act.500.bed", sep = "\t", row.names = F, col.names = F, quote = F)
+```

@@ -1,0 +1,1619 @@
+---
+title: "CHEQ-seq_OLS-A_Synthetic_Enhancers_Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis")
+source("utils_CSE.R")
+```
+
+# Initiate environment
+```{r}
+CSE.OLSA <- new.env()
+attr(CSE.OLSA, "name") <- "OLS-A"
+```
+
+# CHEQ-seq Synthetic Enhancers OLS A
+# MM001
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM001_rep1", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__5f7eff__CheqSeq_plasmid_MM001_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__f073f1__CheqSeq_MM001_OLS_A_cDNA_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM001_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__5f7eff__CheqSeq_plasmid_MM001_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__9bb9d5__CheqSeq_cDNA_MM001_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM029
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM029_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__390b12__CheqSeq_MM029_OLS_A_plasmid_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                    cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__3d367a__CheqSeq_MM029_OLS_A_cDNA_count_final.txt",  
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM029_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__3f063f__CheqSeq_plasmid_MM029_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__015b84__CheqSeq_cDNA_MM029_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM047
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM047_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__9c8695__CheqSeq_plasmid_MM047_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__1b59ba__CheqSeq_MM047_AcDNA_count_final.txt",  
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+# CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA,
+#                                       line = "MM047_rep2",
+#                                       plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__9c8695__CheqSeq_plasmid_MM047_OLS_A_count_final.txt",
+#                                       min.plasmid.bcs = 5,
+#                                       cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__a87358__CheqSeq_cDNA_MM047_OLS_A_count_final.txt",
+#                                       min.cDNA.bcs = 5,
+#                                       out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM057
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM057_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__0631aa__CheqSeq_plasmid_MM057_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__d43ccb__CheqSeq_MM057_OLS_A_cDNA_count_final.txt",  
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM057_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__0631aa__CheqSeq_plasmid_MM057_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__ae5309__CheqSeq_cDNA_MM057_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM074
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM074_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__dc1802__CheqSeq_MM074_OLS_A_plasmid_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__combined__CheqSeq_MM074_OLS_A_cDNA_count_final.txt", 
+                                     min.cDNA.bcs = 5,
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM074_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__9618fc__CheqSeq_plasmid_MM074_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__e4fbc5__CheqSeq_cDNA_MM074_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM087
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM087_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__7a7191__CheqSeq_plasmid_MM087_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__combined__CheqSeq_MM087_OLS_A_cDNA_count_final.txt", 
+                                     min.cDNA.bcs = 5,
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM087_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__7a7191__CheqSeq_plasmid_MM087_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__8a841c__CheqSeq_cDNA_MM087_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM087_rep3", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__7a7191__CheqSeq_plasmid_MM087_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__c680a8__CheqSeq_cDNA_MM087_OLS_A_sample_1_count_final.txt", 
+                                     min.cDNA.bcs = 5,
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM087_rep4", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__7a7191__CheqSeq_plasmid_MM087_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__b2a346__CheqSeq_cDNA_MM087_OLS_A_sample_2_count_final.txt", 
+                                     min.cDNA.bcs = 5,
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+# MM099
+```{r}
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM099_rep1",
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__5af92f__CheqSeq_plasmid_MM099_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__combined__CheqSeq_MM099_OLS_A_cDNA_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+
+CSE.OLSA <- process.OLS.cDNA.plasmid(env = CSE.OLSA, 
+                                     line = "MM099_rep2", 
+                                     plasmid.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__5af92f__CheqSeq_plasmid_MM099_OLS_A_count_final.txt",
+                                     min.plasmid.bcs = 5,
+                                     cDNA.counts.file.path = "/staging/leuven/stg_00002/lcb/lcb_projects/CSE/counting/10.bc_count/CSE__e8a9eb__CheqSeq_cDNA_MM099_OLS_A_count_final.txt", 
+                                     min.cDNA.bcs = 5, 
+                                     tiling = "A",
+                                     out.dir = "CHEQ-seq_OLS-A/data")
+```
+
+```{r}
+saveRDS(object = CSE.OLSA, file = "CSE-OLSA.rds")
+```
+
+# Combine MM087 rep 2, 3 and 4
+```{r}
+library(dplyr)
+CSE.OLSA$MM087_comb$merged.input.basal.norm <- inner_join(x = CSE.OLSA$MM087_rep2$merged.input.basal.norm[,c("synthetic.region","class","phenotype","CPM.Input.BasalNorm")], 
+                                                          y = CSE.OLSA$MM087_rep3$merged.input.basal.norm[, c("synthetic.region", "CPM.Input.BasalNorm")],
+                                                          by = "synthetic.region", suffix = c(".rep2", ".rep3")) %>%
+                                               inner_join(CSE.OLSA$MM087_rep4$merged.input.basal.norm[, c("synthetic.region", "CPM.Input.BasalNorm")],
+                                                          by = "synthetic.region", suffix = c(".rep3", ".rep4"))
+CSE.OLSA$MM087_comb$merged.input.basal.norm$CPM.Input.BasalNorm <- rowMeans(CSE.OLSA$MM087_comb$merged.input.basal.norm[, c("CPM.Input.BasalNorm","CPM.Input.BasalNorm.rep2","CPM.Input.BasalNorm.rep3")])
+CSE.OLSA$MM087_comb$merged.input.basal.norm$log.CPM.Input.BasalNorm <- log2(CSE.OLSA$MM087_comb$merged.input.basal.norm$CPM.Input.BasalNorm)
+CSE.OLSA$MM087_comb$merged.input.basal.norm <- CSE.OLSA$MM087_comb$merged.input.basal.norm[, c("synthetic.region", "class", "phenotype", "CPM.Input.BasalNorm", "log.CPM.Input.BasalNorm")]
+
+write.table(x = CSE.OLSA[["MM087_comb"]]$merged.input.basal.norm[!CSE.OLSA[["MM087_comb"]]$merged.input.basal.norm$class == "Shuffled", c("synthetic.region", "log.CPM.Input.BasalNorm")],
+                file = "CHEQ-seq_OLS-A/data/MM087_comb_OLS-A__filter_5-5__cpm_basal_normalized.tsv",
+                quote = F, sep = "\t", row.names = F, col.names = T)
+saveRDS(object = CSE.OLSA, file = "CSE-OLSA.rds")
+```
+
+# Correlation between samples
+```{r}
+library(corrplot)
+M <- cor(x = CSE.OLSA$Combined$Basal.normalised[,-c(1:5,8,14,15,18)], method = "pearson", use = "pairwise.complete.obs")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", addrect = 2, title = "OLS-A Basal normalised")
+```
+
+#### Detect outliers from MA plots
+```{r}
+library(ggplot2)
+library(OutlierD)
+for (i in sort(names(CSE.OLSA)[!names(CSE.OLSA) %in% c("Combined", "MM001_rep2", "MM047_rep1","MM087_comb")])){
+fit <- OutlierD(x1=log2(x = CSE.OLSA[[i]]$merged[, "CPM.counts.cDNA"]), x2=log2(x = CSE.OLSA[[i]]$merged[, "CPM.counts.plasmid"]), k=1.5, method="nonlin")
+head(fit$x)
+fit$n.outliers
+
+MM057.outliers <- row.names(CSE.OLSA[[i]]$merged)[fit$x$Outlier]
+fit$x$active <- 
+fit.data <- as.data.frame(x = fit$x)
+fit.data$wt <- grepl("[\\w]+:[0-9]+-[0-9]+_[0-9]+-[0-9]+_0_[ACGT]+", row.names(x = CSE.OLSA[[i]]$merged), perl=TRUE)
+print(i)
+print(mean(fit.data$Outlier))
+p <- ggplot(data = fit.data, aes(x = A, y = M, color = Outlier)) +
+  geom_point() +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid.major = element_line(color = "black"),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+  ggtitle(label = paste0("CHEQ-seq Synthetic Enhancer - ",i), subtitle = "Quantile Normalized MA plot")
+print(p)
+}
+```
+
+# MA plots
+```{r}
+library(affy)
+for (i in names(CSE.OLSA)[!names(CSE.OLSA) %in% c("Combined","MM047_rep2", "MM087_comb")]){
+  setEPS()
+  postscript(file = paste0("CHEQ-seq_OLS-A/plots/MAplot_",i,".eps"), 
+           horizontal = FALSE, onefile = FALSE, paper = "special", height = 5, width = 7) 
+  matrix <- as.matrix(CSE.OLSA[[i]]$merged[,c("CPM.counts.plasmid","CPM.counts.cDNA")])
+  ma.plot(A = rowMeans(log2(matrix)), 
+          M = log2(matrix[,2])-log2(matrix[,1]), 
+          cex = 1, pch = 16)
+  title(main = paste0("CHEQ-seq Tiling A - ",i), sub = "CPM Normalized MA plot")
+  dev.off()
+}
+```
+
+# Correlation between replicates
+```{r}
+library(dplyr)
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM029", "MM099")){
+  
+  tmp <- inner_join(x = CSE.OLSA[[paste0(i,"_rep1")]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.OLSA[[paste0(i,"_rep2")]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class","phenotype")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+        labs(x = paste0(i," rep1 Log2 Expression"), y = paste0(i," rep2 Log2 Expression"), title = paste0("Correlation Tiling A - ",i), color = "Enhancer \nclass")
+  print(p)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+  # Phenotype
+  p1 <- p + aes(color = phenotype) +
+            scale_color_manual(values = c("#E31B1B", "#7099CA", "#4D4D4D"), labels = c("MES", "MEL", "Shuffled")) +
+            labs(color = "Enhancer \nphenotype")
+  print(p1)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_",i,"_Phenotype.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+```
+
+# Correlation RNA barcodes
+```{r}
+library(dplyr)
+library(ggplot2)
+for (i in c("MM001", "MM057", "MM074", "MM029", "MM099")){
+  
+  tmp <- inner_join(x = CSE.OLSA[[paste0(i,"_rep1")]][["cDNA.aggregated"]][,c("synthetic.region","CPM.counts")],
+                    y = CSE.OLSA[[paste0(i,"_rep2")]][["cDNA.aggregated"]][,c("synthetic.region","CPM.counts")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = CPM.counts_1, y = CPM.counts_2)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(tmp$CPM.counts_1), y = max(tmp$CPM.counts_2), label = paste0("# of BC = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(tmp$CPM.counts_1), y = max(tmp$CPM.counts_2)-1000, label = paste0("r = ", round(cor(tmp[,c("CPM.counts_1", "CPM.counts_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = paste0(i," rep1 BC count"), y = paste0(i," rep2 BC count"), title = paste0("Correlation Tiling A - ",i))
+  print(p)
+ # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+  tmp <- inner_join(x = CSE.OLSA[["MM087_rep3"]][["cDNA.aggregated"]][,c("synthetic.region","CPM.counts")],
+                    y = CSE.OLSA[["MM087_rep4"]][["cDNA.aggregated"]][,c("synthetic.region","CPM.counts")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = CPM.counts_1, y = CPM.counts_2)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(tmp$CPM.counts_1), y = max(tmp$CPM.counts_2), label = paste0("# of BC = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(tmp$CPM.counts_1), y = max(tmp$CPM.counts_2)-1000, label = paste0("r = ", round(cor(tmp[,c("CPM.counts_1", "CPM.counts_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        labs(x = paste0(i," rep1 BC count"), y = paste0(i," rep2 BC count"), title = paste0("Correlation Tiling A - MM087"))
+  print(p)
+ # ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+```
+
+
+# Plot MM087 replicates scatter plots
+```{r}
+library(dplyr)
+library(ggplot2)
+# Rep 1 vs 2, 3 an 4
+for (i in c("MM087_rep2", "MM087_rep3", "MM087_rep4")){
+  tmp <- inner_join(x = CSE.OLSA[["MM087_rep1"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.OLSA[[i]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class","phenotype")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+        labs(x = "MM087 rep1 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep1 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep1-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+  # Phenotype
+  p1 <- p + aes(color = phenotype) +
+            scale_color_manual(values = c("#E31B1B", "#7099CA", "#4D4D4D"), labels = c("MES", "MEL", "Shuffled")) +
+            labs(color = "Enhancer \nphenotype")
+  print(p1)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep1-",i,"_Phenotype.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+
+# Rep 2 vs 3 and 4
+for (i in c("MM087_rep3", "MM087_rep4")){
+  tmp <- inner_join(x = CSE.OLSA[["MM087_rep2"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                    y = CSE.OLSA[[i]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class","phenotype")],
+                    by = "synthetic.region",
+                    suffix = c("_1", "_2"))
+  # Class
+  p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+        geom_point(size = 2) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              legend.key = element_rect(fill = "white")) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-1, label = paste0("r (log2) = ", round(cor(log2(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+        annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-1.5, label = paste0("rho = ", round(cor(log2(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")]), method="spearman")[1,2], digits = 4)), hjust = 0) +
+        scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+        labs(x = "MM087 rep2 Log2 Expression", y = paste0(i," Log2 Expression"), title = paste0("Correlation Tiling A MM087 rep2 vs ",i), color = "Enhancer \nclass")
+  print(p)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep2-",i,"_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+  # Phenotype
+  p1 <- p + aes(color = phenotype) +
+            scale_color_manual(values = c("#E31B1B", "#7099CA", "#4D4D4D"), labels = c("MES", "MEL", "Shuffled")) +
+            labs(color = "Enhancer \nphenotype")
+  print(p1)
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep2-",i,"_Phenotype.pdf"), device = "pdf", width = 5.5, height = 3.5)
+}
+
+# Rep 3 vs 4
+tmp <- inner_join(x = CSE.OLSA[["MM087_rep3"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm")],
+                  y = CSE.OLSA[["MM087_rep4"]][["merged.input.basal.norm"]][,c("synthetic.region","CPM.Input.BasalNorm","class","phenotype")],
+                  by = "synthetic.region",
+                  suffix = c("_1", "_2"))
+# Class
+p <- ggplot(tmp, aes(x = log2(CPM.Input.BasalNorm_1), y = log2(CPM.Input.BasalNorm_2), color = class)) +
+      geom_point(size = 2) +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            axis.text = element_text(color = "black"),
+            legend.key = element_rect(fill = "white")) +
+      annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2)), label = paste0("# of tiles = ", nrow(tmp)), hjust = 0) +
+      annotate("text", x = min(log2(tmp$CPM.Input.BasalNorm_1)), y = max(log2(tmp$CPM.Input.BasalNorm_2))-0.5, label = paste0("r = ", round(cor(tmp[,c("CPM.Input.BasalNorm_1", "CPM.Input.BasalNorm_2")], method="pearson")[1,2], digits = 4)), hjust = 0) +
+      scale_color_manual(values = c("#E31B1B", "#4D4D4D", "#199432"), labels = c("Mutated", "Shuffled", "WT")) +
+      labs(x = "MM087 rep3 Log2 Expression", y = "MM087 rep4 Log2 Expression", title = "Correlation Tiling A MM087 rep3 vs MM087 rep4", color = "Enhancer \nclass")
+print(p)
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep3-MM087_rep4_Enhancer-class.pdf"), device = "pdf", width = 5.5, height = 3.5)
+# Phenotype
+p1 <- p + aes(color = phenotype) +
+            scale_color_manual(values = c("#E31B1B", "#7099CA", "#4D4D4D"), labels = c("MES", "MEL", "Shuffled")) +
+            labs(color = "Enhancer \nphenotype")
+print(p1)
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Rep_Correlation_MM087_rep3-MM087_rep4_Phenotype.pdf"), device = "pdf", width = 5.5, height = 3.5)
+```
+
+# Number of shuffled tiles per sample with more than 5 BCs
+```{r}
+for (i in names(CSE.OLSA)[!names(CSE.OLSA) %in% c("Combined","MM047_rep2")]){
+  print(paste0(i,": ",nrow(CSE.OLSA[[i]]$merged.input.basal.norm[CSE.OLSA[[i]]$merged.input.basal.norm$class == "shuffled",])))
+}
+```
+
+# Barcode violin
+```{r}
+library(reshape2)
+MM.OLSA.bc <- data.frame()
+for (i in sort(names(CSE.OLSA)[!names(CSE.OLSA) %in% c("Combined","MM001_rep2","MM029_rep2","MM047_rep2","MM057_rep2", "MM074_rep1","MM087_rep1","MM087_rep2","MM087_rep4", "MM087_comb","MM099_rep2")])){
+  MM.OLSA.bc <- rbind(MM.OLSA.bc,
+                      merge(data.frame("Number" =row.names(CSE.OLSA[[i]]$plasmid.aggregated),
+                                       "MM.line"=rep(i,nrow(CSE.OLSA[[i]]$plasmid.aggregated)), 
+                                       "Plasmid"=CSE.OLSA[[i]]$plasmid.aggregated$nb_barcodes), 
+                      data.frame("Number" =row.names(CSE.OLSA[[i]]$cDNA.aggregated),
+                                 "cDNA"=CSE.OLSA[[i]]$cDNA.aggregated$nb_barcodes), by = "Number", all = TRUE))
+}
+
+MM.OLSA.bc<-MM.OLSA.bc[,colnames(MM.OLSA.bc) != "Number"]
+MM.OLSA.bc<-melt(MM.OLSA.bc, id="MM.line")
+library(ggplot2)
+ggplot(MM.OLSA.bc, aes(x=MM.line, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.25, position=position_dodge(0.9)) +
+    geom_hline(yintercept = 5, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_BC_range.pdf", device = "pdf",width = 6,height = 3)
+
+rename.columns <- function(df, new.colnames = c("MM.line", "variable", "value")) {
+  colnames(x = df) <- new.colnames
+  return (df)
+}
+MM.OLS.bc <- rbind(cbind(rename.columns(df = MM.OLSA.bc), data.frame("Assay"=rep("CHEQ-seq OLS A",nrow(MM.OLSA.bc))))
+              , cbind(rename.columns(df = MM.OLSB.bc), data.frame("Assay"=rep("CHEQ-seq OLS B",nrow(MM.OLSB.bc)))))
+
+ggplot(MM.OLS.bc, aes(x=Assay, y=value, fill = variable)) + 
+    geom_violin() +
+    geom_boxplot(width = 0.25, position=position_dodge(0.9)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    annotation_logticks(sides = "l") +
+    scale_y_continuous(trans='log10') +
+    scale_x_discrete(labels= c("OLS A", "OLS B")) +
+    scale_fill_manual(values = c("#70DB70", "#BA6ACB"), labels = c("Plasmid", "cDNA")) +
+    labs(y = "Barcode per enhancer")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_assay_BC_range.pdf", device = "pdf",width = 5,height = 3)
+```
+
+# Identifying active tiles
+## Fiting of gaussian curve
+```{r}
+library(ggplot2)
+library(robustbase)
+library(stats)
+
+for (i in names(CSE.OLSA)[!names(CSE.OLSA) %in% c("Combined")]){
+  print(paste0(i,"\n"))
+  sample <- CSE.OLSA[[i]]$merged.input.basal.norm
+  subsettype <- "Shuffled"
+  
+  # robust fit of a gaussian by robust estimates of it's two params
+  ## Use median
+  location <- median(x = log2(sample[sample$phenotype == subsettype, "CPM.Input.BasalNorm"]))
+  print(paste0("Median: ",location))
+  ## Use max density value
+  # location <- density(log2(sample[sample$phenotype == subsettype, "CPM.Input.BasalNorm"]))$x[which.max(density(log2(sample[sample$phenotype == subsettype, "CPM.Input.BasalNorm"]))$y)]
+  # print(paste0("Max density: ",location))
+  scale <- mad(x = log2(sample[sample$phenotype == subsettype, "CPM.Input.BasalNorm"]))
+  
+  # Check fit
+  p2 <- ggplot(data = sample, mapping = aes(x = log2(CPM.Input.BasalNorm), fill = class)) +
+          geom_density(size = 0, alpha = .5) +  
+          stat_function(fun = dnorm, args = list(mean = location, sd = scale)) + 
+          theme_minimal() +
+          labs(title = i)
+  print(p2)
+  
+  # Determine p-values for all
+  sample$pvalue <- pnorm(q = sample$log.CPM.Input.BasalNorm, mean = location, sd = scale, lower.tail = F)
+  sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+  
+  p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = class)) + 
+          geom_bar() +
+          theme_minimal() +
+          labs(title = i)
+  print(p3)
+  
+  p <- ggplot(sample, aes(x = padj, y = log2(CPM.Input.BasalNorm), fill = phenotype)) +
+    geom_point(pch = 21, size = 3) +
+    geom_vline(xintercept = 0.05, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.text = element_text(color = "black", size = 7),
+          axis.title = element_text(size = 8),
+          legend.key = element_blank(),
+          legend.title = element_text(size = 7),
+          legend.text = element_text(size = 7),
+          legend.key.size = unit(0.8,"line")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8", "black"), labels = c("MES", "MEL", "Shuffled")) +
+    labs(x = "Adjusted p-value", y = "Log2 Expression", color = "Adjusted\np-value", fill = "Enhancer\nPhenotype", title = i)
+  print(p)
+  
+  # Get stats
+  print("Proportions of active tiles:\n")
+  print(table(sample[sample$padj < 0.05, "class"])/sum(sample$padj < 0.05)*100)
+  print(paste0("Percentage of active shuffled: ", nrow(sample[sample$padj < 0.05 & sample$class == "shuffled",])/nrow(sample[sample$class == "shuffled",])*100, "%"))
+  print(paste0("Number of active tiles: ",nrow(sample[sample$padj < 0.05,])))
+  print("")
+  
+  # Save results
+  CSE.OLSA[[i]]$merged.input.basal.norm <- sample
+}
+```
+
+## Generate aggregated track for peak calling
+```{r}
+# Make sum of all values for each tiles
+aggr.A.values <- CSE.OLSA$Combined$Basal.normalised[,c("CPM.InputNorm.MM029_rep1","CPM.InputNorm.MM057_rep1","CPM.InputNorm.MM057_rep2","CPM.InputNorm.MM074_rep2","CPM.InputNorm.MM087_rep2","CPM.InputNorm.MM087_rep3","CPM.InputNorm.MM087_rep4","CPM.InputNorm.MM099_rep1","CPM.InputNorm.MM099_rep2")]
+# Remove rows with no values
+aggr.A <- CSE.OLSA$Combined$Basal.normalised[rowSums(is.na(aggr.A.values)) != ncol(aggr.A.values),]
+aggr.A$aggregated.log.CPM.BasalNorm <- rowSums(log2(aggr.A.values[rowSums(is.na(aggr.A.values)) != ncol(aggr.A.values),]), na.rm = TRUE)
+aggr.A <- aggr.A[aggr.A$class %in% c("wt","mut","shuffled"),c("synthetic.region", "class", "phenotype", "aggregated.log.CPM.BasalNorm")]
+
+# Save data
+write.table(x = aggr.A[aggr.A$class %in% c("wt","mut"), c("synthetic.region", "aggregated.log.CPM.BasalNorm")],
+            file = "CHEQ-seq_OLS-A/data/aggregated.values__cpm_basal_normalized.tsv",
+            quote = F, sep = "\t", row.names = F, col.names = T)
+```
+
+## Define active tiles of the aggregated sample to create mask for selection of active tiles in samples
+```{r}
+library(ggplot2)
+sample <- aggr.A
+subsettype <- "Shuffled"
+
+# robust fit of a gaussian by robust estimates of it's two params
+## Use median
+location <- median(x = sample[sample$phenotype == subsettype, "aggregated.log.CPM.BasalNorm"])
+print(paste0("Median: ",location))
+## Use max density value
+# location <- density(sample[sample$phenotype == subsettype, "aggregated.log.CPM.BasalNorm"])$x[which.max(density(sample[sample$phenotype == subsettype, "aggregated.log.CPM.BasalNorm"])$y)]
+# print(paste0("Max density: ",location))
+scale <- mad(x = sample[sample$phenotype == subsettype, "aggregated.log.CPM.BasalNorm"])
+
+# check fit
+p2 <- ggplot(data = sample, mapping = aes(x = aggregated.log.CPM.BasalNorm, fill = class)) +
+        geom_density(size = 0, alpha = .5) +  
+        stat_function(fun = dnorm, args = list(mean = location, sd = scale)) + 
+        theme_minimal()
+print(p2)
+
+# Determine p-values for all
+sample$pvalue <- pnorm(q = sample$aggregated.log.CPM.BasalNorm, mean = location, sd = scale, lower.tail = F)
+sample$padj <- p.adjust(p = sample$pvalue, method = "fdr")
+
+p3 <- ggplot(data = sample, mapping = aes(x = padj < 0.05, fill = class)) + 
+        geom_bar() +
+        theme_minimal()
+print(p3)
+
+# controlling the FDR on this should result in < 5% false discoveries
+print("Proportions of active tiles:")
+print(table(sample[sample$padj < 0.05, "class"])/sum(sample$padj < 0.05)*100)
+print(paste0("Percentage of active shuffled: ", nrow(sample[sample$padj < 0.05 & sample$class == "shuffled",])/nrow(sample[sample$class == "shuffled",])*100, "%"))
+print(paste0("Number of active tiles: ",nrow(sample[sample$padj < 0.05,])))
+
+activity.mask.A <- sample[sample$padj < 0.05,"synthetic.region"]
+```
+
+## Make datatable with the highest active tile for each region per cell line
+## Take highest active tile per region or per masked region
+```{r}
+library(dplyr)
+library(pipeR)
+library(stringr)
+# Report in a datatable the top log CPM activity per enhancer, across the lines
+tbl_summaryA_active <- data.frame("enhancer" = str_split(CSE.OLSA$Combined$Basal.normalised$synthetic.region, '@@',simplify=T)[,2] %>>%
+     { str_split( . ,  '==',simplify=T)[,1] } %>% unique() %>% sort())
+tbl_summaryA_active.masked <- tbl_summaryA_active
+list.active.regions <- new.env()
+
+for (line in c('MM029_rep1','MM057_rep1','MM074_rep2','MM087_comb','MM099_rep1')){
+  # Add enhancer info
+  CSE.OLSA[[line]]$merged.input.basal.norm$enhancer <- str_split(str_split(CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region, '@@', simplify=T)[,2], '==', simplify=T)[,1]
+  # Top 'active' tile
+  a <- na.omit(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$padj < 0.05,]) %>% group_by(enhancer) %>% dplyr::summarise(top_value = max(CPM.Input.BasalNorm)) %>% ungroup()
+  tbl_summaryA_active[tbl_summaryA_active$enhancer %in% a$enhancer, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- a$top_value
+  tbl_summaryA_active[tbl_summaryA_active$enhancer %in% a$enhancer, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- "Active"
+  for (i in levels(tbl_summaryA_active$enhancer)) {
+    if (is.na(tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")]) & nrow(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i & CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region %in% activity.mask.A,]) > 0) {
+        tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- max(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i & CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region %in% activity.mask.A, "CPM.Input.BasalNorm"])
+        tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- "Inactive"
+    }
+    if (is.na(tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")])) {
+      tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- mean(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i, "CPM.Input.BasalNorm"])
+      tbl_summaryA_active[tbl_summaryA_active$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- "Inactive"
+    }
+  }
+
+  # Top active masked tile
+  b <- na.omit(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$padj < 0.05 & CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region %in% activity.mask.A,]) %>% group_by(enhancer) %>% dplyr::summarise(top_value = max(CPM.Input.BasalNorm)) %>% ungroup()
+  tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% b$enhancer, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- b$top_value
+  tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% b$enhancer, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- 1
+  list.active.regions[[line]] <- na.omit(tbl_summaryA_active.masked[,c("enhancer", paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC"))])
+  ##
+  for (i in levels(tbl_summaryA_active.masked$enhancer)) {
+    if (is.na(tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")]) & nrow(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i & CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region %in% activity.mask.A,]) > 0) {
+      tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- max(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i & CSE.OLSA[[line]]$merged.input.basal.norm$synthetic.region %in% activity.mask.A, "CPM.Input.BasalNorm"])
+      tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- 0
+    }
+    if (is.na(tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")])) {
+      tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".CPM.Input.BasalNorm.FC")] <- mean(CSE.OLSA[[line]]$merged.input.basal.norm[CSE.OLSA[[line]]$merged.input.basal.norm$enhancer == i, "CPM.Input.BasalNorm"])
+      tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, paste0(str_split(line, '_', simplify=T)[,1], ".activity")] <- 0
+    }
+  }
+}
+
+# Add phenotype info
+# control <- c("MAP3K14_1","BLK_5","BLK_6","ALPK2_1","BDNF_1", "SMURF2_3","MITF_1", "GPM6B_2", "SOX10_1")
+tbl_summaryA_active$phenotype <- "Invasive"
+tbl_summaryA_active[tbl_summaryA_active$enhancer %in% proliferative,"phenotype"] <- "Proliferative"
+# tbl_summaryA_active[tbl_summaryA_active$enhancer %in% control,"phenotype"] <- "Control"
+tbl_summaryA_active.masked$phenotype <- "Invasive"
+tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative,"phenotype"] <- "Proliferative"
+# tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% control,"phenotype"] <- "Control"
+
+for (i in names(list.active.regions)){
+  list.active.regions[[i]] <- inner_join(list.active.regions[[i]],
+                                         tbl_summaryA_active.masked[,c("enhancer","phenotype")],
+                                         by = "enhancer")
+  # list.active.regions[[i]][list.active.regions[[i]]$enhancer %in% control,"phenotype"] <- "Control"
+}
+
+# Save
+write.table(tbl_summaryA_active,'/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/CHEQ-seq_OLS-A/data/active_tiles/Top_tile_per_enhancer_per_line.txt', quote=F, row.names=F, col.names=F)
+write.table(tbl_summaryA_active.masked,'/staging/leuven/stg_00002/lcb/lcb_projects/CSE/analysis/CHEQ-seq_OLS-A/data/active_tiles/Top_active_tile_per_enhancer_per_line.txt', quote=F, row.names=F, col.names=F)
+```
+
+## Plot enhancer expression
+```{r}
+library(ggplot2)
+for (i in c("MM029", "MM057", "MM074", "MM087", "MM099")) {
+p <- ggplot(tbl_summaryA_active, aes(x = reorder(x = enhancer, X = log2(tbl_summaryA_active[,paste0(i,".CPM.Input.BasalNorm.FC")]), FUN=median), 
+                                     y = log2(tbl_summaryA_active[,paste0(i,".CPM.Input.BasalNorm.FC")]), fill = phenotype, color = tbl_summaryA_active[,paste0(i,".activity")])) +
+  geom_point(pch = 21, size = 2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 7)) +
+  scale_color_manual(values = c('black', 'grey80'), labels = c("Active", "Inactive")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 Expression", fill = "Enhancer\nphenotype", color = "Activity", title = i)
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Region_activity_per_line/OLS-A_regions_expression_",i,".pdf"), device = "pdf",width = 7,height = 3.5)
+print(p)
+
+p <- ggplot(tbl_summaryA_active.masked, aes(x = reorder(x = enhancer, X = log2(tbl_summaryA_active.masked[,paste0(i,".CPM.Input.BasalNorm.FC")]), FUN=median), 
+                                            y = log2(tbl_summaryA_active.masked[,paste0(i,".CPM.Input.BasalNorm.FC")]), fill = phenotype, color = tbl_summaryA_active.masked[,paste0(i,".activity")])) +
+  geom_point(pch = 21, size = 2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 7)) +
+  scale_color_manual(values = c('black', 'grey80'), labels = c("Active", "Inactive")) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Enhancers", y = "Log2 Expression", fill = "Enhancer\nphenotype", color = "Activity", title = i)
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Region_activity_per_line/OLS-A_regions_expression_masked_",i,".pdf"), device = "pdf",width = 7,height = 3.5)
+print(p)
+}
+```
+
+# Plot expression range
+```{r}
+library(ggplot2)
+library(tidyr)
+long.tbl_summaryA_active <- gather(tbl_summaryA_active, MM.line, BasalNorm.FC, c(MM057.CPM.Input.BasalNorm.FC, MM074.CPM.Input.BasalNorm.FC, MM087.CPM.Input.BasalNorm.FC, MM029.CPM.Input.BasalNorm.FC, MM099.CPM.Input.BasalNorm.FC), factor_key=TRUE)
+long.tbl_summaryA_active$MM.line <- substr(long.tbl_summaryA_active$MM.line, 1,5)
+ggplot(long.tbl_summaryA_active, aes(x=MM.line, y=log2(BasalNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(pch = 21, position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.9)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 Expression", fill = "Enhancer\nphenotype", title = "CHEQseq Tiling A - Expression range")
+# ggsave(filename = "Plots/CHEQseq_Intron_Expression_range_violin.eps",device = "eps",width = 11.69,height = 8.27)
+
+long.tbl_summaryA_active.masked1 <- gather(tbl_summaryA_active.masked, MM.line, BasalNorm.FC, c(MM057.CPM.Input.BasalNorm.FC, MM074.CPM.Input.BasalNorm.FC, MM087.CPM.Input.BasalNorm.FC, MM029.CPM.Input.BasalNorm.FC, MM099.CPM.Input.BasalNorm.FC), factor_key=TRUE)
+long.tbl_summaryA_active.masked1$MM.line <- substr(long.tbl_summaryA_active.masked1$MM.line, 1,5)
+long.tbl_summaryA_active.masked1$MM.line <- factor(long.tbl_summaryA_active.masked1$MM.line, levels = c("MM057", "MM074", "MM087", "MM029", "MM099"))
+long.tbl_summaryA_active.masked2 <- gather(tbl_summaryA_active.masked, MM.line2, Activity, c(MM057.activity, MM074.activity, MM087.activity, MM029.activity, MM099.activity), factor_key=TRUE)
+long.tbl_summaryA_active.masked2$MM.line2 <- substr(long.tbl_summaryA_active.masked2$MM.line2, 1,5)
+long.tbl_summaryA_active.masked <- cbind(long.tbl_summaryA_active.masked1[,c("enhancer", "MM.line", "BasalNorm.FC")], long.tbl_summaryA_active.masked2[,c("MM.line2", "Activity", "phenotype")])
+long.tbl_summaryA_active.masked <- long.tbl_summaryA_active.masked[,-which(names(long.tbl_summaryA_active.masked) %in% c("MM.line2"))]
+
+ggplot(long.tbl_summaryA_active.masked, aes(x=MM.line, y=log2(BasalNorm.FC), fill=phenotype)) + 
+    geom_violin(draw_quantiles = 0.5) +
+    geom_point(data = long.tbl_summaryA_active.masked[long.tbl_summaryA_active.masked$Activity > 0,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(Activity == 0,'grey80', 'black'))) +
+    geom_point(data = long.tbl_summaryA_active.masked[long.tbl_summaryA_active.masked$Activity == 0,], pch = 21, position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.9), aes(color = ifelse(Activity == 0,'grey80', 'black'))) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          legend.key = element_rect(fill = "white"),
+          axis.text = element_text(color = "black"),
+          axis.title.x=element_blank()) +
+    scale_color_manual(values = c('black', 'grey80'), labels = c("Active", "Inactive")) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+    labs(y = "Log2 FC", fill = "Enhancer\nphenotype", title = "CHEQseq Tiling A", color = "Activity")
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Region_activity_per_line/OLS-A_expression_range_masked.pdf"),device = "pdf",width = 7,height = 5, useDingbat = F)
+```
+
+## Scatter plots comparison best tiles per enhancer vs CHEQseq Intron
+```{r}
+CH1.intron.df <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__combined_dataframe.RDS")
+
+# With active tiles selection
+library(dplyr)
+library(ggplot2)
+for (i in c('MM029','MM057','MM074','MM087','MM099')){
+  tmp <- inner_join(tbl_summaryA_active[,c("enhancer",paste0(i,".CPM.Input.BasalNorm.FC"))],
+                    CH1.intron.df[,c("enhancer",paste0(i,".BasalNorm.FC"), "phenotype")],
+                    by = "enhancer")
+p <- ggplot(tmp, aes(x = log2(tmp[,paste0(i,".CPM.Input.BasalNorm.FC")]), y = log2(tmp[,paste0(i,".BasalNorm.FC")]), color = phenotype, label = enhancer)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  geom_text(data = tmp, check_overlap = F, vjust = 0, nudge_y = 0.1, size = 2.2) +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 0, y = 4, label = paste0("r = ", round(cor(na.omit(tmp[,c(paste0(i,".CPM.Input.BasalNorm.FC"), paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0(i," - Tiling A vs Intron Activity (Active Tiles)")) +
+  labs(x = "Tiling A enhancer expression", y = "Intron Enhancer Expression", color = "Phenotype")
+print(p)  
+
+# With masked active tiles selection
+  tmp <- inner_join(tbl_summaryA_active.masked[,c("enhancer",paste0(i,".CPM.Input.BasalNorm.FC"))],
+                    CH1.intron.df[,c("enhancer",paste0(i,".BasalNorm.FC"), "phenotype")],
+                    by = "enhancer")
+p <- ggplot(tmp, aes(x = log2(tmp[,paste0(i,".CPM.Input.BasalNorm.FC")]), y = log2(tmp[,paste0(i,".BasalNorm.FC")]), color = phenotype)) +
+  geom_smooth(method = "lm", alpha =0.1) +
+  geom_point() +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.text = element_text(color = "black")) +
+  scale_color_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  annotate("text", x = 0, y = 4, label = paste0("r = ", round(cor(na.omit(tmp[,c(paste0(i,".CPM.Input.BasalNorm.FC"), paste0(i,".BasalNorm.FC"))]), method="pearson")[1,2], digits = 4)), hjust = 0) +
+  ggtitle(label = paste0(i," - Tiling A vs Intron Activity (Masked Active Tiles)")) +
+  labs(x = "Tiling A enhancer expression", y = "Intron Enhancer Expression", color = "Phenotype")
+print(p)  
+}
+```
+
+# Correlation per phenotype
+```{r}
+tmp <- inner_join(tbl_summaryA_active.masked, CH1.intron.df, by = "enhancer")
+cor(na.omit(tmp[tmp$phenotype.x == "Invasive", grep(pattern = ".BasalNorm.FC", x = names(tmp))]), method="pearson")
+cor(na.omit(tmp[tmp$phenotype.x == "Proliferative", grep(pattern = ".BasalNorm.FC", x = names(tmp))]), method="pearson")
+```
+
+# Correlation between samples with one value per enhancer
+```{r}
+library(corrplot)
+M <- cor(x = tbl_summaryA_active[,c(2,4,6,8,10)], method = "pearson", use = "pairwise.complete.obs")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", addrect = 2, order = "hclust", title = "OLS-A Highest active tile")
+M <- cor(x = tbl_summaryA_active.masked[,c(2,4,6,8,10)], method = "pearson", use = "pairwise.complete.obs")
+corrplot(M, method="color", addCoef.col = "grey60", tl.col="black", addrect = 2, order = "hclust", title = "OLS-A Highest active tile masked")
+```
+
+# Percent of active regions
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(dplyr)
+tab <- data.frame(MM.line = factor(),
+                  Phenotype = factor(),
+                  Percentage = double())
+for (i in c("MM057", "MM074", "MM087", "MM029", "MM099")){
+# Plot percentage of 'active' enhancers in each of the MM lines and split per prol and inv
+tmp <- tbl_summaryA_active[tbl_summaryA_active$phenotype == "Proliferative",]
+tab <- add_row(.data = tab,
+               MM.line = i, 
+               Phenotype = "Proliferative", 
+               Percentage = nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp))
+
+tmp <- tbl_summaryA_active[tbl_summaryA_active$phenotype == "Invasive",]
+perc.inv.prol <- nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp)
+tab <- add_row(.data = tab,
+               MM.line = i, 
+               Phenotype = "Invasive", 
+               Percentage = nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp))
+}
+
+tab$MM.line <- factor(tab$MM.line, levels = c("MM057", "MM074", "MM087", "MM029", "MM099"))
+act.dodgeA <- tab
+ggplot(tab, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_TilingA_percent_activity_dodged.pdf", device = "pdf",width = 4,height = 3)
+
+
+library(tidyverse)
+library(ggplot2)
+act.sum <- data.frame(Enhancer = factor(),
+                      Phenotype = factor(),
+                      Lines = factor(),
+                      Count = double())
+for (i in tbl_summaryA_active$enhancer){
+  count <- sum(tbl_summaryA_active[tbl_summaryA_active$enhancer == i, c("MM057.activity", "MM074.activity", "MM087.activity")] == "Active")
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i,
+                     Phenotype = tbl_summaryA_active[tbl_summaryA_active$enhancer == i, "phenotype"],
+                     Lines = "MEL",
+                     Count = count)
+  count <- sum(tbl_summaryA_active[tbl_summaryA_active$enhancer == i, c("MM029.activity", "MM099.activity")] == "Active")
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i,
+                     Phenotype = tbl_summaryA_active[tbl_summaryA_active$enhancer == i, "phenotype"],
+                     Lines = "MES",
+                     Count = count)
+}
+
+# Count proportion of enhancer active per number of line
+## Number of enhancer per phenotype
+nrow.mel <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative",])
+nrow.mes <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive",])
+## Proportion for each condition
+mel.1 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 1,])/nrow.mel
+mel.2 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 2,])/nrow.mel
+mel.3 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 3,])/nrow.mel
+mes.1 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 1,])/nrow.mes
+mes.2 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 2,])/nrow.mes
+## Combine data into dataframe
+act.perA <- data.frame(Lines = c("MEL", "MEL", "MEL", "MES", "MES"), Count = as.factor(c("MEL 1","MEL 2","MEL 3","MES 1","MES 2")), Percentage = c(mel.1, mel.2, mel.3, mes.1, mes.2))
+
+
+ggplot(act.perA, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#4F87CA", "#1C5395", "#2C4B70", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "1 MES line", "2 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_TilingA_active_summary.pdf", device = "pdf", width = 2.75, height = 3)
+```
+
+```{r}
+tab <- rbind(cbind(act.dodgeA, data.frame(Library = "Tiling A")),
+             cbind(act.dodgeB, data.frame(Library = "Tiling B")))
+tab$MM.line <- factor(tab$MM.line, levels = c("MM001", "MM057", "MM074", "MM087", "MM029", "MM099"))
+
+ggplot(tab, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  facet_grid(~Library, scales = "free", space = "free")+
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        strip.text.x = element_text(size = 7, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_all-libraries_percent_activity_dodged.pdf", device = "pdf",width = 6,height = 3)
+
+act.per <- rbind(cbind(act.perA, data.frame(Library = "Tiling A")),
+                 cbind(act.perB, data.frame(Library = "Tiling B")))
+
+ggplot(act.per, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  facet_grid(~Library, scales = "free", space = "free")+
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        strip.text.x = element_text(size = 7, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#4F87CA", "#1C5395", "#2C4B70", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "1 MES line", "2 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_all-libraries_active_summary.pdf", device = "pdf", width = 4, height = 3)
+```
+
+# Percent of active regions (Masked)
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(dplyr)
+tab <- data.frame(MM.line = factor(),
+                  Phenotype = factor(),
+                  Percentage = double())
+for (i in c("MM057", "MM074", "MM087", "MM029", "MM099")){
+# Plot percentage of 'active' enhancers in each of the MM lines and split per prol and inv
+tmp <- tbl_summaryA_active.masked[tbl_summaryA_active.masked$phenotype == "Proliferative",]
+tab <- add_row(.data = tab,
+               MM.line = i, 
+               Phenotype = "Proliferative", 
+               Percentage = nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp))
+
+tmp <- tbl_summaryA_active.masked[tbl_summaryA_active.masked$phenotype == "Invasive",]
+perc.inv.prol <- nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp)
+tab <- add_row(.data = tab,
+               MM.line = i, 
+               Phenotype = "Invasive", 
+               Percentage = nrow(tmp[tmp[[paste0(i,".activity")]] == "Active",])/nrow(tmp))
+}
+
+tab$MM.line <- factor(tab$MM.line, levels = c("MM057", "MM074", "MM087", "MM029", "MM099"))
+act.dodgeA.masked <- tab
+ggplot(tab, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer \nphenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_TilingA_percent_activity_masked_dodged.pdf", device = "pdf",width = 4,height = 3)
+
+
+library(tidyverse)
+library(ggplot2)
+act.sum <- data.frame(Enhancer = factor(),
+                      Phenotype = factor(),
+                      Lines = factor(),
+                      Count = double())
+for (i in tbl_summaryA_active.masked$enhancer){
+  count <- sum(tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, c("MM057.activity", "MM074.activity", "MM087.activity")] == "Active")
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i,
+                     Phenotype = tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, "phenotype"],
+                     Lines = "MEL",
+                     Count = count)
+  count <- sum(tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, c("MM029.activity", "MM099.activity")] == "Active")
+  act.sum <- add_row(.data = act.sum,
+                     Enhancer = i,
+                     Phenotype = tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer == i, "phenotype"],
+                     Lines = "MES",
+                     Count = count)
+}
+
+# Count proportion of enhancer active per number of line
+## Number of enhancer per phenotype
+nrow.mel <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative",])
+nrow.mes <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive",])
+## Proportion for each condition
+mel.1 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 1,])/nrow.mel
+mel.2 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 2,])/nrow.mel
+mel.3 <- nrow(act.sum[act.sum$Lines == "MEL" & act.sum$Phenotype == "Proliferative" & act.sum$Count == 3,])/nrow.mel
+mes.1 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 1,])/nrow.mes
+mes.2 <- nrow(act.sum[act.sum$Lines == "MES" & act.sum$Phenotype == "Invasive" & act.sum$Count == 2,])/nrow.mes
+## Combine data into dataframe
+act.perA.masked <- data.frame(Lines = c("MEL", "MEL", "MEL", "MES", "MES"), Count = as.factor(c("MEL 1","MEL 2","MEL 3","MES 1","MES 2")), Percentage = c(mel.1, mel.2, mel.3, mes.1, mes.2))
+
+
+ggplot(act.perA.masked, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#4F87CA", "#1C5395", "#2C4B70", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "1 MES line", "2 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_TilingA_active_masked_summary.pdf", device = "pdf", width = 2.75, height = 3)
+```
+
+```{r}
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(dplyr)
+tab.masked <- rbind(cbind(act.dodgeA.masked, data.frame(Library = "Tiling A")),
+                    # c("MM001","Proliferative","0","Tiling A"),
+                    # c("MM001","Invasive","0","Tiling A"),
+                    cbind(act.dodgeB.masked, data.frame(Library = "Tiling B")))
+tab.masked$MM.line <- factor(tab.masked$MM.line, levels = c("MM001", "MM057", "MM074", "MM087", "MM029", "MM099"))
+
+ggplot(tab.masked, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  facet_grid(~Library, scales = "free", space = "free",drop = F)+
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        strip.text.x = element_text(size = 7, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of active enhancers", fill = "Enhancer\nphenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_all-libraries_percent_activity_masked_dodged.pdf", device = "pdf",width = 6,height = 3)
+
+act.per.masked <- rbind(cbind(act.perA.masked, data.frame(Library = "Tiling A")),
+                        cbind(act.perB.masked, data.frame(Library = "Tiling B")))
+
+ggplot(act.per.masked, aes(x=Lines, y=Percentage, fill=Count)) +
+  geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+  facet_grid(~Library, scales = "free", space = "free")+
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        strip.text.x = element_text(size = 7, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_fill_manual(values = c("#4F87CA", "#1C5395", "#2C4B70", "#E41A1A", "#AB3939"), labels = c("1 MEL line", "2 MEL lines", "3 MEL lines", "1 MES line", "2 MES lines")) +
+  labs(x = "Enhancers", y = "Percentage of active enhancers", fill = "MEL enhancer \nactive in:")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQseq_all-libraries_active_masked_summary.pdf", device = "pdf", width = 4, height = 3)
+```
+
+
+# Conservation of activity between Ac and tiling library
+```{r}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(stringr)
+# List of active Ac regions per cell line
+CH1.intron <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__R_environment.RDS")
+list.enh <- new.env()
+for (i in names(list.active.regions)){
+  list.enh[[i]] <- unique(CH1.intron[[str_split(i,"_",simplify = T)[,1]]]$merged.cpm.input.basal.norm[CH1.intron[[str_split(i,"_",simplify = T)[,1]]]$merged.cpm.input.basal.norm$padj < 0.05,"enhancer"])
+  list.enh[[i]] <- droplevels(list.enh[[i]])
+}
+
+perc.actA <- data.frame(MM.line = factor(), Phenotype = factor(), Percentage = double())
+for (i in names(list.active.regions)) {
+  # Number of active Ac MEL regions
+  nb.pro.reg <- nrow(tbl_summaryA_active.masked[tbl_summaryA_active.masked$phenotype == "Proliferative" & tbl_summaryA_active.masked$enhancer %in% list.enh[[i]],])
+  print(nb.pro.reg)
+  # Number of active Tiled MEL regions
+  nb.act.pro <- nrow(list.active.regions[[i]][list.active.regions[[i]]$phenotype == "Proliferative" & list.active.regions[[i]]$enhancer %in% list.enh[[i]],])
+  print(nb.act.pro)
+  # Number of active Ac MES regions
+  nb.inv.reg <- nrow(tbl_summaryA_active.masked[tbl_summaryA_active.masked$phenotype == "Invasive" & tbl_summaryA_active.masked$enhancer %in% list.enh[[i]],])
+  print(nb.inv.reg)
+  # Number of active Tiled MES regions
+  nb.act.inv <- nrow(list.active.regions[[i]][list.active.regions[[i]]$phenotype == "Invasive" & list.active.regions[[i]]$enhancer %in% list.enh[[i]],])
+  print(nb.act.inv)
+  # Add percentages to data frame
+  perc.actA <- add_row(.data = perc.actA,
+                      MM.line = str_split(i,"_",simplify = T)[,1], 
+                      Phenotype = "Proliferative", 
+                      Percentage = nb.act.pro/nb.pro.reg)
+  perc.actA <- add_row(.data = perc.actA,
+                      MM.line = str_split(i,"_",simplify = T)[,1], 
+                      Phenotype = "Invasive", 
+                      Percentage = nb.act.inv/nb.inv.reg)
+}
+perc.actA$MM.line <- factor(perc.actA$MM.line, levels = c("MM057", "MM074", "MM087", "MM029", "MM099"))
+print(perc.actA)
+
+# Plot 
+ggplot(perc.actA, aes(x=MM.line, y=Percentage, fill=Phenotype)) +
+  geom_bar(stat='identity', position = "dodge", width = 0.8, color = "black", size = 0.25) +
+  theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major = element_line(size = 0.25, linetype = 'solid', colour = "black"),
+        axis.ticks = element_line(colour = "black", size = 0.25),
+        axis.text=element_text(colour="black", size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        legend.key = element_rect(fill = "white"),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.size = unit(0.8,"line")) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0,1)) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"), labels = c("MES", "MEL")) +
+  labs(x = "Line", y = "Percentage of H3K27Ac ChIP-seq based active regions\nalso active in CHEQ-seq Tiling A", fill = "Enhancer \nphenotype")
+ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/CHEQseq_TilingA_percent_maintained_activity.pdf"),device = "pdf",width = 4,height = 3)
+```
+
+
+# Calculate Inv vs Prol ratio (with masked active defined region activity)
+## Inv vs Prol ratio = mean of all Inv region / mean of all Prol regions
+## or median of all Inv region / median of all Prol regions
+```{r}
+library(stringr)
+# Give activity score
+proliferative.enhancers.long<-c("CDH1_1","CDH1_2","SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5","IRF4_1","GPM6B_2","KIT_1","MLANA_1","SGCD_2","SGCD_3","MITF_1","TYR_1","TYR_2","TYR_3","RRAGD_1")
+tmp <- tbl_summaryA_active.masked
+row.names(tmp) <- tbl_summaryA_active.masked[,1]
+tmp <- tmp[,grep(pattern = "CPM.Input.BasalNorm.FC", x = names(tmp))]
+OLSA.enhancer.score.activity.mean <- data.frame() 
+OLSA.enhancer.score.activity.median <- data.frame()
+for (i in c('MM029','MM057','MM074','MM087','MM099')){
+  # Calculate with the mean values
+  score.mean <- mean(na.omit(tmp[!rownames(tmp) %in% proliferative.enhancers.long, paste0(i,".CPM.Input.BasalNorm.FC")])) / mean(na.omit(tmp[rownames(tmp) %in% proliferative.enhancers.long, paste0(i,".CPM.Input.BasalNorm.FC")]))
+  OLSA.enhancer.score.activity.mean <- rbind(OLSA.enhancer.score.activity.mean,
+                                             data.frame(Activity = score.mean, MM_line =  i, library = "Tiling A"))
+  # Calculate with median values
+  score.median <- median(na.omit(tmp[!rownames(tmp) %in% proliferative.enhancers.long, paste0(i,".CPM.Input.BasalNorm.FC")])) / median(na.omit(tmp[rownames(tmp) %in% proliferative.enhancers.long, paste0(i,".CPM.Input.BasalNorm.FC")]))
+  OLSA.enhancer.score.activity.median <- rbind(OLSA.enhancer.score.activity.median,
+                                               data.frame(Activity = score.median, MM_line =  i, library = "Tiling A"))
+}
+```
+
+### Plot both calculated ratio
+```{r}
+library(ggplot2)
+# Ratios with mean
+ggplot(OLSA.enhancer.score.activity.mean, aes(x=reorder(x = MM_line, X = Activity), y=Activity, fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    geom_hline(yintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    ylim(0,NA) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 MES regions / Log2 MEL regions", color = "Line phenotype")
+#ggsave(filename = "Plots/CHEQseq_Intron_Activity_score.eps",device = "eps",width = 5,height = 3)
+# Ratios with median
+ggplot(OLSA.enhancer.score.activity.median, aes(x=reorder(x = MM_line, X = Activity), y=Activity, fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    geom_hline(yintercept = 1, linetype="dashed", color = "black", size = 0.5) +
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.title.y = element_text(size = 9),
+          legend.key = element_blank()) +
+    ylim(0,NA) +
+    scale_fill_manual(values = c("#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 MES regions / Log2 MEL regions", color = "Line phenotype")
+```
+
+## Calculate significance MEL vs MES activity ratio
+### Define if data is normal
+```{r}
+# Shapiro-Wilk normality test for MEL enhancers values
+shapiro.test(as.matrix(tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative,c(2,4,6,8,10)])) # 1.362e-10
+# Shapiro-Wilk normality test for MES enhancers values
+shapiro.test(as.matrix(tbl_summaryA_active.masked[!tbl_summaryA_active.masked$enhancer %in% proliferative,c(2,4,6,8,10)])) # < 2.2e-16
+```
+
+# t tests
+```{r}
+# t test MEL vs MES activity ratio
+print("Ratio mean")
+t.test(OLSA.enhancer.score.activity.mean[c(1,5),"Activity"], OLSA.enhancer.score.activity.mean[c(2:4),"Activity"], alternative = "greater")$p.value
+print("Ratio median")
+t.test(OLSA.enhancer.score.activity.median[c(1,5),"Activity"], OLSA.enhancer.score.activity.median[c(2:4),"Activity"], alternative = "greater")$p.value
+
+# t-test per state (pooled MES values vs MEL values)
+## MEL state
+x.mel <- c()
+y.mel <- c()
+for (i in c("MM057", "MM074", "MM087")){
+  x.mel <- c(x.mel, tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(i,".CPM.Input.BasalNorm.FC")])
+  y.mel <- c(y.mel, tbl_summaryA_active.masked[!tbl_summaryA_active.masked$enhancer %in% proliferative,paste0(i,".CPM.Input.BasalNorm.FC")])
+}
+print("MEL state t.test")
+t.test(x.mel, y.mel, alternative = "greater")$p.value
+
+## MES state
+x.mes <- c()
+y.mes <- c()
+for (i in c("MM029", "MM099")){
+  x.mes <- c(x.mes, tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(i,".CPM.Input.BasalNorm.FC")])
+  y.mes <- c(y.mes, tbl_summaryA_active.masked[!tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(i,".CPM.Input.BasalNorm.FC")])
+}
+print("MES state t.test")
+t.test(y.mes, x.mes, alternative = "greater")$p.value
+
+print("MEL enhancers, MEL vs MES lines")
+t.test(x.mel, x.mes, alternative = "greater")$p.value
+
+print("MES enhancers, MEL vs MES lines")
+t.test(y.mes, y.mel, alternative = "greater")$p.value
+```
+
+```{r}
+# Wilcoxon test
+library(ggpubr)
+library(dplyr)
+## Values MEL vs MES enhancers per state
+print("MEL state, MEL vs MES enhancers")
+wilcox.test(x.mel, y.mel, alternative = "greater")$p.value
+print("MES state, MEL vs MES enhancers")
+wilcox.test(y.mes, x.mes, alternative = "greater")$p.value
+
+## Values MEL lines vs MES lines per enhancer states
+print("MEL enhancers, MEL vs MES lines")
+wilcox.test(x.mel, x.mes, alternative = "greater")$p.value
+print("MES enhancers, MEL vs MES lines")
+wilcox.test(y.mes, y.mel, alternative = "greater")$p.value
+```
+
+```{r}
+# Bootstrapping followed by t.test
+## For MES group
+k <- 25 # Bootstrap 21 times
+n_mes <- 16 # 16 mes enhancers
+n_mel <- 9 # 9 mel enhancers
+ratio_vector_mes <- vector()
+for (j in c("MM029", "MM099")){
+  MES <- tbl_summaryA_active.masked[!tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(j,".CPM.Input.BasalNorm.FC")]
+  MEL <- tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(j,".CPM.Input.BasalNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE) # Sample mes
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE) # Sample mel
+    ratio_vector_mes <- c(ratio_vector_mes, median(subset_mes)/median(subset_mel)) # Median ratio
+  }
+}
+
+## Same for MEL
+ratio_vector_mel <- vector()
+for (j in c("MM057", "MM074", "MM087")){
+  MES <- tbl_summaryA_active.masked[!tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(j,".CPM.Input.BasalNorm.FC")]
+  MEL <- tbl_summaryA_active.masked[tbl_summaryA_active.masked$enhancer %in% proliferative, paste0(j,".CPM.Input.BasalNorm.FC")]
+  for (i in 1:k){
+    subset_mes <- sample(MES, size=n_mes, replace=TRUE)
+    subset_mel <- sample(MEL, size=n_mel, replace=TRUE)
+    ratio_vector_mel <- c(ratio_vector_mel, median(subset_mes)/median(subset_mel))
+  }
+}
+## Test
+t.test(ratio_vector_mes, ratio_vector_mel)$p.value
+wilcox.test(ratio_vector_mes, ratio_vector_mel)$p.value
+```
+
+# Combine all assays activity ratio
+```{r}
+# Ratios with median
+IP.enhancer.score.activity <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__score_activity_median.rds")
+FP.enhancer.score.activity <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__5p__score_activity_median.rds")
+ATAC.enhancer.score.activity <- readRDS(file = "../500bp_ATAC_peak_library/analysis/CHEQseq/CHEQseq__ATAC__score_activity_median.rds")
+ATAC.STARR.enhancer.score.activity <- readRDS(file = "../500bp_ATAC_peak_library/analysis/STARRseq/STARRseq__ATAC__score_activity_median.rds")
+OLS.enhancer.score.activity.median <- rbind(IP.enhancer.score.activity,FP.enhancer.score.activity, ATAC.enhancer.score.activity, ATAC.STARR.enhancer.score.activity, OLSA.enhancer.score.activity.median, OLSB.enhancer.score.activity.median)
+
+# Ratios with mean
+IP.enhancer.score.activity <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__intron__score_activity_mean.rds")
+FP.enhancer.score.activity <- readRDS(file = "../../CH1/5p_intron/analysis/data/CHEQseq__5p__score_activity_mean.rds")
+ATAC.enhancer.score.activity <- readRDS(file = "../500bp_ATAC_peak_library/analysis/CHEQseq/CHEQseq__ATAC__score_activity_mean.rds")
+ATAC.STARR.enhancer.score.activity <- readRDS(file = "../500bp_ATAC_peak_library/analysis/STARRseq/STARRseq__ATAC__score_activity_mean.rds")
+OLS.enhancer.score.activity.mean <- rbind(IP.enhancer.score.activity,FP.enhancer.score.activity, ATAC.enhancer.score.activity, ATAC.STARR.enhancer.score.activity, OLSA.enhancer.score.activity.mean, OLSB.enhancer.score.activity.mean)
+```
+
+# Plot ratios per assay
+```{r}
+library(ggplot2)
+ggplot(OLS.enhancer.score.activity.median, aes(x=reorder(x = MM_line, X = log2(Activity)), y= log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    facet_grid(~library, scales = "free", space = "free")+
+    theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+          panel.grid = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.title.y = element_text(size = 8),
+          strip.text.x = element_text(size = 7, color = "white"),
+          strip.background = element_rect(fill = "black"),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQ-seq_all_assays_act-score_median.pdf",device = "pdf", width = 10, height = 3)
+
+ggplot(OLS.enhancer.score.activity.mean, aes(x=reorder(x = MM_line, X = log2(Activity)), y= log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    facet_grid(~library, scales = "free", space = "free")+
+    theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+          panel.grid = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.title.y = element_text(size = 8),
+          strip.text.x = element_text(size = 7, color = "white"),
+          strip.background = element_rect(fill = "black"),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQ-seq_all_assays_act-score_mean.pdf",device = "pdf", width = 10, height = 3)
+```
+
+# Plot ratio per cell line
+```{r}
+library(ggplot2)
+ggplot(OLS.enhancer.score.activity.median, aes(x=library, y= log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    facet_grid(~MM_line, scales = "free", space = "free")+
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.title.y = element_text(size = 8),
+          strip.text.x = element_text(size = 7, color = "white"),
+          strip.background = element_rect(fill = "black"),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQ-seq_all_assays_act-score_median_per_line.pdf",device = "pdf", width = 10, height = 3)
+
+ggplot(OLS.enhancer.score.activity.mean, aes(x=library, y= log2(Activity), fill=MM_line)) + 
+    geom_bar(stat='identity', width = 0.8, color = "black", size = 0.25) +
+    facet_grid(~MM_line, scales = "free", space = "free")+
+    theme(panel.background = element_rect(fill = "white", colour = "white", size = 0.5),
+          panel.grid = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.title.y = element_text(size = 8),
+          strip.text.x = element_text(size = 7, color = "white"),
+          strip.background = element_rect(fill = "black"),
+          legend.key = element_blank()) +
+    scale_fill_manual(values = c("#377EB8", "#E41A1C", "#E41A1C", "#377EB8", "#377EB8", "#377EB8", "#E41A1C")) +
+    labs(y = "Log2 Activity Ratio", fill = "Line phenotype")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/CHEQ-seq_all_assays_act-score_mean_per_line.pdf",device = "pdf", width = 10, height = 3)
+```
+
+# Define max activity of a subset of tiles
+```{r}
+library(stringr)
+# Max expression within COL5A1_5 first active region
+COL5A1_5.A <- reg.subset(tile.start = "chr9:137516561-137516751@@COL5A1_5==wt", tile.end = "chr9:137516901-137517091@@COL5A1_5==wt", OLS = "A", MM.lines = c('MM057_rep1','MM074_rep2','MM087_comb','MM029_rep1','MM099_rep1'))
+COL5A1_5.B <- reg.subset(tile.start = "chr9:137516551-137516741@@COL5A1_5==wt", tile.end = "chr9:137516911-137517101@@COL5A1_5==wt", OLS = "B", MM.lines = c('MM001_rep1','MM057_rep1','MM087_comb','MM029_rep1','MM099_rep1'))
+COL5A1_5 <- rbind(COL5A1_5.A, COL5A1_5.B)
+COL5A1_5$MM.line <- str_split(COL5A1_5$MM.line, pattern = "_", simplify = T)[,1]
+library(reshape2)
+COL5A1_5 <- reshape2::melt(data = COL5A1_5, id.vars = c("MM.line", "OLS", "tile.name.wt", "tile.name.mut"), measure.vars = c("wt.value", "wt.padj", "mut.value", "mut.padj"))
+COL5A1_5 <- cbind(COL5A1_5[COL5A1_5$variable %in% c("wt.value", "mut.value"),],
+                  COL5A1_5[COL5A1_5$variable %in% c("wt.padj", "mut.padj"), "value"])
+names(COL5A1_5) <- c("MM.line", "OLS", "tile.name.wt", "tile.name.mut", "class", "value", "padj")
+library(ggplot2)
+ggplot(COL5A1_5, aes(x=MM.line, y=log2(value), fill=class)) +
+    geom_point(pch = 21, size = 4, stroke = 1, aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+    facet_grid(~OLS, scales = "free", space = "free") +
+    theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+          panel.grid = element_blank(),
+          strip.text = element_text(color = "white"),
+          strip.background = element_rect(fill = "black"),
+          axis.text = element_text(color = "black"),
+          axis.text.x = element_text(size = 8),
+          axis.title.y = element_text(size = 9),
+          axis.title.x= element_blank(),
+          legend.key = element_blank(),
+          legend.title = element_text(size = 10)) +
+    ylim(0,NA) +
+    scale_x_discrete(limits=c("MM001",'MM057','MM074','MM087','MM029','MM099')) +
+    scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+    scale_fill_manual(values = c("#70DB70", "#F27C7C"), labels = c("WT", "Mutated")) +
+    labs(y = "Log2 Expression", fill = "Tile class", color = "Adjusted\np-value")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/COL5A1_5_fig3_expression.pdf",device = "pdf",width = 7,height = 2.2, useDingbats = F)
+```
+
+# Mutation activity per TF vs wt
+```{r}
+library(stringr)
+library(dplyr)
+library(reshape2)
+library(ggpubr)
+all.lines.df <- data.frame()
+for (i in c('MM029_rep1','MM057_rep1','MM074_rep2','MM087_rep3','MM099_rep1')){
+  # Make dataframe with mutated tiles and Mutation column
+  mut.df <- CSE.OLSA[[i]]$merged.input.basal.norm[CSE.OLSA[[i]]$merged.input.basal.norm$class == "mut",c("synthetic.region","class","CPM.Input.BasalNorm","padj")]
+  mut.df$mutation <- str_split(mut.df$synthetic.region, pattern = "___",simplify = T)[,2]
+  mut.df$synthetic.region.wt <- paste0(str_split(mut.df$synthetic.region, pattern = "==",simplify = T)[,1],"==wt")
+  
+  # Join with wt data
+  wt.df <- na.omit(left_join(mut.df[,c("synthetic.region.wt", "mutation")],
+                             CSE.OLSA[[i]]$merged.input.basal.norm[,c("synthetic.region","class","CPM.Input.BasalNorm","padj")],
+                             by = c("synthetic.region.wt" = "synthetic.region")))
+
+  # Transform to long table
+  names(wt.df)[1] <- "synthetic.region"
+  all.df <- rbind(mut.df[,c("synthetic.region","class","CPM.Input.BasalNorm","padj","mutation")],
+                  wt.df[,c("synthetic.region","class","CPM.Input.BasalNorm","padj","mutation")])
+  
+  # Convert mutation and class to factors and reorder them
+  all.df$mutation <- as.factor(all.df$mutation)
+  levels(all.df$mutation) <- c("TEAD","JUN","FOSL2","MITF","TFAP Dimer","SOX-TFAP","TFAP Monomer","SOX")
+  all.df$mutation <- factor(all.df$mutation, levels = c("SOX","MITF","SOX-TFAP","TFAP Monomer","TFAP Dimer","JUN","FOSL2","TEAD"))
+  levels(all.df$mutation) <- c("SOX","MITF","SOX-TFAP","TFAP Monomer","TFAP Dimer","AP-1","AP-1","TEAD")
+  all.df$class <- as.factor(all.df$class)
+  all.df$class <- factor(all.df$class, levels = c("wt", "mut"))
+  
+  # Plot for one line
+  p <- ggplot(all.df, aes(x= class, y = log2(CPM.Input.BasalNorm), fill = class)) +
+        geom_violin(draw_quantiles = 0.5) +
+        geom_jitter(pch = 21, size = 0.8, aes(color = ifelse(padj < 0.05,'grey80', 'black'))) +
+        facet_grid(~mutation, scales = "free_y", space = "fixed") +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              strip.text = element_text(color = "white", size = 7),
+              strip.background = element_rect(fill = "black"),
+              axis.text = element_text(color = "black"),
+              axis.text.x = element_text(size = 8,),
+              axis.title.y = element_text(size = 9),
+              axis.title.x= element_blank(),
+              legend.key.size = unit(0.5, 'cm'),
+              legend.key = element_blank(),
+              legend.title = element_text(size = 10)) +
+      ylim(NA,max(log2(all.df$CPM.Input.BasalNorm))+0.5) +
+      stat_compare_means(aes(label = ..p.signif..), label.x.npc = .5, label.y.npc = 0.95, hjust = 0.5) + 
+      scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+      scale_fill_manual(values = c("#69D357", "#E76569"), labels = c("WT", "Mutated")) +
+      scale_x_discrete(labels=c("wt" = "WT", "mut" = "Mutated")) +
+      labs(title = paste0("Tiling A - ",str_split(string = i, pattern = "_",simplify = T)[,1]), fill = "Class", color = "Adjusted\np-value", y = "Log2 FC")
+  ggsave(filename = paste0("CHEQ-seq_OLS-A/plots/Activity_wt_vs_mut/",i,"_wt_vs_mut.pdf"),device = "pdf",width = 8,height = 2.5)
+  print(p)
+  
+  # Add line name
+  all.df$line <- str_split(string = i, pattern = "_", simplify = T)[,1]
+  
+  # Add data to general table
+  all.lines.df <- rbind(all.lines.df,
+                        all.df)
+}
+
+all.lines.df$line <- as.factor(all.lines.df$line)
+all.lines.df$line <- factor(all.lines.df$line, levels = c("MM057", "MM074", "MM087",'MM029','MM099'))
+
+
+# Plot
+p <- ggplot(all.lines.df, aes(x= class, y = log2(CPM.Input.BasalNorm), fill = class)) +
+      geom_violin(draw_quantiles = 0.5) +
+      geom_jitter(pch = 21, size = 0.8, stroke = 0.4, aes(color = ifelse(padj < 0.05,'1', '0'))) +
+      facet_grid(line~mutation, scales = "free", space = "fixed") +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            strip.text = element_text(color = "white", size = 7),
+            strip.background = element_rect(fill = "black"),
+            axis.text = element_text(color = "black"),
+            axis.text.x = element_text(size = 8),
+            axis.title.y = element_text(size = 9),
+            axis.title.x= element_blank(),
+            legend.key.size = unit(0.5, 'cm'),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 10)) +
+    ylim(NA,max(log2(all.lines.df$CPM.Input.BasalNorm))+0.5) +
+    stat_compare_means(aes(label = ..p.signif..), label.x.npc = .5, label.y.npc = 0.9, hjust = 0.5) + 
+    scale_color_manual(values = c(alpha('grey90', 1), 'black'), labels = c(">= 0.05", "< 0.05"), breaks = c('0','1')) +
+    scale_fill_manual(values = c("#69D357", "#E76569"), labels = c("WT", "Mutated")) +
+    scale_x_discrete(labels=c("wt" = "WT", "mut" = "Mutated")) +
+    labs(title = "Tiling A", fill = "Class", color = "Adjusted\np-value", y = "Log2 FC")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/Activity_wt_vs_mut/all-lines_wt_vs_mut.pdf",device = "pdf",width = 8,height = 7)
+print(p)
+
+# Plot
+p <- ggplot(all.lines.df, aes(x= class, y = log2(CPM.Input.BasalNorm), fill = class)) +
+      geom_violin(draw_quantiles = 0.5) +
+      geom_jitter(pch = 21, size = 0.8, stroke = 0.4, aes(color = ifelse(padj < 0.05,'1', '0'))) +
+      facet_grid(line~mutation, scales = "free", space = "fixed") +
+      theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+            panel.grid = element_blank(),
+            strip.text = element_text(color = "white", size = 7),
+            strip.background = element_rect(fill = "black"),
+            axis.text = element_text(color = "black"),
+            axis.text.x = element_text(size = 8),
+            axis.title.y = element_text(size = 9),
+            axis.title.x= element_blank(),
+            legend.key.size = unit(0.5, 'cm'),
+            legend.key = element_blank(),
+            legend.title = element_text(size = 10)) +
+    ylim(NA,max(log2(all.lines.df$CPM.Input.BasalNorm))+0.5) +
+    stat_compare_means(aes(label = ..p.signif..), label.x.npc = .5, label.y.npc = 0.9, hjust = 0.5, method = "t.test") + 
+    scale_color_manual(values = c(alpha('grey90', 1), 'black'), labels = c(">= 0.05", "< 0.05"), breaks = c('0','1')) +
+    scale_fill_manual(values = c("#69D357", "#E76569"), labels = c("WT", "Mutated")) +
+    scale_x_discrete(labels=c("wt" = "WT", "mut" = "Mutated")) +
+    labs(title = "Tiling A", fill = "Class", color = "Adjusted\np-value", y = "Log2 FC")
+ggsave(filename = "CHEQ-seq_OLS-A/plots/Activity_wt_vs_mut/all-lines_wt_vs_mut_t-test.pdf",device = "pdf",width = 8,height = 7, useDingbat = F)
+print(p)
+```
+
+
+###################
+# tSNE
+## Run tSNE
+```{r}
+library(Rtsne)
+set.seed(23)
+tsne.env <- new.env()
+for (i in c(15, 30, 45)){
+tsne.env[[paste0("tsne.",i)]] <- Rtsne(na.omit(CSE.OLSA$Combined$Basal.normalised[,c('CPM.InputNorm.MM029_rep1','CPM.InputNorm.MM057_rep1','CPM.InputNorm.MM074_rep2','CPM.InputNorm.MM087_rep3','CPM.InputNorm.MM099_rep1')]), pca = T, theta=0.0, perplexity = i)
+}
+```
+
+## Plot class
+```{r}
+library(ggplot2)
+library(stringr)
+for (names in names(tsne.env)){
+p <- ggplot(data = as.data.frame(tsne.env[[names]]$Y), aes(x = V1, y = V2, color = na.omit(CSE.OLSA$Combined$Basal.normalised[,c('CPM.InputNorm.MM029_rep1','CPM.InputNorm.MM057_rep1','CPM.InputNorm.MM074_rep2','CPM.InputNorm.MM087_rep3','CPM.InputNorm.MM099_rep1',"phenotype")])[,"phenotype"])) +
+      geom_point() +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            legend.key = element_rect(fill = "white"),
+            axis.text = element_text(color = "black"),
+            axis.title.x=element_blank()) +
+      # scale_color_manual(values = colors) +
+      labs(color = "Class", title = paste0("Perplexity ", str_split(string = names, pattern = "\\.", simplify = T)[,2]))
+  # ggsave(filename = paste0("plots/tSNE/tSNE_perplexity_",names,"_Class.eps"),device = "eps",width = 6,height = 4)
+print(p)
+}
+```

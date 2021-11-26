@@ -1,0 +1,239 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(ggplot2)
+library(MPRAnalyze)
+
+options(MulticoreParam=quote(MulticoreParam(workers=8)))
+
+source("/ddn1/vol1/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/analysis/test_MPRAnalyze/utils_MPRAnalyze.R")
+source("functions.R")
+
+proliferative.enhancers.long<-c("CDH1_1","CDH1_2","SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5","IRF4_1","GPM6B_2","KIT_1","MLANA_1","SGCD_2","SGCD_3","MITF_1","TYR_1","TYR_2","TYR_3","RRAGD_1")
+
+data_dir_path <- "/ddn1/vol1/staging/leuven/stg_00002/lcb/lcb_projects/CH1/5p_intron/counting/10.bc_count"
+files <- list.files(path = data_dir_path)
+
+# plasmid_DNA_file_path <- files[grepl(".*MM001_5.*_DNA_count_final_clean_NEG.txt", files, perl = TRUE)]
+# cDNA_file_path <- files[grepl(".*MM001_5.*_cDNA_count_final_clean_NEG.txt", files, perl = TRUE)]
+
+# files[grepl(".*MM001_5.*_[p|P].*_count_final_clean_NEG.txt", files, perl = TRUE)]
+# ".*MM001_I.*_DNA_count_final_clean_NEG.txt"
+```
+
+```{r}
+# for(plasmid_type in c("5", "[I|i]")) {
+#   for(cell_line in c("MM001", "MM029", "MM047", "MM057", "MM074", "MM087", "MM099")) {
+#     plasmid_DNA_pattern <- paste0(".*",cell_line,"_",plasmid_type,".*_[p|P].*_count_final_clean_NEG.txt")
+#     plasmid_DNA_file_path <- file.path(data_dir_path, files[grepl(plasmid_DNA_pattern, files, perl = TRUE)])
+#     cDNA_pattern <- paste0(".*",cell_line,"_",plasmid_type,".*_cDNA_count_final_clean_NEG.txt")
+#     cDNA_file_path <-  file.path(data_dir_path, files[grepl(cDNA_pattern, files, perl = TRUE)])
+#     print("======================")
+#     print(plasmid_DNA_pattern)
+#     print(cDNA_pattern)
+#     if(file.exists(plasmid_DNA_file_path) & file.exists(cDNA_file_path)) {
+#       print(plasmid_DNA_file_path)
+#       print(cDNA_file_path)
+#       RunMPRAnalyzePipeline(
+#         cell.line = cell_line,
+#         plasmid.construct = plasmid_type,
+#         plasmid.DNA.file.path = plasmid_DNA_file_path,
+#         cDNA.file.path = cDNA_file_path
+#       )
+#     } else {
+#       print("Some files don't exist")
+#       print(plasmid_DNA_pattern)
+#       print(cDNA_pattern)
+#       break
+#     }
+#   }
+# }
+```
+
+
+```{r}
+plasmid_type <- "5"
+cell_line <- "MM029"
+plasmid_DNA_pattern <- paste0(".*",cell_line,"_",plasmid_type,".*_[p|P].*_count_final_clean_NEG.txt")
+plasmid_DNA_file_path <- file.path(data_dir_path, files[grepl(plasmid_DNA_pattern, files, perl = TRUE)])
+cDNA_pattern <- paste0(".*",cell_line,"_",plasmid_type,".*_cDNA_count_final_clean_NEG.txt")
+cDNA_file_path <-  file.path(data_dir_path, files[grepl(cDNA_pattern, files, perl = TRUE)])
+
+print("Pre-processing...")
+MPRAnalyze.raw <- new.env()
+MPRAnalyze.raw <- ProcessMPRAnalize(env = MPRAnalyze.raw,
+                                    library = "long",
+                                    line = "MM099",
+                                    plasmid.counts.file.path = plasmid_DNA_file_path,
+                                    cDNA.counts.file.path = cDNA_file_path)
+
+print("Creating MPRAnalyze Object...")
+ce.controls <- row.names(MPRAnalyze.raw$MM099$cDNA.MPRAnalyze) %in% "NEG_CTRL"
+obj <- MpraObject(
+  dnaCounts = MPRAnalyze.raw$MM099$plasmid.MPRAnalyze,
+  rnaCounts = MPRAnalyze.raw$MM099$cDNA.MPRAnalyze,
+  dnaAnnot = MPRAnalyze.raw$annnotation,
+  rnaAnnot = MPRAnalyze.raw$annnotation,
+  controls = ce.controls,
+  BPPARAM = BiocParallel::MulticoreParam(workers=8)
+)
+
+print("Estimating depth factors...")
+obj <- estimateDepthFactors(
+  obj, #lib.factor = c("cell.line"),
+  which.lib = "both")
+
+print("Analyzing quantification...")
+obj <- analyzeQuantification(obj = obj,
+                             dnaDesign = ~ barcode,
+                             rnaDesign = ~ 1)
+
+print("Saving objects...")
+saveRDS(object = obj, file = "5p_MM001_MRAAnalyzeObject.Rds", compress = TRUE)
+
+proliferative.enhancers.long<-c("CDH1_1","CDH1_2","SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5","IRF4_1","GPM6B_2","KIT_1","MLANA_1","SGCD_2","SGCD_3","MITF_1","TYR_1","TYR_2","TYR_3","RRAGD_1")
+
+alphas <- getAlpha(obj)
+alphas$enhancer <- row.names(alphas)
+alphas$is_control <- ce.controls
+alphas <- alphas[order(alphas$alpha, decreasing = TRUE),]
+alphas$type <- "invasive"
+alphas$type[]
+library(ggplot2)
+# Basic barplot
+ggplot(data=alphas, aes(x = reorder(enhancer, -alpha), y=alpha, fill = is_control)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  xlab(label = "enhancer (decreasing transcription rate)") +
+  ylab(label = "transcription rate") +
+  ggtitle(label = "MM001 (5p)")
+
+
+
+## test
+res <- testEmpirical(obj = obj, statistic = alphas$alpha)
+summary(res)
+
+hist(res$pval.mad, main="MM001", breaks = 20)
+hist(res$pval.mad[ce.controls], main="MM001")
+par(mfrow=c(1,1))
+```
+
+```{r}
+library(dplyr)
+library(plyr)  
+library(tidyr)
+library(stringr)
+
+env = MPRAnalyze.raw
+library = "long"
+line = "MM099"
+plasmid.counts.file.path = plasmid_DNA_file_path
+cDNA.counts.file.path = cDNA_file_path
+
+# Define library type
+proliferative.enhancers.long<-c("CDH1_1","CDH1_2","SOX10_1","SOX10_2","SOX10_3","SOX10_4","SOX10_5","IRF4_1","GPM6B_2","KIT_1","MLANA_1","SGCD_2","SGCD_3","MITF_1","TYR_1","TYR_2","TYR_3","RRAGD_1")
+proliferative.enhancers.500bp <- c("CDH1_1", "CDH1_2", "SOX10_1A", "SOX10_1B", "SOX10_3A", "SOX10_3B", "SOX10_5A", "SOX10_5B", "IRF4_1", "KIT_1A", "KIT_1B", "MLANA_1", "SGCD_2A", "SGCD_2B", "SGCD_3", "MITF_1", "TYR_1", "TYR_2")
+if(library == "long"){
+  message("Processing long enhancer library data... \n")
+  proliferative.enhancers <- proliferative.enhancers.long
+} else if(library == "500bp") {
+  message("Processing 500bp enhancer library data... \n")
+  proliferative.enhancers <- proliferative.enhancers.500bp
+} else {
+  stop("Incorrect library name. Must be 'long' or '500bp'")
+}
+
+# Create environment and load raw data
+message("Loading raw data... \n")
+env[[line]] <- list()
+env[[line]]$plasmid.raw <- read.table(file = plasmid.counts.file.path, header = F, sep = "\t", quote = '', stringsAsFactors = F) %>%
+  magrittr::set_colnames(c("enhancer", "barcode", "counts"))
+env[[line]]$plasmid.raw$enhancer <- as.factor(env[[line]]$plasmid.raw$enhancer)
+env[[line]]$cDNA.raw  <- read.table(file = cDNA.counts.file.path, header = F, sep = "\t", quote = '', stringsAsFactors = F) %>%
+  magrittr::set_colnames(c("enhancer", "barcode", "counts"))
+env[[line]]$cDNA.raw$enhancer <- as.factor(env[[line]]$cDNA.raw$enhancer)
+
+# Create MPRAnalyze formated data
+message("Creating MPRAnalyze matrices... \n")
+## Plasmid matrix
+
+# View(env$MM001$plasmid.MPRAnalyze)
+# 
+# line <- "MM001"
+# verbose <- FALSE
+
+for (i in levels(env[[line]]$plasmid.raw$enhancer)) {
+  if(verbose) print(i)
+  env[[line]]$plasmid.MPRAnalyze[[i]] <- spread(
+    data = env[[line]]$plasmid.raw[env[[line]]$plasmid.raw$enhancer == i,],
+    key = barcode,
+    value = counts
+  )
+  rownames(env[[line]]$plasmid.MPRAnalyze[[i]]) <- env[[line]]$plasmid.MPRAnalyze[[i]][,1]
+  # If 1 column is left only, the data.frame will be converted to integer
+  env[[line]]$plasmid.MPRAnalyze[[i]] <- env[[line]]$plasmid.MPRAnalyze[[i]][,-1]
+  if(!class(x = env[[line]]$plasmid.MPRAnalyze[[i]]) == "data.frame") {
+    env[[line]]$plasmid.MPRAnalyze[[i]] <-as.data.frame(x = env[[line]]$plasmid.MPRAnalyze[[i]])
+    row.names(x = env[[line]]$plasmid.MPRAnalyze[[i]]) <- i
+  }
+  
+  n <- length(colnames(env[[line]]$plasmid.MPRAnalyze[[i]]))
+  prefix <- line
+  suffix <- seq(1:n)
+  colnames(env[[line]]$plasmid.MPRAnalyze[[i]]) <- paste(prefix, suffix, sep = ".")
+}
+View(env[[line]]$plasmid.MPRAnalyze)
+env[[line]]$plasmid.MPRAnalyze <- rbind.fill(env[[line]]$plasmid.MPRAnalyze)
+env[[line]]$plasmid.MPRAnalyze[is.na(env[[line]]$plasmid.MPRAnalyze)] <- 0
+rownames(env[[line]]$plasmid.MPRAnalyze) <- levels(env[[line]]$plasmid.raw$enhancer)
+env[[line]]$plasmid.MPRAnalyze <- as.matrix(env[[line]]$plasmid.MPRAnalyze)
+View(env[[line]]$plasmid.MPRAnalyze)
+
+## cDNA matrix
+for (i in levels(env[[line]]$cDNA.raw$enhancer)) {
+  if(verbose) print(i)
+  env[[line]]$cDNA.MPRAnalyze[[i]] <- spread(
+    data = env[[line]]$cDNA.raw[env[[line]]$cDNA.raw$enhancer == i,],
+    key = barcode,
+    value = counts
+  )
+  rownames(env[[line]]$cDNA.MPRAnalyze[[i]]) <- env[[line]]$cDNA.MPRAnalyze[[i]][,1]
+  env[[line]]$cDNA.MPRAnalyze[[i]] <- env[[line]]$cDNA.MPRAnalyze[[i]][,-1]
+  if(!class(x = env[[line]]$cDNA.MPRAnalyze[[i]]) == "data.frame") {
+    env[[line]]$cDNA.MPRAnalyze[[i]] <-as.data.frame(x = env[[line]]$cDNA.MPRAnalyze[[i]])
+    row.names(x = env[[line]]$cDNA.MPRAnalyze[[i]]) <- i
+  }
+  n <- length(colnames(env[[line]]$cDNA.MPRAnalyze[[i]]))
+  prefix <- line
+  suffix <- seq(1:n)
+  colnames(env[[line]]$cDNA.MPRAnalyze[[i]]) <- paste(prefix, suffix, sep = ".")
+} 
+env[[line]]$cDNA.MPRAnalyze <- rbind.fill(env[[line]]$cDNA.MPRAnalyze)
+env[[line]]$cDNA.MPRAnalyze[is.na(env[[line]]$cDNA.MPRAnalyze)] <- 0
+missing.col <- setdiff(x = colnames(env[[line]]$plasmid.MPRAnalyze), y = colnames(env[[line]]$cDNA.MPRAnalyze))
+env[[line]]$cDNA.MPRAnalyze[missing.col] <- 0
+rownames(env[[line]]$cDNA.MPRAnalyze) <- levels(env[[line]]$cDNA.raw$enhancer)
+env[[line]]$cDNA.MPRAnalyze <- as.matrix(env[[line]]$cDNA.MPRAnalyze)
+View(env[[line]]$cDNA.MPRAnalyze)
+
+# Add annotation
+message("Adding annotation... \n")
+env$annnotation <- data.frame()
+if (length(ncol(env[[line]]$plasmid.MPRAnalyze)) >= length(ncol(env[[line]]$cDNA.MPRAnalyze))){
+  y <- data.frame(cell.line = substr(colnames(env[[line]]$plasmid.MPRAnalyze), 1, 5), 
+                               barcode = as.factor(str_split(colnames(env[[line]]$plasmid.MPRAnalyze), 
+                                                   pattern = "\\.", simplify = T)[,2]),
+                               row.names = colnames(env[[line]]$plasmid.MPRAnalyze))
+} else {
+  y <- data.frame(cell.line = substr(colnames(env[[line]]$cDNA.MPRAnalyze), 1, 5),
+                               barcode = as.factor(str_split(colnames(env[[line]]$cDNA.MPRAnalyze), 
+                                                   pattern = "\\.", simplify = T)[,2]),
+                               row.names = colnames(env[[line]]$cDNA.MPRAnalyze))
+}
+env$annnotation <- rbind(env$annnotation,y)
+```
+

@@ -1,0 +1,384 @@
+---
+title: "Enhancer_design_analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("utils_Enhancer_Design.R")
+```
+
+# Initiate environment
+```{r}
+CSE.enh.des <- new.env()
+attr(CSE.enh.des, "name") <- "Enhancer_Design"
+```
+
+```{r}
+process.enh.cDNA.plasmid(env = CSE.enh.des, 
+                        line = 'MM001', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__6f8b76__CheqSeq_Liesbeth_specific_enhancer_pool_MM001_cDNA_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__8b9ec1__CheqSeq_Liesbeth_specific_enhancer_pool_MM001_plasmid_count_final.txt', 
+                        min.plasmid.bcs = 20,
+                        min.cDNA.bcs = 20, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Liesbeth_Enhancer_design/data/')
+
+process.enh.cDNA.plasmid(env = CSE.enh.des, 
+                        line = 'MM074', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__81ba64__CheqSeq_Liesbeth_specific_enhancer_pool_MM074_cDNA_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__cd9463__CheqSeq_Liesbeth_specific_enhancer_pool_MM074_plasmid_count_final.txt', 
+                        min.plasmid.bcs = 20,
+                        min.cDNA.bcs = 20, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Liesbeth_Enhancer_design/data/')
+
+process.enh.cDNA.plasmid(env = CSE.enh.des, 
+                        line = 'MM087', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__839e9e__CheqSeq_Liesbeth_specific_enhancer_pool_MM087_cDNA_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__0bf4ec__CheqSeq_Liesbeth_specific_enhancer_pool_MM087_plasmid_count_final.txt', 
+                        min.plasmid.bcs = 20,
+                        min.cDNA.bcs = 20, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Liesbeth_Enhancer_design/data/')
+
+process.enh.cDNA.plasmid(env = CSE.enh.des, 
+                        line = 'MM029', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__7cb57c__CheqSeq_Liesbeth_specific_enhancer_pool_MM029_cDNA_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__f7b5af__CheqSeq_Liesbeth_specific_enhancer_pool_MM029_plasmid_count_final.txt', 
+                        min.plasmid.bcs = 10,
+                        min.cDNA.bcs = 5, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Liesbeth_Enhancer_design/data/')
+
+process.enh.cDNA.plasmid(env = CSE.enh.des, 
+                        line = 'MM099', 
+                        cDNA.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__8f7a3e__CheqSeq_Liesbeth_specific_enhancer_pool_MM099_cDNA_count_final.txt', 
+                        plasmid.counts.file.path = '/staging/leuven/stg_00002/lcb/lminn/Enhancer_design/MPRA/CHEQ-seq_cloning2/BC_quantification_20201006/10.bc_count/CSE__0bd121__CheqSeq_Liesbeth_specific_enhancer_pool_MM099_plasmid_count_final.txt', 
+                        min.plasmid.bcs = 15,
+                        min.cDNA.bcs = 20, 
+                        keep.shuffled = T,
+                        gauss.est = "median",
+                        loess.norm = T,
+                        out.dir = '/staging/leuven/stg_00002/lcb/lcb_projects/CSE/Liesbeth_Enhancer_design/data/')
+```
+
+```{r}
+saveRDS(object = CSE.enh.des, file = "CSE-enh-des.rds")
+```
+
+#################################################
+# Analysis of synthetic regions
+## S4_combi/S5_combi analysis
+```{r}
+library(stringr)
+for (i in c("MM001","MM074","MM087","MM029","MM099")) {
+  # Prepare data
+  data <- CSE.enh.des[[i]]$merged.input.basal.norm[CSE.enh.des[[i]]$merged.input.basal.norm$class %in% c("S4_combi","S5_combi","Random_sequence_trial2","Random_sequence_trial3"),]
+  data <- rbind(data, CSE.enh.des[[i]]$merged.input.basal.norm[CSE.enh.des[[i]]$merged.input.basal.norm$synthetic.region %in% c("S4_MEL_MITF","S4_MEL_SOX","S4_MEL_SOX_MITF-3prime-25bp","S4_MEL_SOX_MITF-5prime-25bp","S5_MEL_MITF","S5_MEL_SOX","S5_MEL_SOX_MITF-3prime-25bp","S5_MEL_SOX_MITF-5prime-25bp"),])
+  data[data$class %in% c("Random_sequence_trial2","S4_MEL"), "class"] <- "S4_combi"
+  data[data$class %in% c("Random_sequence_trial3","S5_MEL"), "class"] <- "S5_combi"
+  data$nbSOX <- as.factor(str_count(string = data[, "synthetic.region"], 
+                          pattern = "SOX"))
+  data$nbMITF <- as.factor(str_count(string = data[, "synthetic.region"], 
+                           pattern = "MITF"))
+  data$group <- paste0(data$nbSOX,"-",data$nbMITF)
+  data.mean <- dplyr::group_by(data, group) %>% dplyr::summarise(CPM.Input.BasalNorm = mean(CPM.Input.BasalNorm))
+  data.mean$nbSOX <- str_split(data.mean$group, "-", simplify = T)[,1]
+  data.mean$nbMITF <- str_split(data.mean$group, "-", simplify = T)[,2]
+  
+  # Plot activity per number of motif
+  library(ggplot2)
+  library(RColorBrewer)
+  color.ramp1 <- colorRampPalette(brewer.pal(7, "Purples"))
+  color.ramp2 <- colorRampPalette(brewer.pal(7, "Greens"))
+  class.labs <- c("Background sequence 1", "Background sequence 2")
+  names(class.labs) <- c("S4_combi","S5_combi")
+  
+  p <- ggplot(data = data[!data$synthetic.region %in% c("Random_sequence_trial2","Random_sequence_trial3"),], aes(x = nbSOX, y = log.CPM.Input.BasalNorm, fill = nbMITF, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+        geom_point(pch=21, size = 3) +
+        facet_grid(~class, scales = "free", space = "free", labeller = labeller(class = class.labs)) +
+        geom_hline(data = data[data$synthetic.region %in% c("Random_sequence_trial2","Random_sequence_trial3"),], aes(yintercept = log.CPM.Input.BasalNorm), linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              legend.key = element_blank()) +
+        scale_fill_manual(values = color.ramp1(7)) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        labs(title = i, fill = "Number of \nMITF motifs", color = "Adjusted\np-value", x = "Number of SOX motifs", y = "Log2 FC")
+    ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbSOX_motifs_",i,".pdf"), device = "pdf",width = 7,height = 3.5)
+  print(p)
+  
+  p <- ggplot(data = data[!data$synthetic.region %in% c("Random_sequence_trial2","Random_sequence_trial3"),], aes(x = nbMITF, y = log.CPM.Input.BasalNorm, fill = nbSOX, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+        geom_point(pch=21, size = 3) +
+        facet_grid(~class, scales = "free", space = "free", labeller = labeller(class = class.labs)) +
+        geom_hline(data = data[data$synthetic.region %in% c("Random_sequence_trial2","Random_sequence_trial3"),], aes(yintercept = log.CPM.Input.BasalNorm), linetype="dashed", color = "black", size = 0.5) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+              panel.grid = element_blank(),
+              axis.text = element_text(color = "black"),
+              strip.text.x = element_text(size = 8, color = "white"),
+              strip.background = element_rect(fill = "black"),
+              legend.key = element_blank()) +
+        scale_fill_manual(values = color.ramp2(7)) +
+        scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+        labs(title = i, fill = "Number of \nSOX motifs", color = "Adjusted\np-value", x = "Number of MITF motifs", y = "Log2 FC")
+    ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_motifs_",i,".pdf"), device = "pdf",width = 7,height = 3.5)
+  print(p)
+  
+  p <- ggplot(data.mean, aes(x = nbSOX, y = nbMITF, color = log2(CPM.Input.BasalNorm))) + 
+        geom_point(size = 10) +
+        theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+                  panel.grid = element_blank(),
+                  axis.text = element_text(color = "black"),
+                  legend.key = element_blank()) +
+        labs(title = i, x = "Number of SOX motifs", y = "Number of MITF motifs", color = "Log2 FC")
+  ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_vs_nbSOX_motifs_",i,".pdf"), device = "pdf",width = 5,height = 3.5)
+  print(p)
+}
+```
+
+## S5_combi plot MM001, MM074 and MM087 together
+```{r}
+library(stringr)
+S5_combi_tmp <- data.frame(synthetic.region = factor(),
+                           class = factor(),
+                           CPM.Input.BasalNorm = double(),
+                           log.CPM.Input.BasalNorm = double(),
+                           pvalue = double(),
+                           padj = double(),
+                           nbSOX = factor(),
+                           nbMITF = factor(),
+                           nbSite = factor(),
+                           group = factor(),
+                           MM.line = factor())
+S5_combi_tmp.mean <- data.frame(group = factor(),
+                                CPM.Input.BasalNorm = double(),
+                                nbSOX = factor(),
+                                nbMITF = factor(),
+                                MM.line = factor())
+for (i in c("MM001","MM074","MM087")) {
+  # Prepare data
+  data <- CSE.enh.des[[i]]$merged.input.basal.norm[CSE.enh.des[[i]]$merged.input.basal.norm$class %in% c("S5_combi","Random_sequence_trial3"),]
+  data <- rbind(data, CSE.enh.des[[i]]$merged.input.basal.norm[CSE.enh.des[[i]]$merged.input.basal.norm$synthetic.region %in% c("S5_combi_MITF","S5_combi_SOX","S5_combi_SOX_MITF-3prime-25bp","S5_combi_SOX_MITF-5prime-25bp"),])
+  data[data$class %in% c("Random_sequence_trial3","S5_combi"), "class"] <- "S5_combi"
+  data$nbSOX <- as.factor(str_count(string = data[, "synthetic.region"], 
+                          pattern = "SOX"))
+  data$nbMITF <- as.factor(str_count(string = data[, "synthetic.region"], 
+                           pattern = "MITF"))
+  data$nbSite <- as.factor(data$nbSOX + data$nbMITF)
+  data$group <- paste0(data$nbSOX,"-",data$nbMITF)
+  S5_combi_tmp <- rbind(S5_combi_tmp, 
+                        cbind(data, data.frame(MM.line = i)))
+  
+  data.mean <- dplyr::group_by(data, group) %>% dplyr::summarise(CPM.Input.BasalNorm = mean(CPM.Input.BasalNorm))
+  data.mean$nbSOX <- str_split(data.mean$group, "-", simplify = T)[,1]
+  data.mean$nbMITF <- str_split(data.mean$group, "-", simplify = T)[,2]
+  S5_combi_tmp.mean <- rbind(S5_combi_tmp.mean, 
+                             cbind(data.mean, data.frame(MM.line = i)))
+  
+}  
+# Plot activity per number of motif
+library(ggplot2)
+library(RColorBrewer)
+color.ramp1 <- colorRampPalette(brewer.pal(7, "Purples"))
+color.ramp2 <- colorRampPalette(brewer.pal(6, "Greens"))
+  
+ggplot(data = S5_combi_tmp[!S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(x = as.numeric(nbSOX)-1, y = log.CPM.Input.BasalNorm)) +
+  geom_point(pch=21, size = 3, aes(fill = nbMITF, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+  facet_grid(~MM.line, scales = "free", space = "free") +
+  geom_smooth(method = "lm", formula = y ~ x, se = F, color = "black") +
+  geom_hline(data = S5_combi_tmp[S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = log.CPM.Input.BasalNorm), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp1(7)) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  labs(fill = "Number of \nMITF motifs", color = "Adjusted\np-value", x = "Number of SOX motifs", y = "Log2 FC")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbSOX_motifs_all_MEL.pdf"), device = "pdf",width = 8.5,height = 3.5)
+  
+ggplot(data = S5_combi_tmp[!S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(x = as.numeric(nbMITF)-1, y = log.CPM.Input.BasalNorm)) +
+  geom_point(pch=21, size = 3, aes(fill = nbSOX, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+  facet_grid(~MM.line, scales = "free", space = "free") +
+  geom_smooth(method = "lm", formula = y ~ x, se = F, color = "black") +
+  geom_hline(data = S5_combi_tmp[S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = log.CPM.Input.BasalNorm), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp2(6)) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  labs(fill = "Number of \nSOX motifs", color = "Adjusted\np-value", x = "Number of MITF motifs", y = "Log2 FC")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_motifs_all_MEL.pdf"), device = "pdf",width = 8.5,height = 3.5)
+  
+ggplot(S5_combi_tmp.mean, aes(x = nbSOX, y = nbMITF, color = log2(CPM.Input.BasalNorm))) + 
+  geom_point(size = 10) +
+  facet_grid(~MM.line, scales = "free", space = "free") +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank()) +
+  labs(x = "Number of SOX motifs", y = "Number of MITF motifs", color = "Log2 FC")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_vs_nbSOX_motifs_all_MEL.pdf"), device = "pdf",width = 8.5,height = 3.5)
+
+ggplot(data = S5_combi_tmp[!S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(x = as.numeric(nbSOX)+as.numeric(nbMITF)-2, y = log.CPM.Input.BasalNorm)) +
+  geom_point(pch=21, size = 3, aes(fill = nbSOX, color = ifelse(padj < 0.05,'grey80', 'black'))) +
+  facet_grid(~MM.line, scales = "free", space = "free") +
+  geom_smooth(method = "lm", formula = y ~ x, se = F, color = "black") +
+  geom_hline(data = S5_combi_tmp[S5_combi_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = log.CPM.Input.BasalNorm), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp2(6)) +
+  scale_color_manual(values = c('grey80', 'black'), labels = c(">= 0.05", "< 0.05")) +
+  labs(fill = "Number of \nSOX motifs", color = "Adjusted\np-value", x = "Number of motifs", y = "Log2 FC")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_all_motifs_all_MEL.pdf"), device = "pdf",width = 8.5,height = 3.5, useDingbats = F)
+```
+
+## S5_combi plot DM together
+```{r}
+library(stringr)
+S5_combi_DM_tmp <- data.frame(synthetic.region = factor(),
+                              class = factor(),
+                              topic.score = double(),
+                              nbSOX = factor(),
+                              nbMITF = factor(),
+                              group = factor(),
+                              topic = factor())
+S5_combi_DM_tmp.mean <- data.frame(group = factor(),
+                                  topic.score = double(),
+                                  nbSOX = factor(),
+                                  nbMITF = factor(),
+                                  topic = factor())
+
+for (i in c("16","17")) {
+  data.combi.DM <- CSE.enh.des$Combined$Basal.normalised[CSE.enh.des$Combined$Basal.normalised$class %in% c("S5_combi","Random_sequence_trial3"),c("synthetic.region", "class", paste0("Topic_",i))]
+  data.combi.DM <- rbind(data.combi.DM, CSE.enh.des$Combined$Basal.normalised[CSE.enh.des$Combined$Basal.normalise$synthetic.region %in% c("S5_combi_MITF","S5_combi_SOX","S5_combi_SOX_MITF-3prime-25bp","S5_combi_SOX_MITF-5prime-25bp"),c("synthetic.region", "class", paste0("Topic_",i))])
+  names(data.combi.DM)[names(data.combi.DM) == paste0("Topic_",i)] <- "topic.score"
+  data.combi.DM[data.combi.DM$class %in% c("Random_sequence_trial3","S5_combi"), "class"] <- "S5_combi"
+  data.combi.DM$nbSOX <- as.factor(str_count(string = data.combi.DM[, "synthetic.region"], pattern = "SOX"))
+  data.combi.DM$nbMITF <- as.factor(str_count(string = data.combi.DM[, "synthetic.region"], pattern = "MITF"))
+  data.combi.DM$group <- paste0(data.combi.DM$nbSOX,"-",data.combi.DM$nbMITF)
+  S5_combi_DM_tmp <- rbind(S5_combi_DM_tmp,
+                           cbind(data.combi.DM, data.frame(topic = as.factor(paste0("Topic ",i)))))
+  
+  data.combi.DM.mean <- dplyr::group_by(data.combi.DM, group) %>% dplyr::summarise(topic.score = mean(topic.score))
+  data.combi.DM.mean$nbSOX <- str_split(data.combi.DM.mean$group, "-", simplify = T)[,1]
+  data.combi.DM.mean$nbMITF <- str_split(data.combi.DM.mean$group, "-", simplify = T)[,2]
+  S5_combi_DM_tmp.mean <- rbind(S5_combi_DM_tmp.mean,
+                                cbind(data.combi.DM.mean, data.frame(topic = as.factor(paste0("Topic ",i)))))
+}
+
+# Plot activity per number of motif
+library(ggplot2)
+library(RColorBrewer)
+color.ramp1 <- colorRampPalette(brewer.pal(7, "Purples"))
+color.ramp2 <- colorRampPalette(brewer.pal(6, "Greens"))
+  
+ggplot(data = S5_combi_DM_tmp[!S5_combi_DM_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(x = as.numeric(nbSOX)-1, y = topic.score)) +
+  geom_point(pch=21, size = 3, aes(fill = nbMITF)) +
+  facet_wrap(~topic, scales = "free_y") +
+  geom_smooth(method = "lm", formula = y ~ x, se = F, color = "black") +
+  geom_hline(data = S5_combi_DM_tmp[S5_combi_DM_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = topic.score), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp1(7)) +
+  labs(fill = "Number of \nMITF motifs", x = "Number of SOX motif", y = "Topic score")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbSOX_motifs_DM.pdf"), device = "pdf",width = 8.5,height = 3.5)
+  
+ggplot(data = S5_combi_DM_tmp[!S5_combi_DM_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(x = as.numeric(nbMITF)-1, y = topic.score)) +
+  geom_point(pch=21, size = 3, aes(fill = nbSOX)) +
+  facet_wrap(~topic, scales = "free_y") +
+  geom_smooth(method = "lm", formula = y ~ x, se = F, color = "black") +
+  geom_hline(data = S5_combi_DM_tmp[S5_combi_DM_tmp$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = topic.score), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp2(6)) +
+  labs(fill = "Number of \nSOX motifs", x = "Number of MITF motif", y = "Topic score")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_motifs_DM.pdf"), device = "pdf",width = 8.5,height = 3.5)
+
+ggplot(S5_combi_DM_tmp.mean, aes(x = nbSOX, y = nbMITF, color = topic.score)) +
+  geom_point(size = 10) +
+  facet_grid(~topic, scales = "free", space = "free") +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        axis.text = element_text(color = "black"),
+        legend.key = element_blank()) +
+  labs(x = "Number of SOX motifs", y = "Number of MITF motifs", color = "Topic score")
+ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_vs_nbSOX_motifs_DM.pdf"), device = "pdf",width = 8.5,height = 3.5)
+```
+
+# Taking mean Topic 16 and 17
+```{r}
+library(dplyr)
+library(scales)
+# Scale data
+S5_combi_DM_tmp.scaled <- group_by(S5_combi_DM_tmp, topic) %>% mutate(topic.score = scales::rescale(topic.score, to = range(S5_combi_DM_tmp$topic.score)))
+
+# Calculate mean of scaled topic 16 and 17
+S5_combi_DM_tmp.fus <- dplyr::group_by(S5_combi_DM_tmp, synthetic.region) %>% dplyr::summarise(topic.score.mean = mean(topic.score)) %>% dplyr::left_join(S5_combi_DM_tmp[,c("synthetic.region", "nbSOX", "nbMITF")], by = "synthetic.region")
+
+# Plot
+ggplot(data = S5_combi_DM_tmp.fus[!S5_combi_DM_tmp.fus$synthetic.region %in% c("Random_sequence_trial3"),], 
+       aes(x = as.numeric(nbMITF)-1, y = topic.score.mean)) +
+  geom_point(pch=21, size = 3, aes(fill = nbSOX)) +
+  geom_smooth(se = F, color = "black") +
+  geom_hline(data = S5_combi_DM_tmp.fus[S5_combi_DM_tmp.fus$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = topic.score.mean), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp2(6)) +
+  labs(fill = "Number of \nSOX motifs", x = "Number of MITF motif", y = "Topic score")
+# ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_motifs_DM.pdf"), device = "pdf",width = 8.5,height = 3.5)
+  
+ggplot(data = S5_combi_DM_tmp.fus[!S5_combi_DM_tmp.fus$synthetic.region %in% c("Random_sequence_trial3"),], 
+       aes(x = as.numeric(nbSOX)-1, y = topic.score.mean)) +
+  geom_point(pch=21, size = 3, aes(fill = nbMITF)) +
+  geom_smooth(se = F, color = "black") +
+  geom_hline(data = S5_combi_DM_tmp.fus[S5_combi_DM_tmp.fus$synthetic.region %in% c("Random_sequence_trial3"),], aes(yintercept = topic.score.mean), linetype="dashed", color = "black", size = 0.5) +
+  theme(panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
+        panel.grid = element_blank(),
+        axis.text = element_text(color = "black"),
+        strip.text.x = element_text(size = 9, color = "white"),
+        strip.background = element_rect(fill = "black"),
+        legend.key = element_blank()) +
+  scale_fill_manual(values = color.ramp1(7)) +
+  labs(fill = "Number of \nMITF motifs", x = "Number of SOX motif", y = "Topic score")
+# ggsave(filename = paste0("plots/Combi/CHEQseq_activity_nbMITF_motifs_DM.pdf"), device = "pdf",width = 8.5,height = 3.5)
+```
+
